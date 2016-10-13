@@ -64,6 +64,11 @@ class Dots extends Object3D
 		super();
 	}
 
+	/**
+	 * 
+	 * @param	w
+	 * @param	h
+	 */
 	public function init(w:Float,h:Float):Void {
 		
 		_cube = new Cube();
@@ -203,10 +208,6 @@ class Dots extends Object3D
 		
 	}
 	
-	/**
-	 * 新しいデータが来て切り替え
-	 * @param	d
-	 */
 	public function initParams(d:CutData):Void {
 	
 		if (_currentData != null) {
@@ -234,10 +235,6 @@ class Dots extends Object3D
 	}
 	
 	
-	/**
-	 * 
-	 * @param	audio
-	 */
 	public function update(audio:MyAudio,cam:ExCamera):Void {
 		
 		camera = cam;
@@ -427,10 +424,6 @@ class Dots extends Object3D
 		
 	}
 	
-	/**
-	 * setNum
-	 * @param	ratio
-	 */
 	private function setNum(ratio:Float):Void {
 			
 		var len:Int = dots.length;
@@ -448,21 +441,7 @@ class Dots extends Object3D
 	
 	
 	private function calcTarget(t:Dot):Void {
-		/*
-		var vx:Float = _target.position.x - t.position.x;
-		var vy:Float = _target.position.y - t.position.y;
-		var vz:Float = _target.position.z - t.position.z;
 		
-		var vv:Vector3 = new Vector3(vx,vy,vz);
-		if(vv.length()>_tgtSpeed/100){
-			vv.normalize();
-			vv.multiplyScalar(_tgtSpeed / 100);
-		}
-		
-		t.vx += vv.x;// * _tgtSpeed / 1000;
-		t.vy += vv.y;// * _tgtSpeed / 1000;
-		t.vz += vv.z;// * _tgtSpeed / 1000;
-		*/
 	}
 	
 	
