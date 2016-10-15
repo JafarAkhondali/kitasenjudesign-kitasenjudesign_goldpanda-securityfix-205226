@@ -87,17 +87,19 @@ class ModuleMap
 
 	
 	//tween0
-	public function tween(time:Int=30000):Void {
+	public function tween(time:Int=30000,callback:Void->Void=null):Void {
 		
 		trace("tween");
 		
 		
 		 _flag = false;
+		 _div1.stop();
 		_div1.css(
 			{top:StageSize.getHeight()}
 		);
+		
 		_div1.animate(
-			{top:-StageSize.getHeight()},time,'linear'
+			{top:-StageSize.getHeight()},time,'linear',callback
 		);
 
 		_onResize(null);
@@ -113,17 +115,18 @@ class ModuleMap
 		_onResize(null);
 
 		//_stage2.addEventListener("stagemousedown", _onDown);
-		_onDown();
+		//_onDown();
 	}
 	
-	public function next():Void {
+	public function next(moji:String):Void {
 		
-		_onDown();
+
+		setMoji(moji);
 		
 	}
 	
 	//reload
-	private function _onDown(e=null):Void 
+	private function setMoji(moji:String):Void 
 	{
 		trace("_onDown");
 		if(_stage1!=null){
@@ -150,8 +153,10 @@ class ModuleMap
 		if (_typo != null) {
 			_stage2.removeChild(_typo);
 		}
+		
+		///////////////kokode moji wo shitei
 		_typo = new MainDrawer();
-		_typo.init(_data,_onLoadMainDrawer);//////////////////LOADER
+		_typo.init(_data, moji, _onLoadMainDrawer);//////////////////LOADER
 		_stage2.addChild(_typo);		
 		
 		//_div1.hide();

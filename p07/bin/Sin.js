@@ -212,6 +212,11 @@ Guide.prototype = $extend(createjs.Container.prototype,{
 });
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) return undefined;
+	return x;
+};
 HxOverrides.substr = function(s,pos,len) {
 	if(pos != null && pos != 0 && len != null && len < 0) return "";
 	if(len == null) len = s.length;
@@ -262,7 +267,6 @@ Main.prototype = {
 };
 var MainDrawer = function() {
 	this._isStart = false;
-	this._rotSpeed = 0;
 	this._counter = 0;
 	this._flag = false;
 	createjs.Container.call(this);
@@ -270,23 +274,28 @@ var MainDrawer = function() {
 MainDrawer.__name__ = true;
 MainDrawer.__super__ = createjs.Container;
 MainDrawer.prototype = $extend(createjs.Container.prototype,{
-	init: function(data,callback) {
+	init: function(data,moji,callback) {
+		this._moji = moji;
 		this._data = data;
 		this._callback = callback;
 		if(Math.random() < 0.5) this._flag = true; else this._flag = false;
 		this._helv = new net.badimon.five3D.typography.Neue();
-		if(Math.random() < 0.5) this._rotSpeed = 0.33; else this._rotSpeed = -0.33;
 		var _this = window.document;
 		this._img = _this.createElement("img");
-		this._img.src = data.image;
+		this._img.src = "20160528125235.png";
+		data.title = "A";
+		data.region = "A";
 		this._container = new createjs.Container();
 		this.addChild(this._container);
 		this._img.onload = $bind(this,this._onLoad);
 	}
 	,_onLoad: function(e) {
 		this._shapes = [];
-		var str = HxOverrides.substr("DEDEMOUSE",MainDrawer.mojiCount % "DEDEMOUSE".length,1);
-		MainDrawer.mojiCount++;
+		this._makeTypo0();
+		if(this._callback != null) this._callback();
+	}
+	,_makeTypo0: function() {
+		var str = this._moji;
 		var space = 20;
 		var width = (str.length - 1) * space;
 		var _g1 = 0;
@@ -297,6 +306,7 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 		}
 		var ox = -width / 2;
 		var scale = window.innerWidth / width * 0.4;
+		if(str.length >= 3) scale = window.innerWidth / width;
 		this._container.scaleX = scale;
 		this._container.scaleY = scale;
 		this._container.x = window.innerWidth / 2;
@@ -311,40 +321,37 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 			this._makeTypo(ss,ox,0,scale);
 			ox += ww / 2 + space;
 		}
-		if(this._callback != null) this._callback();
+		this._isStart = true;
 	}
 	,_makeTypo: function(moji,xx,yy,scale) {
 		var m = new createjs.Matrix2D();
 		m.scale(1 / scale,1 / scale);
 		m.translate(-xx - this._container.x / scale,-yy - this._container.y / scale);
-		var shape = new createjs.Shape();
+		this._motionData = data.MotionData.getData();
+		if(Maps.multiMode) if(Math.random() < 0.5) this._motionData.mode = 1; else this._motionData.mode = 0; else this._motionData.mode = 0;
+		var shape = new display.ExShaper(this._motionData);
 		shape.graphics.beginBitmapFill(this._img,null,m);
 		shape.x = xx;
 		shape.y = yy;
 		this._container.addChild(shape);
 		FontTest.getLetterPoints(shape.graphics,moji,true,2,this._helv);
 		this._shapes.push(shape);
-		haxe.Timer.delay($bind(this,this._start),1000);
-	}
-	,_start: function() {
-		this._motionData = data.MotionData.getData();
-		this._isStart = true;
 	}
 	,update: function() {
 		this._counter++;
-		if(this._isStart) {
+		if(this._isStart && this._motionData.mode == 0) {
 			this._container.x += this._motionData.speedX;
 			this._container.y += this._motionData.speedY;
 			this._container.rotation += this._motionData.speedR;
-			if(this._container.x < 0) this._container.x = window.innerWidth; else this._container.x = this._container.x % window.innerWidth;
-			if(this._container.y < 0) this._container.y = data.StageSize.getHeight(); else this._container.y = this._container.y % data.StageSize.getHeight();
 		}
-		if(this._shapes != null) {
+		if(this._shapes != null && this._motionData.mode == 1) {
+			var ww = data.StageSize.getWidth();
+			var hh = data.StageSize.getHeight();
 			var _g1 = 0;
 			var _g = this._shapes.length;
 			while(_g1 < _g) {
 				var i = _g1++;
-				if(this._motionData != null) this._shapes[i].rotation += this._motionData.speedLocalR;
+				if(this._motionData != null) this._shapes[i].update(ww,hh);
 			}
 		}
 	}
@@ -355,6 +362,7 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 var IMap = function() { };
 IMap.__name__ = true;
 var Maps = function() {
+	this._mojiCount = 0;
 };
 Maps.__name__ = true;
 Maps.prototype = {
@@ -363,25 +371,40 @@ Maps.prototype = {
 		this._loader.load($bind(this,this._onLoad));
 	}
 	,_onLoad: function() {
+		common.Dat.init($bind(this,this._start));
+	}
+	,_start: function() {
 		this._map1 = new ModuleMap(0);
 		this._map2 = new ModuleMap(1);
 		this._map1.init(this._loader);
 		this._map2.init(this._loader);
 		createjs.Ticker.setFPS(30);
 		createjs.Ticker.addEventListener("tick",$bind(this,this._update));
+		common.Dat.gui.add(this,"_next");
 		this._tween();
 	}
+	,_next: function() {
+		Maps.multiMode = !Maps.multiMode;
+	}
 	,_tween: function() {
+		console.log("_tween");
 		this._map2.tween(40000);
-		this._map2.startRot(10000);
-		this._map2.next();
+		this._map2.startRot(12000);
+		this._map2.next(this._getMoji());
 		haxe.Timer.delay($bind(this,this._tween2),20000);
 	}
 	,_tween2: function() {
+		console.log("_tween2");
 		this._map1.tween(40000);
-		this._map1.startRot(10000);
-		this._map1.next();
+		this._map1.startRot(12000);
+		this._map1.next(this._getMoji());
 		haxe.Timer.delay($bind(this,this._tween),20000);
+	}
+	,_getMoji: function() {
+		if(Maps.multiMode) return "DEDEMOUSE";
+		var m = HxOverrides.substr("DEDEMOUSE",this._mojiCount % "DEDEMOUSE".length,1);
+		this._mojiCount++;
+		return m;
 	}
 	,_update: function(e) {
 		this._map1.update();
@@ -421,24 +444,24 @@ ModuleMap.prototype = {
 	,_onStartRot: function() {
 		this._flag = true;
 	}
-	,tween: function(time) {
+	,tween: function(time,callback) {
 		if(time == null) time = 30000;
 		console.log("tween");
 		this._flag = false;
+		this._div1.stop();
 		this._div1.css({ top : data.StageSize.getHeight()});
-		this._div1.animate({ top : -data.StageSize.getHeight()},time,"linear");
+		this._div1.animate({ top : -data.StageSize.getHeight()},time,"linear",callback);
 		this._onResize(null);
 	}
 	,init: function(data) {
 		this._loader = data;
 		window.onresize = $bind(this,this._onResize);
 		this._onResize(null);
-		this._onDown();
 	}
-	,next: function() {
-		this._onDown();
+	,next: function(moji) {
+		this.setMoji(moji);
 	}
-	,_onDown: function(e) {
+	,setMoji: function(moji) {
 		console.log("_onDown");
 		if(this._stage1 != null) {
 			this._stage1.clear();
@@ -457,7 +480,7 @@ ModuleMap.prototype = {
 		new js.JQuery("#title" + this._type).text(this._data.title);
 		if(this._typo != null) this._stage2.removeChild(this._typo);
 		this._typo = new MainDrawer();
-		this._typo.init(this._data,$bind(this,this._onLoadMainDrawer));
+		this._typo.init(this._data,moji,$bind(this,this._onLoadMainDrawer));
 		this._stage2.addChild(this._typo);
 		this._onResize(null);
 	}
@@ -496,6 +519,12 @@ var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
+};
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
 };
 var _Three = {};
 _Three.CullFace_Impl_ = function() { };
@@ -539,6 +568,366 @@ Three.requestAnimationFrame = function(f) {
 };
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
+};
+var common = {};
+common.Callback = function() {
+};
+common.Callback.__name__ = true;
+common.Callback.create = function(scope,func,args) {
+	return function() {
+		func.apply(scope,args);
+	};
+};
+common.Config = function() {
+};
+common.Config.__name__ = true;
+common.Config.prototype = {
+	load: function(callback) {
+		this._callback = callback;
+		this._http = new haxe.Http("../../config.json");
+		this._http.onData = $bind(this,this._onData);
+		this._http.request();
+	}
+	,_onData: function(str) {
+		var data = JSON.parse(str);
+		common.Config.host = data.host;
+		var win = window;
+		win.host = common.Config.host;
+		if(common.QueryGetter.getQuery("host") != null) win.host = common.QueryGetter.getQuery("host");
+		common.Config.canvasOffsetY = data.canvasOffsetY;
+		common.Config.globalVol = data.globalVol;
+		common.Config.particleSize = data.particleSize;
+		common.Config.bgLight = data.bgLight;
+		if(this._callback != null) this._callback();
+	}
+};
+common.Dat = function() {
+};
+common.Dat.__name__ = true;
+common.Dat.init = function(callback) {
+	common.StageRef.fadeIn();
+	common.Dat._callback = callback;
+	common.Dat._config = new common.Config();
+	common.Dat._config.load(common.Dat._onInit);
+};
+common.Dat._onInit = function() {
+	common.Dat.bg = window.location.hash == "#bg";
+	common.Dat.gui = new dat.GUI({ autoPlace: false });
+	window.document.body.appendChild(common.Dat.gui.domElement);
+	common.Dat.gui.domElement.style.position = "absolute";
+	common.Dat.gui.domElement.style.right = "0px";
+	var yy = window.innerHeight / 2 + common.StageRef.get_stageHeight() / 2 + common.Config.canvasOffsetY;
+	common.Dat.gui.domElement.style.top = Math.floor(yy / 2) + "px";
+	common.Dat.gui.domElement.style.opacity = 1;
+	common.Dat.gui.domElement.style.zIndex = 1000;
+	common.Dat.gui.domElement.style.transformOrigin = "1 0";
+	common.Dat.gui.domElement.style.transform = "scale(0.8,0.8)";
+	common.Key.init();
+	common.Key.board.addEventListener("keydown",common.Dat._onKeyDown);
+	common.Dat.show(false);
+	common.Dat.hide();
+	if(common.Dat._callback != null) common.Dat._callback();
+};
+common.Dat._onKeyDown = function(e) {
+	var _g = Std.parseInt(e.keyCode);
+	switch(_g) {
+	case 90:
+		common.Dat._soundFlag = !common.Dat._soundFlag;
+		TweenMax.to(sound.MyAudio.a,0.5,{ globalVolume : common.Dat._soundFlag?common.Config.globalVol:0});
+		break;
+	case 68:
+		if(common.Dat.gui.domElement.style.display == "block") common.Dat.hide(); else common.Dat.show(true);
+		break;
+	case 49:
+		common.StageRef.fadeOut(common.Dat._goURL1);
+		break;
+	case 50:
+		common.StageRef.fadeOut(common.Dat._goURL2);
+		break;
+	case 51:
+		common.StageRef.fadeOut(common.Dat._goURL3);
+		break;
+	case 52:
+		common.StageRef.fadeOut(common.Dat._goURL4);
+		break;
+	case 53:
+		common.StageRef.fadeOut(common.Dat._goURL5);
+		break;
+	case 54:
+		common.StageRef.fadeOut(common.Dat._goURL6);
+		break;
+	case 55:
+		common.StageRef.fadeOut(common.Dat._goURL7);
+		break;
+	case 56:
+		common.StageRef.fadeOut(common.Dat._goURL8);
+		break;
+	}
+};
+common.Dat._goURL1 = function() {
+	common.Dat._goURL("../../k04/bin/");
+};
+common.Dat._goURL2 = function() {
+	common.Dat._goURL("../../k05/bin/");
+};
+common.Dat._goURL3 = function() {
+	common.Dat._goURL("../../k02/bin/");
+};
+common.Dat._goURL4 = function() {
+	common.Dat._goURL("../../k03/bin/");
+};
+common.Dat._goURL5 = function() {
+	common.Dat._goURL("../../k00/bin/");
+};
+common.Dat._goURL6 = function() {
+	common.Dat._goURL("../../k06/bin/");
+};
+common.Dat._goURL7 = function() {
+	common.Dat._goURL("../../k01/bin/");
+};
+common.Dat._goURL8 = function() {
+	common.Dat._goURL("../../k07/bin/");
+};
+common.Dat._goURL = function(url) {
+	console.log("goURL " + url);
+	window.location.href = url + window.location.hash;
+};
+common.Dat.show = function(isBorder) {
+	if(isBorder == null) isBorder = false;
+	if(isBorder) common.StageRef.showBorder();
+	common.Dat.gui.domElement.style.display = "block";
+};
+common.Dat.hide = function() {
+	common.StageRef.hideBorder();
+	common.Dat.gui.domElement.style.display = "none";
+};
+common.FadeSheet = function(ee) {
+	this.opacity = 1;
+	this.element = ee;
+};
+common.FadeSheet.__name__ = true;
+common.FadeSheet.prototype = {
+	fadeIn: function() {
+		if(this.element != null) {
+			this.element.style.opacity = "0";
+			this.opacity = 0;
+			if(this._twn != null) this._twn.kill();
+			this._twn = TweenMax.to(this,0.8,{ opacity : 1, delay : 0.2, ease : Power0.easeInOut, onUpdate : $bind(this,this._onUpdate)});
+		}
+	}
+	,fadeOut: function(callback) {
+		if(this._twn != null) this._twn.kill();
+		this._twn = TweenMax.to(this,0.5,{ opacity : 0, ease : Power0.easeInOut, onUpdate : $bind(this,this._onUpdate), onComplete : callback});
+	}
+	,_onUpdate: function() {
+		if(this.element != null) this.element.style.opacity = "" + this.opacity;
+	}
+};
+common.Key = function() {
+	THREE.EventDispatcher.call(this);
+};
+common.Key.__name__ = true;
+common.Key.init = function() {
+	if(common.Key.board == null) {
+		common.Key.board = new common.Key();
+		common.Key.board.init2();
+	}
+};
+common.Key.__super__ = THREE.EventDispatcher;
+common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
+	init2: function() {
+		window.document.addEventListener("keydown",$bind(this,this._onKeyDown));
+		this._socket = new common.WSocket();
+		this._socket.init();
+		if(common.Dat.bg) this._socket.addCallback($bind(this,this._onKeyDown));
+	}
+	,_onKeyDown: function(e) {
+		var n = Std.parseInt(e.keyCode);
+		console.debug("_onkeydown " + n);
+		this._dispatch(n);
+	}
+	,_dispatch: function(n) {
+		if(!common.Dat.bg) this._socket.send(n);
+		this.dispatchEvent({ type : "keydown", keyCode : n});
+	}
+});
+common.QueryGetter = function() {
+};
+common.QueryGetter.__name__ = true;
+common.QueryGetter.init = function() {
+	common.QueryGetter._map = new haxe.ds.StringMap();
+	var str = window.location.search;
+	if(str.indexOf("?") < 0) console.log("query nashi"); else {
+		str = HxOverrides.substr(str,1,str.length - 1);
+		var list = str.split("&");
+		console.log(list);
+		var _g1 = 0;
+		var _g = list.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var fuga = list[i].split("=");
+			common.QueryGetter._map.set(fuga[0],fuga[1]);
+		}
+	}
+	if(common.QueryGetter._map.get("t") != null) common.QueryGetter.t = Std.parseInt(common.QueryGetter._map.get("t"));
+	common.QueryGetter._isInit = true;
+};
+common.QueryGetter.getQuery = function(idd) {
+	if(!common.QueryGetter._isInit) common.QueryGetter.init();
+	return common.QueryGetter._map.get(idd);
+};
+common.StageRef = function() {
+};
+common.StageRef.__name__ = true;
+common.StageRef.showBorder = function() {
+	var dom = window.document.getElementById("webgl");
+	if(dom != null) dom.style.border = "solid 1px #cccccc";
+};
+common.StageRef.hideBorder = function() {
+	var dom = window.document.getElementById("webgl");
+	if(dom != null) dom.style.border = "solid 0px";
+};
+common.StageRef.fadeIn = function() {
+	if(common.StageRef.sheet == null) common.StageRef.sheet = new common.FadeSheet(window.document.getElementById("webgl"));
+	common.StageRef.sheet.fadeIn();
+};
+common.StageRef.fadeOut = function(callback) {
+	if(common.StageRef.sheet == null) common.StageRef.sheet = new common.FadeSheet(window.document.getElementById("webgl"));
+	common.StageRef.sheet.fadeOut(callback);
+};
+common.StageRef.setCenter = function(offsetY) {
+	if(offsetY == null) offsetY = 0;
+	var dom = window.document.getElementById("webgl");
+	var yy = window.innerHeight / 2 - common.StageRef.get_stageHeight() / 2 + common.Config.canvasOffsetY + offsetY;
+	dom.style.position = "absolute";
+	dom.style.zIndex = "1000";
+	dom.style.top = Math.round(yy) + "px";
+};
+common.StageRef.get_stageWidth = function() {
+	return window.innerWidth;
+};
+common.StageRef.get_stageHeight = function() {
+	return window.innerHeight;
+};
+common.WSocket = function() {
+};
+common.WSocket.__name__ = true;
+common.WSocket.prototype = {
+	init: function() {
+		var win = window;
+		if(win.io != null) {
+			this._socket = io.connect(window.host);
+			this._socket.on("server_to_client",$bind(this,this._onRecieve));
+		} else {
+		}
+	}
+	,send: function(key) {
+		if(this._socket != null) this._socket.emit("client_to_server",{ value : key});
+	}
+	,addCallback: function(callback) {
+		this._callback = callback;
+	}
+	,_onRecieve: function(data) {
+		data.keyCode = data.value;
+		if(this._callback != null) this._callback(data);
+	}
+};
+common.dat = {};
+common.dat.Dat2 = function() {
+};
+common.dat.Dat2.__name__ = true;
+common.dat.Dat2.init = function(callback) {
+	common.StageRef.fadeIn();
+	common.dat.Dat2._callback = callback;
+	common.dat.Dat2._config = new common.Config();
+	common.dat.Dat2._config.load(common.dat.Dat2._onInit);
+};
+common.dat.Dat2._onInit = function() {
+	common.dat.Dat2.bg = window.location.hash == "#bg";
+	common.dat.Dat2.gui = new dat.GUI({ autoPlace: false });
+	window.document.body.appendChild(common.dat.Dat2.gui.domElement);
+	common.dat.Dat2.gui.domElement.style.position = "absolute";
+	common.dat.Dat2.gui.domElement.style.right = "0px";
+	var yy = window.innerHeight / 2 + common.StageRef.get_stageHeight() / 2 + common.Config.canvasOffsetY;
+	common.dat.Dat2.gui.domElement.style.top = Math.floor(yy / 2) + "px";
+	common.dat.Dat2.gui.domElement.style.opacity = 1;
+	common.dat.Dat2.gui.domElement.style.zIndex = 1000;
+	common.dat.Dat2.gui.domElement.style.transformOrigin = "1 0";
+	common.dat.Dat2.gui.domElement.style.transform = "scale(0.8,0.8)";
+	if(common.dat.Dat2._callback != null) common.dat.Dat2._callback();
+};
+common.dat.Dat2._onKeyDown = function(e) {
+	var _g = Std.parseInt(e.keyCode);
+	switch(_g) {
+	case 90:
+		common.dat.Dat2._soundFlag = !common.dat.Dat2._soundFlag;
+		TweenMax.to(sound.MyAudio.a,0.5,{ globalVolume : common.dat.Dat2._soundFlag?common.Config.globalVol:0});
+		break;
+	case 68:
+		if(common.dat.Dat2.gui.domElement.style.display == "block") common.dat.Dat2.hide(); else common.dat.Dat2.show(true);
+		break;
+	case 49:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL1);
+		break;
+	case 50:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL2);
+		break;
+	case 51:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL3);
+		break;
+	case 52:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL4);
+		break;
+	case 53:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL5);
+		break;
+	case 54:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL6);
+		break;
+	case 55:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL7);
+		break;
+	case 56:
+		common.StageRef.fadeOut(common.dat.Dat2._goURL8);
+		break;
+	}
+};
+common.dat.Dat2._goURL1 = function() {
+	common.dat.Dat2._goURL("../../k04/bin/");
+};
+common.dat.Dat2._goURL2 = function() {
+	common.dat.Dat2._goURL("../../k05/bin/");
+};
+common.dat.Dat2._goURL3 = function() {
+	common.dat.Dat2._goURL("../../k02/bin/");
+};
+common.dat.Dat2._goURL4 = function() {
+	common.dat.Dat2._goURL("../../k03/bin/");
+};
+common.dat.Dat2._goURL5 = function() {
+	common.dat.Dat2._goURL("../../k00/bin/");
+};
+common.dat.Dat2._goURL6 = function() {
+	common.dat.Dat2._goURL("../../k06/bin/");
+};
+common.dat.Dat2._goURL7 = function() {
+	common.dat.Dat2._goURL("../../k01/bin/");
+};
+common.dat.Dat2._goURL8 = function() {
+	common.dat.Dat2._goURL("../../k07/bin/");
+};
+common.dat.Dat2._goURL = function(url) {
+	console.log("goURL " + url);
+	window.location.href = url + window.location.hash;
+};
+common.dat.Dat2.show = function(isBorder) {
+	if(isBorder == null) isBorder = false;
+	if(isBorder) common.StageRef.showBorder();
+	common.dat.Dat2.gui.domElement.style.display = "block";
+};
+common.dat.Dat2.hide = function() {
+	common.StageRef.hideBorder();
+	common.dat.Dat2.gui.domElement.style.display = "none";
 };
 var data = {};
 data.MapData = function(o) {
@@ -592,6 +981,7 @@ data.MapDataList.prototype = {
 };
 data.MotionData = function(xx,yy,rr,localRot) {
 	if(localRot == null) localRot = 0;
+	this.mode = 0;
 	this.speedLocalR = 0;
 	this.speedR = 0;
 	this.speedY = 0;
@@ -614,6 +1004,52 @@ data.StageSize.getWidth = function() {
 data.StageSize.getHeight = function() {
 	return window.innerHeight + 100;
 };
+var display = {};
+display.ExShaper = function(data) {
+	this.vr = 0;
+	this.vy = 0;
+	this.vx = 0;
+	createjs.Shape.call(this);
+	this._data = data;
+	if(this._data.mode == 1) {
+		var n1 = 0.5 + Math.random();
+		this.vx = this._data.speedX * n1;
+		this.vy = this._data.speedY * n1;
+		this.vr = 0;
+	} else {
+		this.vx = this._data.speedX;
+		this.vy = this._data.speedY;
+		this.vr = this._data.speedR;
+	}
+};
+display.ExShaper.__name__ = true;
+display.ExShaper.__super__ = createjs.Shape;
+display.ExShaper.prototype = $extend(createjs.Shape.prototype,{
+	update: function(limX,limY) {
+		this.x += this.vx;
+		this.y += this.vy;
+		this.rotation += this.vr;
+		this._limit(limX,limY);
+	}
+	,_limit: function(limX,limY) {
+		if(this.x < -limX / 2) {
+			this.x = 0;
+			this.vx *= -1;
+		}
+		if(this.x > limX / 2) {
+			this.x = limX / 2;
+			this.vx *= -1;
+		}
+		if(this.y < -limY / 2) {
+			this.y = -limY / 2;
+			this.vy *= -1;
+		}
+		if(this.y > limY / 2) {
+			this.y = limY / 2;
+			this.vy *= -1;
+		}
+	}
+});
 var haxe = {};
 haxe.Http = function(url) {
 	this.url = url;
@@ -1510,6 +1946,117 @@ net.badimon.five3D.typography.Neue.prototype = $extend(net.badimon.five3D.typogr
 		this.widths.set("骨",25.9);
 	}
 });
+var sound = {};
+sound.MyAudio = function() {
+	this.globalVolume = 0.897;
+	this.isStart = false;
+	this.freqByteDataAryEase = [];
+	this._impulse = [];
+};
+sound.MyAudio.__name__ = true;
+sound.MyAudio.prototype = {
+	init: function(callback) {
+		this.globalVolume = common.Config.globalVol;
+		this._callback = callback;
+		sound.MyAudio.a = this;
+		var nav = window.navigator;
+		nav.getUserMedia = nav.getUserMedia || nav.webkitGetUserMedia || nav.mozGetUserMedia || nav.msGetUserMedia;
+		nav.getUserMedia({ audio : true},$bind(this,this._handleSuccess),$bind(this,this._handleError));
+	}
+	,_handleError: function(evt) {
+		window.alert("err");
+	}
+	,_handleSuccess: function(evt) {
+		var audioContext = new AudioContext();
+		var source = audioContext.createMediaStreamSource(evt);
+		this.analyser = audioContext.createAnalyser();
+		this.analyser.fftSize = 64;
+		this._impulse = [];
+		this.subFreqByteData = [];
+		this.freqByteDataAry = [];
+		this._oldFreqByteData = [];
+		var _g = 0;
+		while(_g < 64) {
+			var i = _g++;
+			this.subFreqByteData[i] = 0;
+			this.freqByteDataAryEase[i] = 0;
+			this._oldFreqByteData[i] = 0;
+		}
+		source.connect(this.analyser,0);
+		this.isStart = true;
+		common.Dat.gui.add(this,"globalVolume",0,3.00).step(0.01).listen();
+		common.Dat.gui.add(this,"setImpulse");
+		this.setImpulse();
+		this.update();
+		this._callback();
+	}
+	,update: function() {
+		if(!this.isStart) {
+			console.log("not work");
+			return;
+		}
+		this.freqByteData = new Uint8Array(this.analyser.frequencyBinCount);
+		this.analyser.getByteFrequencyData(this.freqByteData);
+		var _g1 = 0;
+		var _g = this.freqByteData.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this.subFreqByteData[i] = this.freqByteData[i] - this._oldFreqByteData[i];
+		}
+		var _g11 = 0;
+		var _g2 = this.freqByteData.length;
+		while(_g11 < _g2) {
+			var i1 = _g11++;
+			this._oldFreqByteData[i1] = this.freqByteData[i1];
+		}
+		this.timeData = new Uint8Array(this.analyser.fftSize);
+		this.analyser.getByteTimeDomainData(this.timeData);
+		var _g12 = 0;
+		var _g3 = this.freqByteData.length;
+		while(_g12 < _g3) {
+			var i2 = _g12++;
+			this.freqByteData[i2] = Math.floor(this.freqByteData[i2] * this.globalVolume) + Math.floor(this._impulse[i2]);
+		}
+		var _g13 = 0;
+		var _g4 = this.freqByteData.length;
+		while(_g13 < _g4) {
+			var i3 = _g13++;
+			this.subFreqByteData[i3] = Math.floor(this.subFreqByteData[i3] * this.globalVolume);
+		}
+		var _g14 = 0;
+		var _g5 = this.freqByteData.length;
+		while(_g14 < _g5) {
+			var i4 = _g14++;
+			this.timeData[i4] = Math.floor(this.timeData[i4] * this.globalVolume);
+		}
+		var _g15 = 0;
+		var _g6 = this.freqByteData.length;
+		while(_g15 < _g6) {
+			var i5 = _g15++;
+			this.freqByteDataAry[i5] = this.freqByteData[i5];
+			this.freqByteDataAryEase[i5] += (this.freqByteData[i5] - this.freqByteDataAryEase[i5]) / 2;
+		}
+		this._updateInpulse();
+	}
+	,_updateInpulse: function() {
+		var _g = 0;
+		while(_g < 64) {
+			var i = _g++;
+			this._impulse[i] += (0 - this._impulse[i]) / 2;
+		}
+	}
+	,setImpulse: function(stlength) {
+		if(stlength == null) stlength = 1;
+		var _g = 0;
+		while(_g < 64) {
+			var i = _g++;
+			this._impulse[i] = 255 * Math.random() * stlength;
+		}
+	}
+	,tweenVol: function(tgt) {
+		TweenMax.to(this,0.2,{ globalVolume : tgt});
+	}
+};
 var three = {};
 three.Face = function() { };
 three.Face.__name__ = true;
@@ -1529,8 +2076,8 @@ Array.__name__ = true;
 var q = window.jQuery;
 js.JQuery = q;
 MainDrawer.SCALE = 2;
-MainDrawer.mojiCount = 0;
-MainDrawer.DEDEMOUSE = "DEDEMOUSE";
+Maps.DEDEMOUSE = "DEDEMOUSE";
+Maps.multiMode = true;
 _Three.CullFace_Impl_.None = 0;
 _Three.CullFace_Impl_.Back = 1;
 _Three.CullFace_Impl_.Front = 2;
@@ -1670,6 +2217,108 @@ Three.RGBA_S3TC_DXT3_Format = 2003;
 Three.RGBA_S3TC_DXT5_Format = 2004;
 Three.LineStrip = 0;
 Three.LinePieces = 1;
+common.Config.canvasOffsetY = 0;
+common.Config.globalVol = 1.0;
+common.Config.particleSize = 10000;
+common.Config.bgLight = 0.5;
+common.Dat.UP = 38;
+common.Dat.DOWN = 40;
+common.Dat.LEFT = 37;
+common.Dat.RIGHT = 39;
+common.Dat.SPACE = 32;
+common.Dat.K1 = 49;
+common.Dat.K2 = 50;
+common.Dat.K3 = 51;
+common.Dat.K4 = 52;
+common.Dat.K5 = 53;
+common.Dat.K6 = 54;
+common.Dat.K7 = 55;
+common.Dat.K8 = 56;
+common.Dat.K9 = 57;
+common.Dat.K0 = 58;
+common.Dat.A = 65;
+common.Dat.B = 66;
+common.Dat.C = 67;
+common.Dat.D = 68;
+common.Dat.E = 69;
+common.Dat.F = 70;
+common.Dat.G = 71;
+common.Dat.H = 72;
+common.Dat.I = 73;
+common.Dat.J = 74;
+common.Dat.K = 75;
+common.Dat.L = 76;
+common.Dat.M = 77;
+common.Dat.N = 78;
+common.Dat.O = 79;
+common.Dat.P = 80;
+common.Dat.Q = 81;
+common.Dat.R = 82;
+common.Dat.S = 83;
+common.Dat.T = 84;
+common.Dat.U = 85;
+common.Dat.V = 86;
+common.Dat.W = 87;
+common.Dat.X = 88;
+common.Dat.Y = 89;
+common.Dat.Z = 90;
+common.Dat.hoge = 0;
+common.Dat.bg = false;
+common.Dat._showing = true;
+common.Dat._soundFlag = true;
+common.Key.keydown = "keydown";
+common.QueryGetter.NORMAL = 0;
+common.QueryGetter.SKIP = 1;
+common.QueryGetter._isInit = false;
+common.QueryGetter.t = 0;
+common.StageRef.$name = "webgl";
+common.dat.Dat2.UP = 38;
+common.dat.Dat2.DOWN = 40;
+common.dat.Dat2.LEFT = 37;
+common.dat.Dat2.RIGHT = 39;
+common.dat.Dat2.SPACE = 32;
+common.dat.Dat2.K1 = 49;
+common.dat.Dat2.K2 = 50;
+common.dat.Dat2.K3 = 51;
+common.dat.Dat2.K4 = 52;
+common.dat.Dat2.K5 = 53;
+common.dat.Dat2.K6 = 54;
+common.dat.Dat2.K7 = 55;
+common.dat.Dat2.K8 = 56;
+common.dat.Dat2.K9 = 57;
+common.dat.Dat2.K0 = 58;
+common.dat.Dat2.A = 65;
+common.dat.Dat2.B = 66;
+common.dat.Dat2.C = 67;
+common.dat.Dat2.D = 68;
+common.dat.Dat2.E = 69;
+common.dat.Dat2.F = 70;
+common.dat.Dat2.G = 71;
+common.dat.Dat2.H = 72;
+common.dat.Dat2.I = 73;
+common.dat.Dat2.J = 74;
+common.dat.Dat2.K = 75;
+common.dat.Dat2.L = 76;
+common.dat.Dat2.M = 77;
+common.dat.Dat2.N = 78;
+common.dat.Dat2.O = 79;
+common.dat.Dat2.P = 80;
+common.dat.Dat2.Q = 81;
+common.dat.Dat2.R = 82;
+common.dat.Dat2.S = 83;
+common.dat.Dat2.T = 84;
+common.dat.Dat2.U = 85;
+common.dat.Dat2.V = 86;
+common.dat.Dat2.W = 87;
+common.dat.Dat2.X = 88;
+common.dat.Dat2.Y = 89;
+common.dat.Dat2.Z = 90;
+common.dat.Dat2.hoge = 0;
+common.dat.Dat2.bg = false;
+common.dat.Dat2._showing = true;
+common.dat.Dat2._soundFlag = true;
+data.MotionData.MODE_ONE = 0;
+data.MotionData.MODE_MULTI = 1;
 data.MotionData.R1 = new data.MotionData(0,0,0.5);
 data.MotionData.R2 = new data.MotionData(0,0,-0.5);
 data.MotionData.Y1 = new data.MotionData(0,1,0);
@@ -1678,9 +2327,11 @@ data.MotionData.XY1 = new data.MotionData(0.25,-1,0);
 data.MotionData.XY2 = new data.MotionData(-0.25,1,0);
 data.MotionData.XYR = new data.MotionData(0,0.25,0.5);
 data.MotionData.XYR2 = new data.MotionData(0.25,1,0.5);
-data.MotionData.LOCAL1 = new data.MotionData(0,0,0,0.4);
-data.MotionData.LOCAL2 = new data.MotionData(0,-0.5,0,-0.4);
-data.MotionData.LOCAL3 = new data.MotionData(0,0,0,-0.4);
-data.MotionData.list = [data.MotionData.R1,data.MotionData.R2,data.MotionData.R1,data.MotionData.R2,data.MotionData.Y1,data.MotionData.Y2,data.MotionData.XY1,data.MotionData.XY2,data.MotionData.XYR,data.MotionData.XYR2,data.MotionData.LOCAL1,data.MotionData.LOCAL2,data.MotionData.LOCAL3];
+data.MotionData.XYR3 = new data.MotionData(0.25,0.25,-0.5);
+data.MotionData.XYR4 = new data.MotionData(-0.2,0.2,-0.5);
+data.MotionData.list = [data.MotionData.R1,data.MotionData.R2,data.MotionData.R1,data.MotionData.R2,data.MotionData.Y1,data.MotionData.Y2,data.MotionData.XY1,data.MotionData.XY2,data.MotionData.XYR,data.MotionData.XYR2,data.MotionData.XYR3,data.MotionData.XYR4];
+sound.MyAudio.FFTSIZE = 64;
 Main.main();
 })();
+
+//# sourceMappingURL=Sin.js.map

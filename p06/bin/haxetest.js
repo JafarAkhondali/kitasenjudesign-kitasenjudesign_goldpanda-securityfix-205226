@@ -1309,6 +1309,7 @@ materials.MaterialParams.setParam = function(material,matIndex) {
 		material.refractionRatio = 0.1;
 		material.reflectivity = 0.1;
 		material.wireframe = false;
+		material.alphaMap = materials.Textures.colorWhite;
 		break;
 	case 4:
 		material.map = materials.Textures.colorWhite;
@@ -1321,6 +1322,7 @@ materials.MaterialParams.setParam = function(material,matIndex) {
 		break;
 	case 1:
 		material.map = materials.Textures.faceWhite;
+		material.color = new THREE.Color(16755251);
 		material.transparent = false;
 		material.refractionRatio = 0.7;
 		material.reflectivity = 0.7;
@@ -1946,8 +1948,8 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 		this.visible = true;
 		var rotMode = 0;
 		var posMode = 0;
-		var n = this._count % 4;
-		if(this._count < 5) n = Math.floor(Math.random() * 2);
+		var n = 0;
+		if(this._count < 7) n = Math.floor(Math.random() * 2); else n = 2 + Math.floor(Math.random() * 3);
 		switch(n) {
 		case 0:
 			posMode = 11;
@@ -1965,6 +1967,10 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 			posMode = 10;
 			rotMode = 1;
 			break;
+		case 4:
+			posMode = 12;
+			rotMode = 0;
+			break;
 		}
 		this._motion.start(data,posMode,rotMode);
 		this._count++;
@@ -1972,8 +1978,8 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 	}
 	,_changeMat: function() {
 		this._matIndex++;
-		var n = this._matIndex % 5;
-		if(this._matIndex < 5) n = 0;
+		var n = 0;
+		if(this._matIndex < 7) n = 0; else if(Math.random() < 0.5) n = 0; else n = Math.floor(Math.random() * 5);
 		materials.MaterialParams.setParam(this._material,n);
 		this._material.needsUpdate = true;
 	}
@@ -2344,7 +2350,7 @@ objects.objs.eye.PrimitiveObj.prototype = $extend(THREE.Mesh.prototype,{
 		this.rotation.x += (this._tgtRot.x - this.rotation.x) / 10;
 		this.rotation.y += (this._tgtRot.y - this.rotation.y) / 10;
 		this.rotation.z += (this._tgtRot.z - this.rotation.z) / 10;
-		var ss = this._scale + Math.pow(Math.abs(a.freqByteData[5]) / 255,3) * this._scale;
+		var ss = this._scale + Math.pow(Math.abs(a.freqByteData[5]) / 255,2) * this._scale;
 		this.scale.set(ss,ss,ss);
 	}
 	,kill: function() {
@@ -2636,15 +2642,22 @@ objects.objs.motion.FaceMotion.prototype = {
 		this._spaceY = ss * 200;
 		switch(posMode) {
 		case 11:
+			objects.objs.motion.FacePosition.setMoveYPosition(this._faces,pos,ss,this._spaceY);
+			break;
+		case 12:
+			objects.objs.motion.FacePosition.setMoveYPositionMulti(this._faces,pos,ss,this._spaceY);
+			break;
+		case 10:
 			var _g1 = 0;
 			var _g = this._faces.length;
 			while(_g1 < _g) {
 				var i = _g1++;
-				if(i < 5) {
-					var p = pos[0];
-					this._faces[i].scale.set(ss,ss,ss);
+				if(i < pos.length) {
+					var p = pos[i];
+					var s1 = scales[i];
+					this._faces[i].scale.set(ss * s1,ss * s1,ss * s1);
 					this._faces[i].position.x = p.x;
-					this._faces[i].position.y = p.y - this._spaceY * (i - 0.2);
+					this._faces[i].position.y = p.y + yy;
 					this._faces[i].baseY = this._faces[i].position.y;
 					this._faces[i].position.z = p.z;
 					this._faces[i].changeIndex(Math.floor(Math.random() * 3));
@@ -2652,30 +2665,12 @@ objects.objs.motion.FaceMotion.prototype = {
 				} else this._faces[i].visible = false;
 			}
 			break;
-		case 10:
-			var _g11 = 0;
-			var _g2 = this._faces.length;
-			while(_g11 < _g2) {
-				var i1 = _g11++;
-				if(i1 < pos.length) {
-					var p1 = pos[i1];
-					var s1 = scales[i1];
-					this._faces[i1].scale.set(ss * s1,ss * s1,ss * s1);
-					this._faces[i1].position.x = p1.x;
-					this._faces[i1].position.y = p1.y + yy;
-					this._faces[i1].baseY = this._faces[i1].position.y;
-					this._faces[i1].position.z = p1.z;
-					this._faces[i1].changeIndex(Math.floor(Math.random() * 3));
-					this._faces[i1].visible = true;
-				} else this._faces[i1].visible = false;
-			}
-			break;
 		}
-		var _g12 = 0;
-		var _g3 = this._faces.length;
-		while(_g12 < _g3) {
-			var i2 = _g12++;
-			this._faces[i2].resetRot();
+		var _g11 = 0;
+		var _g2 = this._faces.length;
+		while(_g11 < _g2) {
+			var i1 = _g11++;
+			this._faces[i1].resetRot();
 		}
 	}
 	,update: function(a) {
@@ -2700,7 +2695,7 @@ objects.objs.motion.FaceMotion.prototype = {
 			}
 			this._rad += Math.PI / 120;
 			break;
-		case 11:
+		case 11:case 12:
 			var _g21 = 0;
 			var _g11 = this._faces.length;
 			while(_g21 < _g11) {
@@ -2737,6 +2732,56 @@ objects.objs.motion.FaceMotion.prototype = {
 		}
 	}
 	,__class__: objects.objs.motion.FaceMotion
+};
+objects.objs.motion.FacePosition = function() {
+};
+objects.objs.motion.FacePosition.__name__ = true;
+objects.objs.motion.FacePosition.setMoveYPositionMulti = function(faces,pos,scale,spaceY) {
+	var no = 0;
+	var count = 0;
+	var oy = -0.2;
+	var _g1 = 0;
+	var _g = faces.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(no >= pos.length) {
+			faces[i].visible = false;
+			continue;
+		} else faces[i].visible = true;
+		var p = pos[no];
+		faces[i].scale.set(scale,scale,scale);
+		faces[i].position.x = p.x;
+		faces[i].position.y = p.y - spaceY * (count + oy);
+		faces[i].baseY = faces[i].position.y;
+		faces[i].position.z = p.z;
+		faces[i].changeIndex(Math.floor(Math.random() * 3));
+		count++;
+		if(count > 5) {
+			no++;
+			count = 0;
+			oy = -0.2 - 0.2 * Math.random();
+		}
+	}
+};
+objects.objs.motion.FacePosition.setMoveYPosition = function(faces,pos,scale,spaceY) {
+	var _g1 = 0;
+	var _g = faces.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		if(i < 5) {
+			var p = pos[0];
+			faces[i].scale.set(scale,scale,scale);
+			faces[i].position.x = p.x;
+			faces[i].position.y = p.y - spaceY * (i - 0.2);
+			faces[i].baseY = faces[i].position.y;
+			faces[i].position.z = p.z;
+			faces[i].changeIndex(Math.floor(Math.random() * 3));
+			faces[i].visible = true;
+		} else faces[i].visible = false;
+	}
+};
+objects.objs.motion.FacePosition.prototype = {
+	__class__: objects.objs.motion.FacePosition
 };
 var sound = {};
 sound.MyAudio = function() {
@@ -3456,6 +3501,7 @@ objects.data.EffectData.EFFECT_COLOR_WIRE = new objects.data.EffectData({ name :
 objects.data.EffectData.effects = [objects.data.EffectData.EFFECT_NORMAL,objects.data.EffectData.EFFECT_DISPLACE_X,objects.data.EffectData.EFFECT_DISPLACE_MAP];
 objects.data.EffectData._count = -1;
 objects.objs.Faces.MAT_NUM = 5;
+objects.objs.Faces.INTRO_NUM = 7;
 objects.objs.eye.PrimitiveObj.CUBE = 0;
 objects.objs.eye.PrimitiveObj.SPHERE = 1;
 objects.objs.eye.PrimitiveObj.TRI = 2;
@@ -3466,6 +3512,7 @@ objects.objs.motion.FaceMotion.MODE_ROT_Y = 0;
 objects.objs.motion.FaceMotion.MODE_ROT_XYZ = 1;
 objects.objs.motion.FaceMotion.MODE_POS_FIX = 10;
 objects.objs.motion.FaceMotion.MODE_POS_MOVE_Y = 11;
+objects.objs.motion.FaceMotion.MODE_POS_MOVE_Y_MULTI = 12;
 objects.objs.motion.FaceMotion.globalScale = 1;
 sound.MyAudio.FFTSIZE = 64;
 three._WebGLRenderer.RenderPrecision_Impl_.highp = "highp";

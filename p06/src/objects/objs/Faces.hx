@@ -26,7 +26,7 @@ class Faces extends MatchMoveObects
 	
 
 	public static inline var MAT_NUM:Int = 5;
-	
+	public static inline var INTRO_NUM:Int = 7; 
 	//public static var MATERIALS
 	
 	private var _faces		:Array<MyFaceSingle>;
@@ -135,17 +135,20 @@ class Faces extends MatchMoveObects
 		var rotMode:Int = 0;
 		var posMode:Int = 0;
 		
-		var n:Int = _count % 4;
-		if ( _count < 5) {
+		var n:Int = 0;// _count % 4;
+		if ( _count < INTRO_NUM) {
 			n = Math.floor(Math.random() * 2);
+		}else{
+			n = 2 + Math.floor( Math.random() * 3);
 		}
+		
 		
 		switch( n ) {
 			case 0:
-				posMode = FaceMotion.MODE_POS_MOVE_Y;
+				posMode = FaceMotion.MODE_POS_MOVE_Y;//////yyy
 				rotMode = FaceMotion.MODE_ROT_Y;
 			case 1:
-				posMode = FaceMotion.MODE_POS_MOVE_Y;
+				posMode = FaceMotion.MODE_POS_MOVE_Y;//////yyy
 				rotMode = FaceMotion.MODE_ROT_XYZ;				
 			case 2:
 				posMode = FaceMotion.MODE_POS_FIX;
@@ -153,11 +156,16 @@ class Faces extends MatchMoveObects
 			case 3:
 				posMode = FaceMotion.MODE_POS_FIX;
 				rotMode = FaceMotion.MODE_ROT_XYZ;			
+			case 4:
+				posMode = FaceMotion.MODE_POS_MOVE_Y_MULTI;//////yyy
+				rotMode = FaceMotion.MODE_ROT_Y;								
 		}
 		
-		
+		///////////////////koko de kontrol
 		_motion.start(
-			data,posMode,rotMode
+			data,
+			posMode,
+			rotMode
 		);
 		_count++;
 		
@@ -166,6 +174,7 @@ class Faces extends MatchMoveObects
 		
 	}	
 	
+	//changeMat
 	private function _changeMat():Void {
 		
 		
@@ -173,9 +182,17 @@ class Faces extends MatchMoveObects
 		_matIndex++;
 		//_matIndex = _matIndex ;
 		
-		var n:Int = _matIndex% MAT_NUM;
-		if (_matIndex < 5) {
+		//var n:Int = _matIndex% MAT_NUM;
+
+		var n:Int = 0;
+		if (_matIndex < INTRO_NUM) {
 			n = 0;
+		}else {
+			if (Math.random() < 0.5) {
+				n = 0;
+			}else {
+				n = Math.floor(Math.random() * MAT_NUM);
+			}
 		}
 		MaterialParams.setParam(_material, n);
 		

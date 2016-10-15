@@ -99,7 +99,8 @@ class PrimitiveObj extends Mesh
 		rotation.y += (_tgtRot.y - rotation.y) / 10;
 		rotation.z += (_tgtRot.z - rotation.z) / 10;
 		
-		var ss:Float = _scale + Math.pow( Math.abs(a.freqByteData[5]) / 255, 3) * _scale;
+		
+		var ss:Float = _scale + Math.pow( Math.abs(a.freqByteData[5]) / 255, 2) * _scale;
 		scale.set(ss,ss,ss);
 		//kaiten
 		//rotation.x += 0.001;

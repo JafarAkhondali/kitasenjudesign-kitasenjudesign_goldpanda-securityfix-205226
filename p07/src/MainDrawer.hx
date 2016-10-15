@@ -5,6 +5,7 @@ import createjs.easeljs.Shape;
 import data.MapData;
 import data.MotionData;
 import data.StageSize;
+import display.ExShaper;
 import haxe.Timer;
 import js.Browser;
 import js.html.ImageElement;
@@ -23,26 +24,26 @@ class MainDrawer extends Container
 	
 	private var _callback:Void->Void;
 	private var _img:ImageElement;
-	private var _shapes:Array<Shape>;
+	private var _shapes:Array<ExShaper>;
 	private var _helv:Typography3D;
 	private var _data:MapData;
 	private var _flag:Bool=false;
 	private var _counter:Int = 0;
 	private var _container:Container;
-	private var _rotSpeed:Float = 0;
+	//private var _rotSpeed:Float = 0;
 	private var _isStart:Bool = false;
 	private var _motionData:MotionData;
-	
-	private static var mojiCount:Int = 0;
-	public static inline var DEDEMOUSE:String = "DEDEMOUSE";
+	private var _moji:String;
 	
 	public function new() 
 	{
 		super();
 	}
 
-	public function init(data:MapData, callback:Void->Void):Void {
+	public function init(data:MapData, moji:String, callback:Void->Void):Void {
 
+		_moji = moji;
+		
 		_data = data;
 		_callback = callback;
 		
@@ -50,7 +51,7 @@ class MainDrawer extends Container
 		//_helv = new HelveticaMedium();
 		_helv = new Neue();
 		
-		_rotSpeed = Math.random() < 0.5 ? 0.33 : -0.33;
+		//_rotSpeed = Math.random() < 0.5 ? 0.33 : -0.33;
 		
 		_img = Browser.document.createImageElement();
 		//_img.src = "20160528125235.jpg";
@@ -77,9 +78,21 @@ class MainDrawer extends Container
 	{
 		////////////////////////////////////////start
 		_shapes = [];
-		var str:String = 
-			DEDEMOUSE.substr(mojiCount % DEDEMOUSE.length, 1);  //_data.region;// .substr(0, 4);
-		mojiCount++;
+		//var str:String = "DEDEMOUSE";
+		
+		//moji
+		_makeTypo0();
+		
+		if (_callback != null) {
+			_callback();	
+		}
+		
+	}
+
+	private function _makeTypo0():Void {
+		
+		var str:String = _moji;// DEDEMOUSE.substr(mojiCount % DEDEMOUSE.length, 1);  //_data.region;// .substr(0, 4);		
+		//mojiCount++;
 		
 		var space:Float = 20;
 		
@@ -90,6 +103,9 @@ class MainDrawer extends Container
 		var ox:Float = -width / 2;// _helv.getWidth( str.substr(0, 1).toUpperCase() ) * SCALE / 2;
 		
 		var scale:Float = Browser.window.innerWidth / width * 0.4;
+		if (str.length >= 3) {
+			scale = Browser.window.innerWidth / width;
+		}
 		_container.scaleX = scale;
 		_container.scaleY = scale;
 		_container.x = Browser.window.innerWidth / 2;
@@ -109,12 +125,9 @@ class MainDrawer extends Container
 			ox += ww/2 + space;
 		}
 		
-		if (_callback != null) {
-			_callback();	
-		}
-		
+		_isStart = true;
 	}
-
+	
 	private function _makeTypo(moji:String, xx:Float, yy:Float, scale:Float):Void
 	{
 
@@ -125,7 +138,18 @@ class MainDrawer extends Container
 			(-yy-_container.y/scale) // scale
 		);
 		
-		var shape:Shape = new Shape();
+		_motionData = MotionData.getData();
+		
+		if (Maps.multiMode) {
+			_motionData.mode = Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
+			
+		}else {
+			_motionData.mode = MotionData.MODE_ONE;// Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
+		}
+		
+				
+		var shape:ExShaper = new ExShaper(_motionData);
+		
 		//shape.graphics.beginStroke("#ffffff");
 		shape.graphics.beginBitmapFill(_img, null, m);
 		//shape.graphics.beginFill("#ff0000");
@@ -137,57 +161,35 @@ class MainDrawer extends Container
 		FontTest.getLetterPoints(shape.graphics, moji, true, SCALE, _helv);
 		_shapes.push(shape);
 
-		Timer.delay(_start, 1000);
+		
 	}	
 	
-	function _start() 
-	{
-		_motionData = MotionData.getData();
-		_isStart = true;
-		//_container.scaleX = 0.1;
-		//_container.scaleY = 0.1;
-	}
 	
 	public function update():Void {
 
 		_counter++;
 		
-		if (_isStart) {
+		//parent
+		if (_isStart && _motionData.mode==MotionData.MODE_ONE) {
+			
 			_container.x += _motionData.speedX;
 			_container.y += _motionData.speedY;
 			_container.rotation += _motionData.speedR;
 			
-			//////X
-			if (_container.x < 0) {
-				_container.x = 0;
-				_motionData.speedX *= -1;
-			}
-			
-			if (_container.x > StageSize.getWidth() ) {
-				_container.x = StageSize.getWidth();
-				_motionData.speedX *= -1;
-			}
-			
-			///////Y
-			if (_container.y < 0) {
-				_container.y = 0;
-				_motionData.speedY *= -1;
-			}
-			
-			if (_container.y > StageSize.getHeight() ) {
-				_container.y = StageSize.getHeight();
-				_motionData.speedY *= -1;
-			}			
-			
-			
 		}
 		
-		if (_shapes != null) {
+		
+		if (_shapes != null && _motionData.mode == MotionData.MODE_MULTI) {
+			
+			var ww:Float = StageSize.getWidth();
+			var hh:Float = StageSize.getHeight();
 			
 			for (i in 0..._shapes.length) {
 				
 				if(_motionData!=null){
-					_shapes[i].rotation += _motionData.speedLocalR;
+					
+					_shapes[i].update(ww,hh);
+					
 				}
 				//if(_flag){
 					//_shapes[i].x += 1;// 3 * (Math.random() - 0.5);

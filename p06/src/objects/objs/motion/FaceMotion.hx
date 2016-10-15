@@ -13,8 +13,9 @@ class FaceMotion
 	public static inline var MODE_ROT_Y:Int = 0;//y kaiten
 	public static inline var MODE_ROT_XYZ:Int = 1;// xyz kaiten
 
-	public static inline var MODE_POS_FIX:Int = 10;//fix
-	public static inline var MODE_POS_MOVE_Y:Int = 11;//ugoku
+	public static inline var MODE_POS_FIX			:Int = 10;//fix
+	public static inline var MODE_POS_MOVE_Y		:Int = 11;//ugoku
+	public static inline var MODE_POS_MOVE_Y_MULTI	:Int = 12;
 	
 	public static var globalScale:Float = 1;
 	
@@ -67,34 +68,16 @@ class FaceMotion
 		
 		
 		_spaceY = ss * 200;
-		
-		
 		switch(posMode) {
+		
 			case MODE_POS_MOVE_Y:
 				
-				//toriaezu yaru
-				for (i in 0..._faces.length) {
-					
-					if(i<5){
-						var p:Vector3 = pos[0];
-						
-						_faces[i].scale.set(ss, ss, ss);
-						_faces[i].position.x = p.x;
-						_faces[i].position.y = p.y - _spaceY * (i-0.2);// - _spaceY;//0,1,2
-						_faces[i].baseY = _faces[i].position.y;
-						_faces[i].position.z = p.z;
-					
-						_faces[i].changeIndex(Math.floor(Math.random()*3));		
-						_faces[i].visible = true;
-						
-					}else {
-						_faces[i].visible = false;
-						
-					}
-					
-				}
+				FacePosition.setMoveYPosition(_faces, pos, ss, _spaceY);				
 				
-				
+			case MODE_POS_MOVE_Y_MULTI:
+			
+				FacePosition.setMoveYPositionMulti(_faces, pos, ss, _spaceY);
+								
 			case MODE_POS_FIX:
 				for (i in 0..._faces.length) {
 			
@@ -165,7 +148,7 @@ class FaceMotion
 				_rad += Math.PI / 120;
 				
 				
-			case MODE_POS_MOVE_Y:
+			case MODE_POS_MOVE_Y, MODE_POS_MOVE_Y_MULTI:
 				//y wo ugokasu		
 				for(i in 0..._faces.length){
 					
