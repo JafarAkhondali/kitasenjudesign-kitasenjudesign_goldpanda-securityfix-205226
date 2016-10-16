@@ -32,7 +32,7 @@ class ExShaper extends Shape
 			var n1:Float = 0.5 + Math.random();
 			vx = _data.speedX * n1;//(Math.random() - 0.5) * 2;
 			vy = _data.speedY * n1;//(Math.random() - 0.5) * 2;
-			vr = 0;// _data.speedR;//(Math.random() - 0.5 ) * 0.5;
+			vr = _data.speedR;//(Math.random() - 0.5 ) * 0.5;
 			
 		}else {
 			

@@ -1,10 +1,12 @@
 package;
 import common.Dat;
 import common.dat.Dat2;
+import common.Key;
 import createjs.easeljs.Ticker;
 import data.MapDataList;
 import haxe.Timer;
 import js.Browser;
+import sound.MyAudio;
 
 /**
  * ...
@@ -17,9 +19,10 @@ class Maps
 	private var _map2:ModuleMap;
 	var _loader:MapDataList;
 	var _mojiCount:Int = 0;
+	var _audio:MyAudio;
 	public static inline var DEDEMOUSE:String = "DEDEMOUSE";
 	
-	public static var multiMode:Bool = true;
+	public static var multiMode:Bool = false;
 	
 	public function new() 
 	{
@@ -34,7 +37,13 @@ class Maps
 	
 	private function _onLoad():Void{
 
-		Dat.init(_start);
+		Dat.init(_start0);
+	}
+	
+	private function _start0():Void {
+		
+		_audio = new MyAudio();
+		_audio.init(_start);	
 	}
 	
 	private function _start():Void{
@@ -49,10 +58,20 @@ class Maps
 		
 		Dat.gui.add(this, "_next");
 		
-		
+		Key.board.addEventListener(Key.keydown, _onDown);
 		_tween();
 	}
 	
+	
+	private function _onDown(e):Void {
+		
+		switch( e.keyCode ) {
+			case Dat.RIGHT:
+				_next();
+			
+		}
+		
+	}
 	
 	private function _next():Void {
 		

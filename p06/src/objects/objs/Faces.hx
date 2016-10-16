@@ -94,7 +94,7 @@ class Faces extends MatchMoveObects
 		
 		//
 		//for(i in 0...6){ 
-		for(i in 0...30){ 
+		for(i in 0...25){ 
 			
 			var face:MyFaceSingle = new MyFaceSingle(i);
 			face.init( _loader, null );
@@ -131,7 +131,6 @@ class Faces extends MatchMoveObects
 		this.visible = true;
 		
 		//kokowo set
-		
 		var rotMode:Int = 0;
 		var posMode:Int = 0;
 		
@@ -139,9 +138,8 @@ class Faces extends MatchMoveObects
 		if ( _count < INTRO_NUM) {
 			n = Math.floor(Math.random() * 2);
 		}else{
-			n = 2 + Math.floor( Math.random() * 3);
+			n = 2 + Math.floor( Math.random() * 4);
 		}
-		
 		
 		switch( n ) {
 			case 0:
@@ -158,7 +156,10 @@ class Faces extends MatchMoveObects
 				rotMode = FaceMotion.MODE_ROT_XYZ;			
 			case 4:
 				posMode = FaceMotion.MODE_POS_MOVE_Y_MULTI;//////yyy
-				rotMode = FaceMotion.MODE_ROT_Y;								
+				rotMode = FaceMotion.MODE_ROT_Y;
+			case 5:
+				posMode = FaceMotion.MODE_POS_MOVE_Y_MULTI;//////yyy
+				rotMode = FaceMotion.MODE_ROT_XYZ;
 		}
 		
 		///////////////////koko de kontrol
@@ -176,7 +177,6 @@ class Faces extends MatchMoveObects
 	
 	//changeMat
 	private function _changeMat():Void {
-		
 		
 		//3pattern
 		_matIndex++;
@@ -226,36 +226,14 @@ class Faces extends MatchMoveObects
 			_offsetY += a.subFreqByteData[7] / 128 * 0.01;
 			Textures.meshRed.offset.set(_offsetX, _offsetY);	
 			Textures.moji1.offset.set(_offsetX, _offsetY);	
-			
 			//_material.needsUpdate = true;
-		
 		}		
 		
 		if (_faces.length > 0) {
 			
 			_motion.update(a);
 			
-			/*
-			for(i in 0..._faces.length){
-				
-				_faces[i].rotation.y += 0.03 + i / 340;
-				_faces[i].updateSingle(a);
-				
-				if (_faces[i].position.y > 500) {
-					_faces[i].position.y = -500;
-					
-					_faces[i].rotation.set(0, Math.random() * 2 * Math.PI, 0);
-					
-					var ss:Float = 50 + 30 * Math.random();
-					_faces[i].scale.set(ss, ss, ss);
-			
-					//_faces[i]
-				}
-			}
-			*/
 		}		
-		
-		
 		
 	}	
 	

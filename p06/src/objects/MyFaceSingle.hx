@@ -86,6 +86,7 @@ class MyFaceSingle extends Object3D
 	public static inline var MAX:Int = 3;
 	public var baseY:Float=0;
 	
+	
 	public function new(idx:Int) 
 	{
 		index = idx;
@@ -121,8 +122,6 @@ class MyFaceSingle extends Object3D
 		//this.rotation.z = Math.PI / 2;
 		vr = (Math.random() - 0.5) * Math.PI / 140;
 	
-		
-		
 	}
 	
 	

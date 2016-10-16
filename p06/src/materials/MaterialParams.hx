@@ -124,10 +124,10 @@ class MaterialParams
 				
 			case MAT_MIRROR://1
 				material.map = Textures.faceWhite;
-				material.color = new Color(0xffaa33);
+				material.color = new Color(0xffee7f);
 				material.transparent = false;				
-				material.refractionRatio = 0.7;
-				material.reflectivity = 0.7;
+				material.refractionRatio = 0.9;
+				material.reflectivity = 0.9;
 				//_material.shininess = 0.01;				
 				material.wireframe = false;
 				

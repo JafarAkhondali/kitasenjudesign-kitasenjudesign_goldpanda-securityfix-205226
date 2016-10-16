@@ -63,7 +63,7 @@ class Textures
 		
 		parkBg = ImageUtils.loadTexture( "bg/bg.jpg" );
 		
-		moji1 = ImageUtils.loadTexture( Path.assets + "face/bg.png" );
+		moji1 = ImageUtils.loadTexture( "mate3.png" );// ImageUtils.loadTexture( Path.assets + "face/bg.png" );
 		moji1.wrapS = Three.RepeatWrapping; 
 		moji1.wrapT = Three.RepeatWrapping; 
 		moji1.repeat.set(2, 2);

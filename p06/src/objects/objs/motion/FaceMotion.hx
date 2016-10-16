@@ -154,7 +154,7 @@ class FaceMotion
 					
 					//_data.offsetY
 					
-					_faces[i].position.y+=0.1;
+					_faces[i].position.y+=0.15;
 					if (_faces[i].position.y > _spaceY * 5) {
 						_faces[i].position.y = -_spaceY * 5;
 					}
@@ -199,13 +199,6 @@ class FaceMotion
 		}
 	}
 
-		
-		
-
-		
-	
-	
-	
 	
 	
 }

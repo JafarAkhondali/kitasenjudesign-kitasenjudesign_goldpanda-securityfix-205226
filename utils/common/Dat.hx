@@ -164,9 +164,6 @@ class Dat
 			case Dat.K7 :
 				StageRef.fadeOut( _goURL7 );		
 
-			case Dat.K8 :
-				StageRef.fadeOut( _goURL8 );		
-				
 		}
 		
 	}
@@ -174,41 +171,41 @@ class Dat
 	//typofish
 	private static function _goURL1():Void {
 		
-		_goURL( "../../k04/bin/" );
+		_goURL( "../../p04/bin/" );
 		
 	}
 	
 	//dot moji
 	private static function _goURL2():Void {
 		
-		_goURL( "../../k05/bin/" );
+		_goURL( "../../p07/bin/" );
 		
 	}	
 	
 	//emoji
 	private static function _goURL3():Void {
 		
-		_goURL( "../../k02/bin/" );
+		_goURL( "../../p02/bin/" );
 	}
 	
 	//emoji fbo
 	private static function _goURL4():Void {
 		
-		_goURL( "../../k03/bin/" );
+		_goURL( "../../p06/bin/" );
 		
 	}
 	
 	//faces
 	private static function _goURL5():Void {
 		
-		_goURL( "../../k00/bin/" );
+		_goURL( "../../k05/bin/" );
 		
 	}
 	
 	//faces
 	private static function _goURL6():Void {
 		
-		_goURL( "../../k06/bin/" );
+		_goURL( "../../k00/bin/" );
 		
 	}	
 	
@@ -219,11 +216,6 @@ class Dat
 		
 	}	
 
-	private static function _goURL8():Void {
-		
-		_goURL( "../../k07/bin/" );
-		
-	}		
 	
 	
 	private static function _goURL(url:String):Void {

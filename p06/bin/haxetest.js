@@ -553,34 +553,28 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
-	case 56:
-		common.StageRef.fadeOut(common.Dat._goURL8);
-		break;
 	}
 };
 common.Dat._goURL1 = function() {
-	common.Dat._goURL("../../k04/bin/");
+	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p07/bin/");
 };
 common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../k02/bin/");
+	common.Dat._goURL("../../p02/bin/");
 };
 common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../k03/bin/");
+	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../k05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k06/bin/");
+	common.Dat._goURL("../../k00/bin/");
 };
 common.Dat._goURL7 = function() {
 	common.Dat._goURL("../../k01/bin/");
-};
-common.Dat._goURL8 = function() {
-	common.Dat._goURL("../../k07/bin/");
 };
 common.Dat._goURL = function(url) {
 	console.log("goURL " + url);
@@ -1322,10 +1316,10 @@ materials.MaterialParams.setParam = function(material,matIndex) {
 		break;
 	case 1:
 		material.map = materials.Textures.faceWhite;
-		material.color = new THREE.Color(16755251);
+		material.color = new THREE.Color(16772735);
 		material.transparent = false;
-		material.refractionRatio = 0.7;
-		material.reflectivity = 0.7;
+		material.refractionRatio = 0.9;
+		material.reflectivity = 0.9;
 		material.wireframe = false;
 		break;
 	case 3:
@@ -1384,7 +1378,7 @@ materials.Textures.init = function() {
 	materials.Textures.meshMono.wrapT = 1002;
 	materials.Textures.meshMono.repeat.set(5,5);
 	materials.Textures.parkBg = THREE.ImageUtils.loadTexture("bg/bg.jpg");
-	materials.Textures.moji1 = THREE.ImageUtils.loadTexture("../../assets/" + "face/bg.png");
+	materials.Textures.moji1 = THREE.ImageUtils.loadTexture("mate3.png");
 	materials.Textures.moji1.wrapS = 1000;
 	materials.Textures.moji1.wrapT = 1000;
 	materials.Textures.moji1.repeat.set(2,2);
@@ -1927,7 +1921,7 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 		console.debug(THREE.ShaderLib.phong.fragmentShader);
 		this._faces = [];
 		var _g = 0;
-		while(_g < 30) {
+		while(_g < 25) {
 			var i = _g++;
 			var face = new objects.MyFaceSingle(i);
 			face.init(this._loader,null);
@@ -1949,7 +1943,7 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 		var rotMode = 0;
 		var posMode = 0;
 		var n = 0;
-		if(this._count < 7) n = Math.floor(Math.random() * 2); else n = 2 + Math.floor(Math.random() * 3);
+		if(this._count < 7) n = Math.floor(Math.random() * 2); else n = 2 + Math.floor(Math.random() * 4);
 		switch(n) {
 		case 0:
 			posMode = 11;
@@ -1970,6 +1964,10 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 		case 4:
 			posMode = 12;
 			rotMode = 0;
+			break;
+		case 5:
+			posMode = 12;
+			rotMode = 1;
 			break;
 		}
 		this._motion.start(data,posMode,rotMode);
@@ -2341,7 +2339,11 @@ objects.objs.eye.PrimitiveObj.prototype = $extend(THREE.Mesh.prototype,{
 	}
 	,update: function(a) {
 		this._count++;
-		if(a.subFreqByteData[3] > 8 && this._count > 15) {
+		if(Math.pow(a.freqByteData[5] / 255,2) > 0.5) {
+			this._tgtRot.x += a.freqByteData[0] / 255;
+			this._tgtRot.y += a.freqByteData[1] / 255;
+			this._tgtRot.z += a.freqByteData[2] / 255;
+		} else if(a.subFreqByteData[3] > 8 && this._count > 15) {
 			this._count = 0;
 			if(Math.random() < 0.5) this._tgtRot.x += Math.PI / 2; else this._tgtRot.x += -Math.PI / 2;
 			if(Math.random() < 0.5) this._tgtRot.y += Math.PI / 2; else this._tgtRot.y += -Math.PI / 2;
@@ -2518,11 +2520,11 @@ objects.objs.moji.MojiMaker.__name__ = true;
 objects.objs.moji.MojiMaker.init = function(shape) {
 	objects.objs.moji.MojiMaker._shape = shape;
 	if(objects.objs.moji.MojiMaker.dedemouse == null) {
-		objects.objs.moji.MojiMaker.de = objects.objs.moji.MojiMaker.getGeometry("デ",6);
+		objects.objs.moji.MojiMaker.de = objects.objs.moji.MojiMaker.getGeometry("デデ",6);
 		objects.objs.moji.MojiMaker.dedemouse = objects.objs.moji.MojiMaker.getGeometry("デデマウス");
-		objects.objs.moji.MojiMaker.hexpixels = objects.objs.moji.MojiMaker.getGeometry("ヘックスピクセルズ",2,200);
+		objects.objs.moji.MojiMaker.hexpixels = objects.objs.moji.MojiMaker.getGeometry("ゴールドパンダ来日",2,200);
 		objects.objs.moji.MojiMaker.kitasenju = objects.objs.moji.MojiMaker.getGeometry("北千住デザイン");
-		objects.objs.moji.MojiMaker.kimaira = objects.objs.moji.MojiMaker.getGeometry("キマイラ");
+		objects.objs.moji.MojiMaker.kimaira = objects.objs.moji.MojiMaker.getGeometry("DEDEMOUSE");
 		objects.objs.moji.MojiMaker.mouse = new objects.objs.moji.MojiGeo();
 		objects.objs.moji.MojiMaker.mouse.init(objects.objs.Objs.geoMouse);
 		objects.objs.moji.MojiMaker.mouse.updateColor();
@@ -2547,7 +2549,7 @@ objects.objs.moji.MojiMaker.getGeometry = function(src,scl,space) {
 		var j = _g1++;
 		var amount = 10;
 		var shapes = objects.objs.moji.MojiMaker._shape.getShapes(HxOverrides.substr(src,j,1),true);
-		var geo = new THREE.ExtrudeGeometry(shapes,{ bevelSize : 1, bevelEnabled : true, amount : amount, bevelSegments : 1});
+		var geo = new THREE.ExtrudeGeometry(shapes,{ bevelSize : 0.5, bevelEnabled : true, amount : amount, bevelSegments : 1});
 		var mat4 = new THREE.Matrix4();
 		mat4.multiply(new THREE.Matrix4().makeScale(scl,scl,scl));
 		var vv = new THREE.Vector3((j * space - (nn - 1) / 2 * space) * 0.5,0,-amount / 2);
@@ -2700,7 +2702,7 @@ objects.objs.motion.FaceMotion.prototype = {
 			var _g11 = this._faces.length;
 			while(_g21 < _g11) {
 				var i1 = _g21++;
-				this._faces[i1].position.y += 0.1;
+				this._faces[i1].position.y += 0.15;
 				if(this._faces[i1].position.y > this._spaceY * 5) this._faces[i1].position.y = -this._spaceY * 5;
 			}
 			break;

@@ -39,11 +39,11 @@ class MojiMaker
 		_shape = shape;
 		if (dedemouse == null) {
 			
-			de = getGeometry("デ",6);			
+			de = getGeometry("デデ",6);			
 			dedemouse = getGeometry("デデマウス");
-			hexpixels = getGeometry("ヘックスピクセルズ",2,200);
+			hexpixels = getGeometry("ゴールドパンダ来日",2,200);
 			kitasenju = getGeometry("北千住デザイン");
-			kimaira = getGeometry("キマイラ");
+			kimaira = getGeometry("DEDEMOUSE");
 			
 			mouse = new MojiGeo();
 			mouse.init(Objs.geoMouse);
@@ -96,7 +96,7 @@ class MojiMaker
 				var amount:Float = 10;
 				var shapes:Array<Shape> = _shape.getShapes(src.substr(j,1), true);
 				var geo:ExtrudeGeometry = new ExtrudeGeometry(
-						shapes, { bevelSize:1, bevelEnabled:true, amount:amount, bevelSegments:1 }
+						shapes, { bevelSize:0.5, bevelEnabled:true, amount:amount, bevelSegments:1 }
 					);
 				
 				var mat4:Matrix4 = new Matrix4();

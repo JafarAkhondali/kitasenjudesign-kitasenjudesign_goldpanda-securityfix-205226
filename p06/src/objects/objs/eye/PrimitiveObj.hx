@@ -89,12 +89,23 @@ class PrimitiveObj extends Mesh
 	public function update(a:MyAudio):Void {
 		
 		_count++;
-		if (a.subFreqByteData[3] > 8 && _count>15) {
+		if ( Math.pow( a.freqByteData[5] / 255, 2 ) > 0.5 ) {
+
+			_tgtRot.x += a.freqByteData[0] / 255;
+			_tgtRot.y += a.freqByteData[1] / 255;
+			_tgtRot.z += a.freqByteData[2] / 255;
+			
+			
+		}else if (a.subFreqByteData[3] > 8 && _count>15) {
+			
 			_count = 0;
 			_tgtRot.x += (Math.random() < 0.5) ? Math.PI / 2 : -Math.PI / 2;
 			_tgtRot.y += (Math.random() < 0.5) ? Math.PI / 2 : -Math.PI / 2;
 			_tgtRot.z += (Math.random() < 0.5) ? Math.PI / 2 : -Math.PI / 2;
+			
 		}
+		
+		
 		rotation.x += (_tgtRot.x - rotation.x) / 10;
 		rotation.y += (_tgtRot.y - rotation.y) / 10;
 		rotation.z += (_tgtRot.z - rotation.z) / 10;

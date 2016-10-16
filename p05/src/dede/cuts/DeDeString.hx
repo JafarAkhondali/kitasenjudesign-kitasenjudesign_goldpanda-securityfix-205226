@@ -15,7 +15,7 @@ class DeDeString
 	public static var texts:Array<Dynamic> = [
 	
 		{ text:"デデデデデ", font:0, spaceX:30 },
-		{ text:"WWWXWWWXWWWX", font:1, spaceX:50 },
+		{ text:"SHIBUYAWWW", font:1, spaceX:50 },
 		{ text:"DEDEMOUSE", font:1, spaceX:50 },
 		{ text:"デデデデデ", font:0, spaceX:30 },
 		{ text:"DEDE", font:1, spaceX:50 },

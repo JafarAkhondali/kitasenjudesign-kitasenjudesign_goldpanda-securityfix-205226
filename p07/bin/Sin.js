@@ -282,9 +282,7 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 		this._helv = new net.badimon.five3D.typography.Neue();
 		var _this = window.document;
 		this._img = _this.createElement("img");
-		this._img.src = "20160528125235.png";
-		data.title = "A";
-		data.region = "A";
+		this._img.src = data.image;
 		this._container = new createjs.Container();
 		this.addChild(this._container);
 		this._img.onload = $bind(this,this._onLoad);
@@ -311,6 +309,8 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 		this._container.scaleY = scale;
 		this._container.x = window.innerWidth / 2;
 		this._container.y = data.StageSize.getHeight() / 2;
+		this._motionData = data.MotionData.getData();
+		if(Maps.multiMode) if(Math.random() < 0.5) this._motionData.mode = 1; else this._motionData.mode = 0; else this._motionData.mode = 0;
 		var _g11 = 0;
 		var _g2 = str.length;
 		while(_g11 < _g2) {
@@ -327,8 +327,6 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 		var m = new createjs.Matrix2D();
 		m.scale(1 / scale,1 / scale);
 		m.translate(-xx - this._container.x / scale,-yy - this._container.y / scale);
-		this._motionData = data.MotionData.getData();
-		if(Maps.multiMode) if(Math.random() < 0.5) this._motionData.mode = 1; else this._motionData.mode = 0; else this._motionData.mode = 0;
 		var shape = new display.ExShaper(this._motionData);
 		shape.graphics.beginBitmapFill(this._img,null,m);
 		shape.x = xx;
@@ -344,7 +342,7 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 			this._container.y += this._motionData.speedY;
 			this._container.rotation += this._motionData.speedR;
 		}
-		if(this._shapes != null && this._motionData.mode == 1) {
+		if(this._isStart && this._shapes != null && this._motionData.mode == 1) {
 			var ww = data.StageSize.getWidth();
 			var hh = data.StageSize.getHeight();
 			var _g1 = 0;
@@ -371,7 +369,11 @@ Maps.prototype = {
 		this._loader.load($bind(this,this._onLoad));
 	}
 	,_onLoad: function() {
-		common.Dat.init($bind(this,this._start));
+		common.Dat.init($bind(this,this._start0));
+	}
+	,_start0: function() {
+		this._audio = new sound.MyAudio();
+		this._audio.init($bind(this,this._start));
 	}
 	,_start: function() {
 		this._map1 = new ModuleMap(0);
@@ -381,7 +383,16 @@ Maps.prototype = {
 		createjs.Ticker.setFPS(30);
 		createjs.Ticker.addEventListener("tick",$bind(this,this._update));
 		common.Dat.gui.add(this,"_next");
+		common.Key.board.addEventListener("keydown",$bind(this,this._onDown));
 		this._tween();
+	}
+	,_onDown: function(e) {
+		var _g = e.keyCode;
+		switch(_g) {
+		case 39:
+			this._next();
+			break;
+		}
 	}
 	,_next: function() {
 		Maps.multiMode = !Maps.multiMode;
@@ -569,6 +580,49 @@ Three.requestAnimationFrame = function(f) {
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
 };
+var Tracer = function() {
+};
+Tracer.__name__ = true;
+Tracer.assert = function(condition,p1,p2,p3,p4,p5) {
+};
+Tracer.clear = function(p1,p2,p3,p4,p5) {
+};
+Tracer.count = function(p1,p2,p3,p4,p5) {
+};
+Tracer.debug = function(p1,p2,p3,p4,p5) {
+};
+Tracer.dir = function(p1,p2,p3,p4,p5) {
+};
+Tracer.dirxml = function(p1,p2,p3,p4,p5) {
+};
+Tracer.error = function(p1,p2,p3,p4,p5) {
+};
+Tracer.group = function(p1,p2,p3,p4,p5) {
+};
+Tracer.groupCollapsed = function(p1,p2,p3,p4,p5) {
+};
+Tracer.groupEnd = function() {
+};
+Tracer.info = function(p1,p2,p3,p4,p5) {
+};
+Tracer.log = function(p1,p2,p3,p4,p5) {
+};
+Tracer.markTimeline = function(p1,p2,p3,p4,p5) {
+};
+Tracer.profile = function(title) {
+};
+Tracer.profileEnd = function(title) {
+};
+Tracer.time = function(title) {
+};
+Tracer.timeEnd = function(title,p1,p2,p3,p4,p5) {
+};
+Tracer.timeStamp = function(p1,p2,p3,p4,p5) {
+};
+Tracer.trace = function(p1,p2,p3,p4,p5) {
+};
+Tracer.warn = function(p1,p2,p3,p4,p5) {
+};
 var common = {};
 common.Callback = function() {
 };
@@ -659,37 +713,31 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
-	case 56:
-		common.StageRef.fadeOut(common.Dat._goURL8);
-		break;
 	}
 };
 common.Dat._goURL1 = function() {
-	common.Dat._goURL("../../k04/bin/");
+	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p07/bin/");
 };
 common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../k02/bin/");
+	common.Dat._goURL("../../p02/bin/");
 };
 common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../k03/bin/");
+	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../k05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k06/bin/");
+	common.Dat._goURL("../../k00/bin/");
 };
 common.Dat._goURL7 = function() {
 	common.Dat._goURL("../../k01/bin/");
 };
-common.Dat._goURL8 = function() {
-	common.Dat._goURL("../../k07/bin/");
-};
 common.Dat._goURL = function(url) {
-	console.log("goURL " + url);
+	Tracer.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.Dat.show = function(isBorder) {
@@ -743,7 +791,7 @@ common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	}
 	,_onKeyDown: function(e) {
 		var n = Std.parseInt(e.keyCode);
-		console.debug("_onkeydown " + n);
+		Tracer.debug("_onkeydown " + n);
 		this._dispatch(n);
 	}
 	,_dispatch: function(n) {
@@ -757,10 +805,10 @@ common.QueryGetter.__name__ = true;
 common.QueryGetter.init = function() {
 	common.QueryGetter._map = new haxe.ds.StringMap();
 	var str = window.location.search;
-	if(str.indexOf("?") < 0) console.log("query nashi"); else {
+	if(str.indexOf("?") < 0) Tracer.log("query nashi"); else {
 		str = HxOverrides.substr(str,1,str.length - 1);
 		var list = str.split("&");
-		console.log(list);
+		Tracer.log(list);
 		var _g1 = 0;
 		var _g = list.length;
 		while(_g1 < _g) {
@@ -917,7 +965,7 @@ common.dat.Dat2._goURL8 = function() {
 	common.dat.Dat2._goURL("../../k07/bin/");
 };
 common.dat.Dat2._goURL = function(url) {
-	console.log("goURL " + url);
+	Tracer.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.dat.Dat2.show = function(isBorder) {
@@ -1015,7 +1063,7 @@ display.ExShaper = function(data) {
 		var n1 = 0.5 + Math.random();
 		this.vx = this._data.speedX * n1;
 		this.vy = this._data.speedY * n1;
-		this.vr = 0;
+		this.vr = this._data.speedR;
 	} else {
 		this.vx = this._data.speedX;
 		this.vy = this._data.speedY;
@@ -2077,7 +2125,7 @@ var q = window.jQuery;
 js.JQuery = q;
 MainDrawer.SCALE = 2;
 Maps.DEDEMOUSE = "DEDEMOUSE";
-Maps.multiMode = true;
+Maps.multiMode = false;
 _Three.CullFace_Impl_.None = 0;
 _Three.CullFace_Impl_.Back = 1;
 _Three.CullFace_Impl_.Front = 2;
@@ -2333,5 +2381,3 @@ data.MotionData.list = [data.MotionData.R1,data.MotionData.R2,data.MotionData.R1
 sound.MyAudio.FFTSIZE = 64;
 Main.main();
 })();
-
-//# sourceMappingURL=Sin.js.map

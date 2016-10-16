@@ -112,6 +112,15 @@ class MainDrawer extends Container
 		_container.y = StageSize.getHeight() / 2;
 		
 		//
+		_motionData = MotionData.getData();
+		if (Maps.multiMode) {
+			_motionData.mode = Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
+			
+		}else {
+			_motionData.mode = MotionData.MODE_ONE;// Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
+		}
+		
+		
 		for (i in 0...str.length) {
 			var ss:String = str.substr(i, 1).toUpperCase();
 			var ww:Float = _helv.getWidth( ss ) * SCALE;
@@ -138,14 +147,6 @@ class MainDrawer extends Container
 			(-yy-_container.y/scale) // scale
 		);
 		
-		_motionData = MotionData.getData();
-		
-		if (Maps.multiMode) {
-			_motionData.mode = Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
-			
-		}else {
-			_motionData.mode = MotionData.MODE_ONE;// Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
-		}
 		
 				
 		var shape:ExShaper = new ExShaper(_motionData);
@@ -179,7 +180,7 @@ class MainDrawer extends Container
 		}
 		
 		
-		if (_shapes != null && _motionData.mode == MotionData.MODE_MULTI) {
+		if (_isStart && _shapes != null && _motionData.mode == MotionData.MODE_MULTI) {
 			
 			var ww:Float = StageSize.getWidth();
 			var hh:Float = StageSize.getHeight();
