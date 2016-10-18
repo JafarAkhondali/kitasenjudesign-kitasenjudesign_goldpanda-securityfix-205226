@@ -568,13 +568,13 @@ common.Dat._goURL4 = function() {
 	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../p00/bin/");
 };
 common.Dat._goURL7 = function() {
-	common.Dat._goURL("../../k01/bin/");
+	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
 	console.log("goURL " + url);
@@ -628,7 +628,7 @@ common.Key.init = function() {
 common.Key.__super__ = THREE.EventDispatcher;
 common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	init2: function() {
-		window.document.addEventListener("keydown",$bind(this,this._onKeyDown));
+		window.document.body.addEventListener("keydown",$bind(this,this._onKeyDown));
 		this._socket = new common.WSocket();
 		this._socket.init();
 		if(common.Dat.bg) this._socket.addCallback($bind(this,this._onKeyDown));
@@ -2774,7 +2774,7 @@ objects.objs.motion.FacePosition.setMoveYPosition = function(faces,pos,scale,spa
 			var p = pos[0];
 			faces[i].scale.set(scale,scale,scale);
 			faces[i].position.x = p.x;
-			faces[i].position.y = p.y - spaceY * (i - 0.2);
+			faces[i].position.y = p.y - spaceY * (i + 0.3);
 			faces[i].baseY = faces[i].position.y;
 			faces[i].position.z = p.z;
 			faces[i].changeIndex(Math.floor(Math.random() * 3));

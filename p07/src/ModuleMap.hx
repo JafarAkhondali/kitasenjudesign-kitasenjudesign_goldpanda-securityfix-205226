@@ -42,7 +42,10 @@ class ModuleMap
 	private  var _bg:BgDrawer;
 	private var _data:MapData;
 	private var _flag:Bool = false;
+	private var _isStart:Bool = false;
 	private var _type:Int = 0;
+	
+	
 	
 	public function new(type:Int=0) 
 	{
@@ -71,6 +74,11 @@ class ModuleMap
 		
 	}
 	
+	public function start():Void {
+		
+		_isStart = true;
+		
+	}
 	
 	public function startRot(delay:Int):Void {
 		
@@ -133,6 +141,7 @@ class ModuleMap
 			_stage1.clear();
 			_stage2.clear();
 		}
+		
 		
 		_data = _loader.getRandom();
 		
@@ -207,21 +216,6 @@ class ModuleMap
 		_canvas2.width 		= Browser.window.innerWidth;
 		_canvas2.height 	= StageSize.getHeight()+2;
 		
-		/*
-		new JQuery("#loading").css(
-			{
-				left:Browser.window.innerWidth / 2 - new JQuery("#loading").width() / 2,
-				top:10
-			}
-		);
-		
-		new JQuery("#footer").css({
-			{
-				left:Browser.window.innerWidth / 2 - new JQuery("#footer").width() / 2,
-				top:Browser.window.innerHeight - new JQuery("#footer").height() - 20
-			}
-		});		*/
-		
 		if(_stage1!=null){
 			_stage1.clear();
 			_stage2.clear();
@@ -230,6 +224,8 @@ class ModuleMap
 	
 	public function update():Void 
 	{
+		if (!_isStart) return;
+		
 		
 		if(_typo!=null && _flag){
 			_typo.update();

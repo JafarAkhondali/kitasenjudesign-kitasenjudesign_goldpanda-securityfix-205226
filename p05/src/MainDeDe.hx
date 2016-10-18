@@ -51,6 +51,7 @@ class MainDeDe
 		
 		StrokeUtil.init();
 		Dat.init(_onInit);	
+		
 	}
 	
 	/**

@@ -68,6 +68,7 @@ class FaceMotion
 		
 		
 		_spaceY = ss * 200;
+		
 		switch(posMode) {
 		
 			case MODE_POS_MOVE_Y:

@@ -48,8 +48,7 @@ class Maps
 	
 	private function _start():Void{
 		_map1 = new ModuleMap(0);///////////////tween
-		_map2 = new ModuleMap(1);
-		
+		_map2 = new ModuleMap(1);		
 		_map1.init(_loader);
 		_map2.init(_loader);
 		
@@ -66,9 +65,13 @@ class Maps
 	private function _onDown(e):Void {
 		
 		switch( e.keyCode ) {
+			
 			case Dat.RIGHT:
 				_next();
-			
+				
+			case Dat.SPACE:
+				_map1.start();
+				_map2.start();
 		}
 		
 	}

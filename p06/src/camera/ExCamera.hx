@@ -159,7 +159,8 @@ class ExCamera extends PerspectiveCamera
 	}
 	
 	//
-	public function reset(target:Vector3=null):Void{
+	public function reset(target:Vector3 = null):Void {
+		
         var p:Vector3 = _camera.position;
         this.amp = Math.sqrt( p.x*p.x + p.y*p.y + p.z*p.z );
         this.radX = Math.atan2(p.x, p.z);
@@ -222,8 +223,6 @@ class ExCamera extends PerspectiveCamera
 		t.y += tgtOffsetY;
 		target2 = t;
         _camera.lookAt( t );//target
-		
-	
 		
 	}
 	

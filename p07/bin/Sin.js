@@ -282,7 +282,9 @@ MainDrawer.prototype = $extend(createjs.Container.prototype,{
 		this._helv = new net.badimon.five3D.typography.Neue();
 		var _this = window.document;
 		this._img = _this.createElement("img");
-		this._img.src = data.image;
+		this._img.src = "20160528125235.png";
+		data.title = "A";
+		data.region = "A";
 		this._container = new createjs.Container();
 		this.addChild(this._container);
 		this._img.onload = $bind(this,this._onLoad);
@@ -392,6 +394,10 @@ Maps.prototype = {
 		case 39:
 			this._next();
 			break;
+		case 32:
+			this._map1.start();
+			this._map2.start();
+			break;
 		}
 	}
 	,_next: function() {
@@ -426,6 +432,7 @@ Math.__name__ = true;
 var ModuleMap = function(type) {
 	if(type == null) type = 0;
 	this._type = 0;
+	this._isStart = false;
 	this._flag = false;
 	this._canvasName2 = "canvas2";
 	this._canvasName1 = "canvas1";
@@ -448,7 +455,10 @@ var ModuleMap = function(type) {
 };
 ModuleMap.__name__ = true;
 ModuleMap.prototype = {
-	startRot: function(delay) {
+	start: function() {
+		this._isStart = true;
+	}
+	,startRot: function(delay) {
 		this._div1.show();
 		haxe.Timer.delay($bind(this,this._onStartRot),delay);
 	}
@@ -520,6 +530,7 @@ ModuleMap.prototype = {
 		}
 	}
 	,update: function() {
+		if(!this._isStart) return;
 		if(this._typo != null && this._flag) this._typo.update();
 		if(this._bg != null) this._bg.update();
 		this._stage1.update();
@@ -579,49 +590,6 @@ Three.requestAnimationFrame = function(f) {
 };
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
-};
-var Tracer = function() {
-};
-Tracer.__name__ = true;
-Tracer.assert = function(condition,p1,p2,p3,p4,p5) {
-};
-Tracer.clear = function(p1,p2,p3,p4,p5) {
-};
-Tracer.count = function(p1,p2,p3,p4,p5) {
-};
-Tracer.debug = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dir = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dirxml = function(p1,p2,p3,p4,p5) {
-};
-Tracer.error = function(p1,p2,p3,p4,p5) {
-};
-Tracer.group = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupCollapsed = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupEnd = function() {
-};
-Tracer.info = function(p1,p2,p3,p4,p5) {
-};
-Tracer.log = function(p1,p2,p3,p4,p5) {
-};
-Tracer.markTimeline = function(p1,p2,p3,p4,p5) {
-};
-Tracer.profile = function(title) {
-};
-Tracer.profileEnd = function(title) {
-};
-Tracer.time = function(title) {
-};
-Tracer.timeEnd = function(title,p1,p2,p3,p4,p5) {
-};
-Tracer.timeStamp = function(p1,p2,p3,p4,p5) {
-};
-Tracer.trace = function(p1,p2,p3,p4,p5) {
-};
-Tracer.warn = function(p1,p2,p3,p4,p5) {
 };
 var common = {};
 common.Callback = function() {
@@ -728,16 +696,16 @@ common.Dat._goURL4 = function() {
 	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../p00/bin/");
 };
 common.Dat._goURL7 = function() {
-	common.Dat._goURL("../../k01/bin/");
+	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
-	Tracer.log("goURL " + url);
+	console.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.Dat.show = function(isBorder) {
@@ -784,14 +752,14 @@ common.Key.init = function() {
 common.Key.__super__ = THREE.EventDispatcher;
 common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	init2: function() {
-		window.document.addEventListener("keydown",$bind(this,this._onKeyDown));
+		window.document.body.addEventListener("keydown",$bind(this,this._onKeyDown));
 		this._socket = new common.WSocket();
 		this._socket.init();
 		if(common.Dat.bg) this._socket.addCallback($bind(this,this._onKeyDown));
 	}
 	,_onKeyDown: function(e) {
 		var n = Std.parseInt(e.keyCode);
-		Tracer.debug("_onkeydown " + n);
+		console.debug("_onkeydown " + n);
 		this._dispatch(n);
 	}
 	,_dispatch: function(n) {
@@ -805,10 +773,10 @@ common.QueryGetter.__name__ = true;
 common.QueryGetter.init = function() {
 	common.QueryGetter._map = new haxe.ds.StringMap();
 	var str = window.location.search;
-	if(str.indexOf("?") < 0) Tracer.log("query nashi"); else {
+	if(str.indexOf("?") < 0) console.log("query nashi"); else {
 		str = HxOverrides.substr(str,1,str.length - 1);
 		var list = str.split("&");
-		Tracer.log(list);
+		console.log(list);
 		var _g1 = 0;
 		var _g = list.length;
 		while(_g1 < _g) {
@@ -965,7 +933,7 @@ common.dat.Dat2._goURL8 = function() {
 	common.dat.Dat2._goURL("../../k07/bin/");
 };
 common.dat.Dat2._goURL = function(url) {
-	Tracer.log("goURL " + url);
+	console.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.dat.Dat2.show = function(isBorder) {
@@ -2381,3 +2349,5 @@ data.MotionData.list = [data.MotionData.R1,data.MotionData.R2,data.MotionData.R1
 sound.MyAudio.FFTSIZE = 64;
 Main.main();
 })();
+
+//# sourceMappingURL=Sin.js.map

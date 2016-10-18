@@ -198,21 +198,21 @@ class Dat
 	//faces
 	private static function _goURL5():Void {
 		
-		_goURL( "../../k05/bin/" );
+		_goURL( "../../p05/bin/" );
 		
 	}
 	
 	//faces
 	private static function _goURL6():Void {
 		
-		_goURL( "../../k00/bin/" );
+		_goURL( "../../p00/bin/" );
 		
 	}	
 	
 	//single
 	private static function _goURL7():Void {
 		
-		_goURL( "../../k01/bin/" );
+		_goURL( "../../p01/bin/" );
 		
 	}	
 

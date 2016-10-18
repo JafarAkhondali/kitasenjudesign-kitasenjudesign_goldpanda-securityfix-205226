@@ -69,7 +69,7 @@ class FacePosition
 						
 						faces[i].scale.set(scale, scale, scale);
 						faces[i].position.x = p.x;
-						faces[i].position.y = p.y - spaceY * (i-0.2);// - _spaceY;//0,1,2
+						faces[i].position.y = p.y - spaceY * (i+0.3);// - _spaceY;//0,1,2
 						faces[i].baseY = faces[i].position.y;
 						faces[i].position.z = p.z;
 					

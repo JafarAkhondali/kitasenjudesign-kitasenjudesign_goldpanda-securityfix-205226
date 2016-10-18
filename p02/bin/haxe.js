@@ -1444,13 +1444,13 @@ common.Dat._goURL4 = function() {
 	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../p00/bin/");
 };
 common.Dat._goURL7 = function() {
-	common.Dat._goURL("../../k01/bin/");
+	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
 	Tracer.log("goURL " + url);
@@ -1504,7 +1504,7 @@ common.Key.init = function() {
 common.Key.__super__ = THREE.EventDispatcher;
 common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	init2: function() {
-		window.document.addEventListener("keydown",$bind(this,this._onKeyDown));
+		window.document.body.addEventListener("keydown",$bind(this,this._onKeyDown));
 		this._socket = new common.WSocket();
 		this._socket.init();
 		if(common.Dat.bg) this._socket.addCallback($bind(this,this._onKeyDown));

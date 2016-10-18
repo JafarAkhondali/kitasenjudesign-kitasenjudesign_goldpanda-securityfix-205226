@@ -5,6 +5,7 @@ import three.ExtrudeGeometry;
 import three.Geometry;
 import three.Line;
 import three.LineBasicMaterial;
+import three.Matrix4;
 import three.Mesh;
 import three.MeshBasicMaterial;
 import three.Object3D;
@@ -71,11 +72,16 @@ class BeyondCodeGeo
 	
 	public static function getFillGeo(nn:String, font:Int):Geometry {
 	
-		var name:String = font + "_" + nn+"2";
+		var size:Float = 10;
+		var name:String = font + "_" + nn + "2";
 		var ss:Array<Shape> = _getShape(nn, font);
 		//var geo:Geometry = cast new ShapeGeometry(untyped ss, { } );
 		//var geo:Geometry = cast new ShapeGeometry(untyped ss, { } );
-		var geo:Geometry = cast new ExtrudeGeometry(untyped ss, {amount:20,bevelEnabled:false } );
+		var geo:Geometry = cast new ExtrudeGeometry(untyped ss, {amount:size,bevelEnabled:false } );
+
+		var m:Matrix4 = new Matrix4();
+		m.makeTranslation(0, 0, -size/2);
+		geo.applyMatrix(m);
 		
 		return geo;		
 		

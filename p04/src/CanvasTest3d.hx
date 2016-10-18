@@ -77,6 +77,9 @@ class CanvasTest3d extends Test3d
 		trace("keydown");
 		switch(Std.parseInt(e.keyCode)) {
 			
+			case Dat.I:
+				MyAudio.a.setImpulse( 1 );
+			
 			case Dat.P:
 				_isPP = !_isPP;
 			

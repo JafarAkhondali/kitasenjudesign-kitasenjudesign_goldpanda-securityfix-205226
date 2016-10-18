@@ -50,6 +50,7 @@ class MapDataList
 	
 	public function getRandom():MapData {
 	
+		
 		return _list[Math.floor(Math.random() * _list.length)];
 		
 	}

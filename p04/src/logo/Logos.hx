@@ -27,7 +27,7 @@ class Logos {
 	}
 	
 	/**
-	 * 
+	 * init
 	 * @param	callback
 	 */
 	public static function init(callback:Void->Void):Void {

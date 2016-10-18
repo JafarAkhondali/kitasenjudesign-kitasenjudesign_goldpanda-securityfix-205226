@@ -30,9 +30,13 @@ BeyondCodeGeo.getFillMesh = function(nn,font) {
 	return o;
 };
 BeyondCodeGeo.getFillGeo = function(nn,font) {
+	var size = 10;
 	var name = font + "_" + nn + "2";
 	var ss = BeyondCodeGeo._getShape(nn,font);
-	var geo = new THREE.ExtrudeGeometry(ss,{ amount : 20, bevelEnabled : false});
+	var geo = new THREE.ExtrudeGeometry(ss,{ amount : size, bevelEnabled : false});
+	var m = new THREE.Matrix4();
+	m.makeTranslation(0,0,-size / 2);
+	geo.applyMatrix(m);
 	return geo;
 };
 BeyondCodeGeo.getLine = function(nn,font) {
@@ -1021,13 +1025,13 @@ common.Dat._goURL4 = function() {
 	common.Dat._goURL("../../p06/bin/");
 };
 common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../k05/bin/");
+	common.Dat._goURL("../../p05/bin/");
 };
 common.Dat._goURL6 = function() {
-	common.Dat._goURL("../../k00/bin/");
+	common.Dat._goURL("../../p00/bin/");
 };
 common.Dat._goURL7 = function() {
-	common.Dat._goURL("../../k01/bin/");
+	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
 	Tracer.log("goURL " + url);
@@ -1087,7 +1091,7 @@ common.Key.init = function() {
 common.Key.__super__ = THREE.EventDispatcher;
 common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	init2: function() {
-		window.document.addEventListener("keydown",$bind(this,this._onKeyDown));
+		window.document.body.addEventListener("keydown",$bind(this,this._onKeyDown));
 		this._socket = new common.WSocket();
 		this._socket.init();
 		if(common.Dat.bg) this._socket.addCallback($bind(this,this._onKeyDown));
@@ -3634,7 +3638,7 @@ dede.cuts.DeDeParam.SAME_ALL = 0;
 dede.cuts.DeDeParam.SAME_LINE = 1;
 dede.cuts.DeDeParam.SAME_DIFF = 2;
 dede.cuts.DeDeString._count = 0;
-dede.cuts.DeDeString.texts = [{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "SHIBUYAWWW", font : 1, spaceX : 50},{ text : "DEDEMOUSE", font : 1, spaceX : 50},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "DEDE", font : 1, spaceX : 50},{ text : "KITASENJUDESIGN", font : 1, spaceX : 50},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "GOLDPANDA", font : 1, spaceX : 50}];
+dede.cuts.DeDeString.texts = [{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "SHIBUYAWWW", font : 1, spaceX : 40},{ text : "DEDEMOUSE", font : 1, spaceX : 40},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "DEDE", font : 1, spaceX : 40},{ text : "KITASENJUDESIGN", font : 1, spaceX : 40},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "GOLDPANDA", font : 1, spaceX : 40}];
 sound.MyAudio.FFTSIZE = 64;
 three._WebGLRenderer.RenderPrecision_Impl_.highp = "highp";
 three._WebGLRenderer.RenderPrecision_Impl_.mediump = "mediump";

@@ -28,7 +28,7 @@ class Key extends EventDispatcher
 	
 	public function init2():Void {
 		
-		Browser.document.addEventListener("keydown" , _onKeyDown);
+		Browser.document.body.addEventListener("keydown" , _onKeyDown);
 		_socket = new WSocket();
 		_socket.init();
 		

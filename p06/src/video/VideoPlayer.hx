@@ -204,6 +204,8 @@ class VideoPlayer extends Object3D
 	private function _onKeyDown(e):Void {
 		//
 		switch(Std.parseInt(e.keyCode)) {
+			
+			////
 			case Dat.L:
 				FaceMotion.globalScale = 1.5 + 1.5 * Math.random();
 				_onFinish(null);
