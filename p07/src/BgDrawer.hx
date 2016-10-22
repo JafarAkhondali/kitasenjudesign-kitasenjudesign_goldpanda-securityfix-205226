@@ -35,6 +35,8 @@ class BgDrawer extends Container
 		var stgWidth	:Float = Browser.window.innerWidth;
 		var stgHeight	:Float = StageSize.getHeight()+2;
 		
+		if (stgWidth > 1800) stgWidth = 1800;
+		
 		_shape1 = new Shape();
 		_shape1.y = 0;
 		_shape1.graphics.beginBitmapFill(_img);

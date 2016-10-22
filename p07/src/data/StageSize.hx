@@ -21,7 +21,7 @@ class StageSize
 	
 	public static function getHeight():Int {
 		
-		return Browser.window.innerHeight+100; 
+		return Browser.window.innerHeight; 
 		
 	}
 	

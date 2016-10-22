@@ -1121,7 +1121,7 @@ faces.MaeGauge.prototype = $extend(THREE.Mesh.prototype,{
 	}
 });
 faces.MaeLines = function() {
-	this.posY = -120;
+	this.posY = -130;
 	this._lineIdx = 0;
 	THREE.Object3D.call(this);
 };

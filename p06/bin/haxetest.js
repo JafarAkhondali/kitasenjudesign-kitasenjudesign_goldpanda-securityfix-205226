@@ -13,8 +13,10 @@ FontShapeMaker.main = function() {
 };
 FontShapeMaker.prototype = {
 	add: function(m) {
+		console.log("このメソッドはdebugじゃないと動作しないよ");
 	}
 	,remove: function(m) {
+		console.log("このメソッドはdebugじゃないと動作しないよ");
 	}
 	,init: function(json,callback) {
 		FontShapeMaker.font = new net.badimon.five3D.typography.GenTypography3D();
@@ -328,6 +330,52 @@ Three.requestAnimationFrame = function(f) {
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
 };
+var Tracer = function() {
+};
+Tracer.__name__ = true;
+Tracer.assert = function(condition,p1,p2,p3,p4,p5) {
+};
+Tracer.clear = function(p1,p2,p3,p4,p5) {
+};
+Tracer.count = function(p1,p2,p3,p4,p5) {
+};
+Tracer.debug = function(p1,p2,p3,p4,p5) {
+};
+Tracer.dir = function(p1,p2,p3,p4,p5) {
+};
+Tracer.dirxml = function(p1,p2,p3,p4,p5) {
+};
+Tracer.error = function(p1,p2,p3,p4,p5) {
+};
+Tracer.group = function(p1,p2,p3,p4,p5) {
+};
+Tracer.groupCollapsed = function(p1,p2,p3,p4,p5) {
+};
+Tracer.groupEnd = function() {
+};
+Tracer.info = function(p1,p2,p3,p4,p5) {
+};
+Tracer.log = function(p1,p2,p3,p4,p5) {
+};
+Tracer.markTimeline = function(p1,p2,p3,p4,p5) {
+};
+Tracer.profile = function(title) {
+};
+Tracer.profileEnd = function(title) {
+};
+Tracer.time = function(title) {
+};
+Tracer.timeEnd = function(title,p1,p2,p3,p4,p5) {
+};
+Tracer.timeStamp = function(p1,p2,p3,p4,p5) {
+};
+Tracer.trace = function(p1,p2,p3,p4,p5) {
+};
+Tracer.warn = function(p1,p2,p3,p4,p5) {
+};
+Tracer.prototype = {
+	__class__: Tracer
+};
 var camera = {};
 camera.ExCamera = function(fov,aspect,near,far) {
 	this._flag = false;
@@ -577,7 +625,7 @@ common.Dat._goURL7 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
-	console.log("goURL " + url);
+	Tracer.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.Dat.show = function(isBorder) {
@@ -635,7 +683,7 @@ common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	}
 	,_onKeyDown: function(e) {
 		var n = Std.parseInt(e.keyCode);
-		console.debug("_onkeydown " + n);
+		Tracer.debug("_onkeydown " + n);
 		this._dispatch(n);
 	}
 	,_dispatch: function(n) {
@@ -656,10 +704,10 @@ common.QueryGetter.__name__ = true;
 common.QueryGetter.init = function() {
 	common.QueryGetter._map = new haxe.ds.StringMap();
 	var str = window.location.search;
-	if(str.indexOf("?") < 0) console.log("query nashi"); else {
+	if(str.indexOf("?") < 0) Tracer.log("query nashi"); else {
 		str = HxOverrides.substr(str,1,str.length - 1);
 		var list = str.split("&");
-		console.log(list);
+		Tracer.log(list);
 		var _g1 = 0;
 		var _g = list.length;
 		while(_g1 < _g) {
@@ -1604,10 +1652,10 @@ objects.MyFaceSingle.prototype = $extend(THREE.Object3D.prototype,{
 		if(common.Dat.bg) return;
 		this._daeLoader = d;
 		var gg;
-		if(this.index < 3) {
+		if(this.index < 5) {
 			gg = this._daeLoader.geometry.clone();
 			objects.MyFaceSingle.geometries[this.index] = gg;
-		} else gg = objects.MyFaceSingle.geometries[this.index % 3];
+		} else gg = objects.MyFaceSingle.geometries[this.index % 5];
 		this.dae = new THREE.Mesh(gg,new THREE.MeshDepthMaterial());
 		this.dae.castShadow = true;
 		this.dae.scale.set(70,70,70);
@@ -1653,7 +1701,7 @@ objects.MyFaceSingle.prototype = $extend(THREE.Object3D.prototype,{
 		if(common.Dat.bg) return;
 		if(this.dae == null) return;
 		if(!this.visible) return;
-		if(this.index >= 3) return;
+		if(this.index >= 5) return;
 		if(!objects.MyFaceSingle.isActive) return;
 		this._pauseCount++;
 		this._audio = audio;
@@ -1917,8 +1965,8 @@ objects.objs.Faces.prototype = $extend(objects.MatchMoveObects.prototype,{
 		this._material.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0,1,0),1)];
 		this._material.clipShadows = true;
 		this._material.side = 2;
-		console.debug("===");
-		console.debug(THREE.ShaderLib.phong.fragmentShader);
+		Tracer.debug("===");
+		Tracer.debug(THREE.ShaderLib.phong.fragmentShader);
 		this._faces = [];
 		var _g = 0;
 		while(_g < 25) {
@@ -2702,7 +2750,7 @@ objects.objs.motion.FaceMotion.prototype = {
 			var _g11 = this._faces.length;
 			while(_g21 < _g11) {
 				var i1 = _g21++;
-				this._faces[i1].position.y += 0.15;
+				this._faces[i1].position.y += 0.2;
 				if(this._faces[i1].position.y > this._spaceY * 5) this._faces[i1].position.y = -this._spaceY * 5;
 			}
 			break;
@@ -3487,7 +3535,7 @@ objects.MyDAELoader.MAX_Y = 1.36578;
 objects.MyDAELoader.MIN_Y = -1.13318;
 objects.MyFaceSingle.isActive = false;
 objects.MyFaceSingle.geometries = [];
-objects.MyFaceSingle.MAX = 3;
+objects.MyFaceSingle.MAX = 5;
 objects.data.EffectData.COLOR_NONE = 0;
 objects.data.EffectData.COLOR_GRADE = 1;
 objects.data.EffectData.COLOR_MONO = 2;
@@ -3524,5 +3572,3 @@ video.VideoPlayer.MODE_VIDEO = "MODE_VIDEO";
 video.VideoPlayer.MODE_3D = "MODE_3D";
 Main.main();
 })();
-
-//# sourceMappingURL=haxetest.js.map
