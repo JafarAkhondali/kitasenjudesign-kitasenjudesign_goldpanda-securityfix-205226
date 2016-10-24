@@ -13,7 +13,7 @@ class StageSize
 		
 	}
 
-	public static function getWidth():Float {
+	public static function getWidth():Int {
 		
 		return Browser.window.innerWidth;
 		

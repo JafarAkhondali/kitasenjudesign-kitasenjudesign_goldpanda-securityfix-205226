@@ -11,7 +11,7 @@ import js.Browser;
 class Main 
 {
 	
-	private static var _maps:Maps;
+	private static var _maps:Maps2;
 	
 	static function main() 
 	{
@@ -24,7 +24,7 @@ class Main
 	
 	private function initialize(e):Void
 	{
-		_maps = new Maps();
+		_maps = new Maps2();
 		_maps.init();
 		
 	}

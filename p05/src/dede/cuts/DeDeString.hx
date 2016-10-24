@@ -15,13 +15,13 @@ class DeDeString
 	public static var texts:Array<Dynamic> = [
 	
 		{ text:"デデデデデ", font:0, spaceX:30 },
-		{ text:"SHIBUYAWWW", font:1, spaceX:40 },
+		{ text:"RINGO", font:1, spaceX:40 },
 		{ text:"DEDEMOUSE", font:1, spaceX:40 },
 		{ text:"デデデデデ", font:0, spaceX:30 },
 		{ text:"DEDE", font:1, spaceX:40 },
 		{ text:"KITASENJUDESIGN", font:1, spaceX:40 },
 		{ text:"デデデデデ", font:0, spaceX:30 },
-		{ text:"GOLDPANDA", font:1, spaceX:40 }
+		{ text:"TOKYODESIGNWEEK2016", font:1, spaceX:40 }
 		
 	];
 	

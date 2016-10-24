@@ -34,15 +34,20 @@ class MainDrawer extends Container
 	private var _isStart:Bool = false;
 	private var _motionData:MotionData;
 	private var _moji:String;
+
+	private var _ww:Float;
+	private var _hh:Float;
 	
 	public function new() 
 	{
 		super();
 	}
 
-	public function init(data:MapData, moji:String, callback:Void->Void):Void {
+	public function init(data:MapData, moji:String, ww:Float, hh:Float, callback:Void->Void):Void {
 
 		_moji = moji;
+		_ww = ww;
+		_hh = hh;
 		
 		_data = data;
 		_callback = callback;
@@ -57,7 +62,7 @@ class MainDrawer extends Container
 		//_img.src = "20160528125235.jpg";
 		
 		#if debug
-			_img.src = "20160528125235.png";
+			_img.src = "mona.jpg";// "20160528125235.png";
 			data.title = "A";
 			data.region = "A";
 		#else
@@ -102,14 +107,14 @@ class MainDrawer extends Container
 		}
 		var ox:Float = -width / 2;// _helv.getWidth( str.substr(0, 1).toUpperCase() ) * SCALE / 2;
 		
-		var scale:Float = Browser.window.innerWidth / width * 0.4;
+		var scale:Float = _ww / width * 0.4;
 		if (str.length >= 3) {
-			scale = Browser.window.innerWidth / width;
+			scale = _ww / width;
 		}
 		_container.scaleX = scale;
 		_container.scaleY = scale;
-		_container.x = Browser.window.innerWidth / 2;
-		_container.y = StageSize.getHeight() / 2;
+		_container.x = _ww / 2;
+		_container.y = _hh / 2;
 		
 		//
 		_motionData = MotionData.getData();
@@ -120,7 +125,6 @@ class MainDrawer extends Container
 			_motionData.mode = MotionData.MODE_ONE;// Math.random() < 0.5  ? MotionData.MODE_MULTI : MotionData.MODE_ONE;
 		}
 		
-		
 		for (i in 0...str.length) {
 			var ss:String = str.substr(i, 1).toUpperCase();
 			var ww:Float = _helv.getWidth( ss ) * SCALE;
@@ -129,7 +133,8 @@ class MainDrawer extends Container
 				ss, 
 				ox,//-width/2, 
 				0,//Browser.window.innerHeight / 2
-				scale
+				scale,
+				scale * _img.width / _ww
 			);
 			ox += ww/2 + space;
 		}
@@ -137,23 +142,20 @@ class MainDrawer extends Container
 		_isStart = true;
 	}
 	
-	private function _makeTypo(moji:String, xx:Float, yy:Float, scale:Float):Void
+	private function _makeTypo(moji:String, xx:Float, yy:Float, scale:Float, ss:Float):Void
 	{
-
+		
+		
+		var shape:ExShaper = new ExShaper(_motionData);
+		
 		var m:Matrix2D = new Matrix2D();
-		m.scale(1 / scale, 1 / scale);
+		m.scale(1 / ss, 1 / ss);
 		m.translate( 
 			(-xx-_container.x/scale), // scale,
 			(-yy-_container.y/scale) // scale
 		);
 		
-		
-				
-		var shape:ExShaper = new ExShaper(_motionData);
-		
-		//shape.graphics.beginStroke("#ffffff");
 		shape.graphics.beginBitmapFill(_img, null, m);
-		//shape.graphics.beginFill("#ff0000");
 		shape.x = xx;
 		shape.y = yy;
 		
@@ -182,8 +184,8 @@ class MainDrawer extends Container
 		
 		if (_isStart && _shapes != null && _motionData.mode == MotionData.MODE_MULTI) {
 			
-			var ww:Float = StageSize.getWidth();
-			var hh:Float = StageSize.getHeight();
+			var ww:Float = _ww;//StageSize.getWidth();
+			var hh:Float = _hh;//StageSize.getHeight();
 			
 			for (i in 0..._shapes.length) {
 				

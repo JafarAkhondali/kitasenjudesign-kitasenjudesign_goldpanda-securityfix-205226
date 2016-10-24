@@ -27,22 +27,26 @@ class BgDrawer extends Container
 	 * 
 	 * @param	img
 	 */
-	public function init(img:ImageElement):Void {
+	public function init(img:ImageElement,ww:Float,hh:Float):Void {
 		
 		_img = img;
 		//
 		
-		var stgWidth	:Float = Browser.window.innerWidth;
-		var stgHeight	:Float = StageSize.getHeight()+2;
-		
-		if (stgWidth > 1800) stgWidth = 1800;
+		var stgWidth	:Float = ww;// StageSize.getWidth();
+		var stgHeight	:Float = hh;// StageSize.getHeight() + 2;
 		
 		_shape1 = new Shape();
 		_shape1.y = 0;
-		_shape1.graphics.beginBitmapFill(_img);
+		
+		var s:Float = ww / img.width;
+		var m:Matrix2D = new Matrix2D();
+		m.scale(s,s);
+		_shape1.graphics.beginBitmapFill(_img,null,m );
 		//_shape1.graphics.beginFill("#ff0000");
-		_shape1.graphics.drawRect(0, 0, stgWidth, stgHeight/2);
-	
+		_shape1.graphics.drawRect(0, 0, ww, hh);
+		addChild(_shape1);
+
+		/*
 		var mm:Matrix2D = new Matrix2D();
 		mm.translate(0, -stgHeight / 2+1);
 
@@ -51,9 +55,8 @@ class BgDrawer extends Container
 		_shape2.graphics.beginBitmapFill(_img,mm);
 		_shape2.graphics.drawRect(0, 0, stgWidth, stgHeight/2);
 		
-		addChild(_shape1);
 		addChild(_shape2);
-		
+		*/
 	}
 	
 	/**
@@ -61,23 +64,6 @@ class BgDrawer extends Container
 	 */
 	public function update():Void {
 
-		/*
-		if (_shape1.y < -300) {
-		
-			_shape1.x = 0;
-			_shape1.y--;		
-			_shape2.x += 0.1;
-			_shape2.y++;
-			
-			
-		}else {
-		
-			_shape1.x -= 0.1;	
-			_shape1.y--;		
-			_shape2.x += 0.1;
-			_shape2.y++;
-			
-		}*/
 	}
 	
 }

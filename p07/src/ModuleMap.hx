@@ -44,27 +44,24 @@ class ModuleMap
 	private var _flag:Bool = false;
 	private var _isStart:Bool = false;
 	private var _type:Int = 0;
+	private var _id:String;
+	private var _ww:Int = 0;
+	private var _hh:Int = 0;
+	private var _callback:ModuleMap->Void;
 	
 	
-	
-	public function new(type:Int=0) 
-	{
-	
-		if (type == 0) {
-			_canvasName1 = "canvas1";
-			_canvasName2 = "canvas2";
-		}else {
-			_canvasName1 = "canvas3";
-			_canvasName2 = "canvas4";	
-		}
+	public function new(root:JQuery,id:String,ww:Int,hh:Int) 
+	{	
+		//tekitouni tsuika
+		_id = id;
+		_ww = ww;
+		_hh = hh;
 		
-		_type = type;
-		
-		_canvas1 = cast Browser.document.getElementById(_canvasName1);
-		_canvas2 = cast Browser.document.getElementById(_canvasName2);
-		
-		_div1 = new JQuery("#container" + _type );
-		_div1.hide();
+		_canvas1 = cast root.children(".canvas1").get(0);
+		_canvas2 = cast root.children(".canvas2").get(0);
+	
+		_div1 = root;
+		//_div1.hide();
 		
 		_stage1 = new Stage(cast _canvas1);
 		_stage1.autoClear = false;
@@ -94,23 +91,33 @@ class ModuleMap
 	}
 
 	
-	//tween0
-	public function tween(time:Int=30000,callback:Void->Void=null):Void {
+	//are
+	public function tween(time:Int=30000,xx:Float = 0, tgtY:Float= 0, callback:ModuleMap->Void=null):Void {
 		
 		trace("tween");
-		
-		
 		 _flag = false;
+		 _callback = callback;
 		 _div1.stop();
-		_div1.css(
-			{top:StageSize.getHeight()}
-		);
-		
-		_div1.animate(
-			{top:-StageSize.getHeight()},time,'linear',callback
+		_div1.css({
+			left:xx,
+			top:StageSize.getHeight()
+		});
+		_div1.velocity(
+			{top:tgtY},time,'linear'
 		);
 
 		_onResize(null);
+		Timer.delay(_onTween, time);
+	}
+	
+	private function _onTween():Void {
+		
+		//Browser.window.alert("kill");
+		_div1.remove();
+		if (_callback != null) {
+			_callback(this);
+		}
+		
 	}
 	
 	
@@ -126,15 +133,8 @@ class ModuleMap
 		//_onDown();
 	}
 	
-	public function next(moji:String):Void {
-		
-
-		setMoji(moji);
-		
-	}
 	
-	//reload
-	private function setMoji(moji:String):Void 
+	public function setMoji(moji:String):Void 
 	{
 		trace("_onDown");
 		if(_stage1!=null){
@@ -146,18 +146,12 @@ class ModuleMap
 		_data = _loader.getRandom();
 		
 		//new JQuery("#region_no").text("LOADING");
-		new JQuery("#region_no" + _type).text("#" + _data.id);
-		new JQuery("#title" + _type).text(_data.title);
-		new JQuery("#title" + _type).off("click");
-		new JQuery("#title" + _type).on("click", _goMap);
-		
-		new JQuery("#google" + _type).off("click");
-		new JQuery("#google" + _type).on("click", _goGoogle);
-		new JQuery("#google" + _type).text("earthview.withgoogle.com");
-		
-		new JQuery("#loading" + _type).show();
-		new JQuery("#loading" + _type).text("LOADING");
-		new JQuery("#title" + _type).text(_data.title);
+		new JQuery( _id + " .region_no").text("#" + _data.id);
+		new JQuery( _id + " .title").text(_data.title);
+		new JQuery( _id + " .google").text("earthview.withgoogle.com");
+		new JQuery( _id + " .loading").show();
+		new JQuery( _id + " .loading").text("LOADING");
+		new JQuery( _id + " .title").text(_data.title);
 		
 		if (_typo != null) {
 			_stage2.removeChild(_typo);
@@ -165,7 +159,9 @@ class ModuleMap
 		
 		///////////////kokode moji wo shitei
 		_typo = new MainDrawer();
-		_typo.init(_data, moji, _onLoadMainDrawer);//////////////////LOADER
+		_typo.init(
+			_data, moji, _ww,_hh, _onLoadMainDrawer
+		);//////////////////LOADER
 		_stage2.addChild(_typo);		
 		
 		//_div1.hide();
@@ -190,31 +186,21 @@ class ModuleMap
 		//new JQuery("#canvas2").show();
 		
 		_bg = new BgDrawer();
-		_bg.init(_typo.getImage());
+		_bg.init(_typo.getImage(),_ww,_hh);
 		_stage1.addChild(_bg);
 		_stage1.update();
 		_stage2.update();
 
 	}
 	
-	function _goMap(e) 
-	{
-		//Browser.window.location.href = _data.map;
-		Browser.window.open(_data.map, "map");
-	}
-	function _goGoogle(e) 
-	{
-		//Browser.window.location.href = _data.map;
-		Browser.window.open(_data.url, "google");
-	}
 	
 	function _onResize(e):Void 
 	{
-		_canvas1.width 		= Browser.window.innerWidth;
-		_canvas1.height 	= StageSize.getHeight()+2;
+		_canvas1.width 		= _ww;// StageSize.getWidth();
+		_canvas1.height 	= _hh;// StageSize.getHeight() + 2;
 		
-		_canvas2.width 		= Browser.window.innerWidth;
-		_canvas2.height 	= StageSize.getHeight()+2;
+		_canvas2.width 		= _ww;// StageSize.getWidth();
+		_canvas2.height 	= _hh;// StageSize.getHeight() + 2;
 		
 		if(_stage1!=null){
 			_stage1.clear();
@@ -234,9 +220,15 @@ class ModuleMap
 			_bg.update();
 		}
 		
-		_stage1.update();
+		//_stage1.update();
 		_stage2.update();
 		
 	}	
+	
+	public function kill() {
+		
+		_div1.remove();
+		
+	}
 	
 }

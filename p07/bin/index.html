@@ -17,54 +17,34 @@
 		
 	}
 	
-	#canvas1{
+	.canvas1{
 		position:absolute;
 		top:0px;
 		left:0px;
 		z-index:0;
 	}
-	#canvas2{
+	.canvas2{
 		position:absolute;
 		top:0px;
 		left:0px;
 		z-index:1;
 	}
-	#canvas3{
+	
+	.container1{
 		position:absolute;
 		top:0px;
 		left:0px;
-		z-index:2;
-	}
-	#canvas4{
-		position:absolute;
-		top:0px;
-		left:0px;
-		z-index:3;
-	}	
-	
-	
-	#container0{
-		position:absolute;
-		top:0px;
-		left:60px;
 		z-index:4;
 	}
-	#container1{
-		position:absolute;
-		top:0px;
-		left:60px;
-		z-index:5;
-	}		
 	
-	
-	#loading{
+	.loading{
 		color:#ffffff;
 		position:absolute;
 		z-index:201;
 		letter-spacing: 1px;
 	}
 	
-	#footer0{
+	.footer{
 		padding:5px;
 		position:absolute;
 		text-align:left;
@@ -72,23 +52,10 @@
 		cursor: pointer;
 		text-shadow: 0px 0px 4px #000;  
 		width:500px;
-		top:10px;
-		left:50px;		
+		top:2px;
+		left:10px;		
 	}
 
-	#footer1{
-		padding:5px;
-		position:absolute;
-		text-align:left;
-		z-index:200;
-		cursor: pointer;
-		text-shadow: 0px 0px 4px #000;  
-		width:500px;
-		top:10px;
-		left:50px;
-	}
-	
-	
 	.region{
 		color:#ffffff;
 		letter-spacing: 2px;
@@ -102,12 +69,6 @@
 		font-size:14px;	
 	}
 	
-	#title:hover{
-		opacity:0.5;
-	}
-	#google:hover{
-		opacity:0.5;
-	}
 	
 	#black{
 		position:absolute;
@@ -118,9 +79,17 @@
 		z-index:15;		
 	}
 	
+	#hoge{
+		position: absolute;
+		top: 0px;
+		left: 0px;
+	}
+	
 	</style>
 </head>
 <body>
+	
+	<div id="hoge"></div>
 	
 	<div id="loading"></div>
 	
@@ -135,25 +104,16 @@
 	<script src="Sin.js"></script>
 	
 	
-	<div id="container0">
-		<div id="footer0">
-			<div class="mini" id="region_no0"></div>
-			<div class="region" id="title0"></div>
-			<div class ="mini" id="google0"></div>		
+	<div id="container" class="container1">
+		<div class="footer">
+			<div class = "mini region_no"></div>
+			<div class = "region title"></div>
+			<div class ="mini google"></div>		
 		</div>		
-		<canvas id="canvas1"></canvas>
-		<canvas id="canvas2"></canvas>	
+		<canvas class="canvas1"></canvas>
+		<canvas class="canvas2"></canvas>	
 	</div>
 	
-	<div id="container1">
-		<div id="footer1">
-			<div class="mini" id="region_no1"></div>
-			<div class="region" id="title1"></div>
-			<div class ="mini" id="google1"></div>		
-		</div>		
-		<canvas id="canvas3"></canvas>
-		<canvas id="canvas4"></canvas>	
-	</div>
 	
 </body>
 </html>
