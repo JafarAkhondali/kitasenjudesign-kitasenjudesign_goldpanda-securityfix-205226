@@ -1,5 +1,7 @@
 package effect;
+import effect.BgPlane;
 import effect.pass.DisplacementPass;
+import effect.pass.XLoopPass;
 import effect.shaders.CopyShader;
 import sound.MyAudio;
 import three.PerspectiveCamera;
@@ -32,6 +34,7 @@ class PostProcessing2
 	private var _renderPass:RenderPass;
 	private var _composer:EffectComposer;
 	private var _displacePass	:DisplacementPass;
+	private var _xLoopPass		:XLoopPass;
 	
 	private var _scene	:Scene;
 	private var _camera	:PerspectiveCamera;
@@ -43,17 +46,27 @@ class PostProcessing2
 	//private var _currentTexture:Texture;
 	//private var _callback:Void->Void;
 	private var strength:Float=0;
+	private var _plane:BgPlane;
 	
 	public function new() 
 	{
 		
 	}
 
+	/**
+	 * 
+	 * @param	scene
+	 * @param	camera
+	 * @param	renderer
+	 */
 	public function init(scene:Scene,camera:PerspectiveCamera,renderer:WebGLRenderer):Void {
 		
 		_scene = scene;
 		_camera = camera;
 		_renderer = renderer;
+		
+		_plane = new BgPlane();
+		_scene.add(_plane);		
 		
 		_renderPass = new RenderPass( scene, camera );
 		//_renderPass
@@ -62,11 +75,13 @@ class PostProcessing2
 		_composer = new EffectComposer( renderer );
 		_composer.addPass( _renderPass );
 		
-		//
 		_displacePass = new DisplacementPass();
 		_displacePass.enabled = true;
 		_composer.addPass( _displacePass );
 		
+		_xLoopPass = new XLoopPass();
+		_xLoopPass.enabled = true;
+		//_composer.addPass( _xLoopPass );
 		//passes
 		//_xLoopPass = new XLoopPass();
 		//_xLoopPass.enabled = true;
@@ -85,7 +100,7 @@ class PostProcessing2
 	//displace2
 	public function change(isColor:Bool,isDisplace:Bool):Void {
 		
-		//_xLoopPass.setTexture(isColor,isDisplace);
+		_xLoopPass.setTexture(isColor,isDisplace);
 		_displacePass.setTexture(isColor, isDisplace);
 		
 	}
@@ -112,10 +127,12 @@ class PostProcessing2
 	
 	public function update(audio:MyAudio) 
 	{
-		//_xLoopPass.update(audio);
+		_xLoopPass.update(audio);
 		_displacePass.update(audio);
 		
 		_composer.render();
+		_plane.update(_composer.renderTarget1, _composer.renderTarget2);
+		
 		
 		/*
 		tilt.uniforms.v.value = 2 / 512 + 1 / 512 * Math.sin(_rad);

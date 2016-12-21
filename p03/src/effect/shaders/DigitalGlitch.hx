@@ -15,6 +15,8 @@ class DigitalGlitch
 	public static function getObject():Dynamic {
 		
 
+		
+		
 		return {
 			uniforms: {
 				"tDiffuse":		{ type: "t", value: null },//diffuse texture

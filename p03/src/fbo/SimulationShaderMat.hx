@@ -27,8 +27,9 @@ class SimulationShaderMat extends ShaderMaterial
 		//varying float fragDepth;
 		void main() {
 			vLife = life;
-			vStarts = starts;
+			
 			vUv = vec2(uv.x, uv.y);
+			vStarts = starts;
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 		}	
 	";
@@ -57,34 +58,38 @@ class SimulationShaderMat extends ShaderMaterial
 		
 		void main() {
 
-			vec3 pos = texture2D( texture, vUv ).xyz;
+			vec2 uvv = vUv;
+			uvv.y = 1.0 - uvv.y;
+			vec4 pixel = texture2D( texture, uvv );//irowo hirou
+			vec3 pos = pixel.xyz;
+			float a = pixel.w;
 			
-			//vec3 tar = pos + curl( pos.x * frequency, pos.y * frequency, pos.z * frequency ) * amplitude;
-			//float d = length( pos-tar ) / maxDistance;
-			//pos = mix( pos, tar, pow( d, 5. ) );
 			
 			float rr = 0.2 * sin(timer * 0.1);
 			vec3 vv = curlNoise(pos * rr);/////koko
-			vv.x *= freqs.x / 255.0 * 10.0 * strength;
-			vv.y *= freqs.y / 255.0 * 10.0 * strength;
-			vv.z *= freqs.z / 255.0 * 10.0 * strength;
+			vv.x *= freqs.x / 255.0 * 5.0 * strength;
+			vv.y *= freqs.y / 255.0 * 5.0 * strength;
+			vv.z *= freqs.z / 255.0 * 5.0 * strength;
 			
-			//pos = pos + vv * 2.5;
 			pos = pos + vv;// * freqByteData[3] / 255.0 * 10.0;
+			//pos = vec3(vUv.x*20.0+vv.x*10.0,vUv.y*20.0,0.0);
 			
 			//pos.y += hoge.y * 2.1;
 			//pos.z += hoge.z * 2.1;
 			float nn = fract( timer + vLife );
 			
+			//a = a - 0.01;
 			
-			if ( nn > 0.95 || resetFlag == 1.0 ) {
-				//if (length(pos) > 500.0) {
-				pos = vStarts;// start + curlNoise( vec3(vLife * 10.0, vLife * 11.1, vLife * 13.3) ) * 10.0;// * 0.01;
+			//if ( a < 0.0 || resetFlag == 1.0 ) {
+			
+			if (length(pos) > 300.0 || resetFlag == 1.0) {
+				float nn = fract(timer);
+				pos = curlNoise( pos * nn ) * nn * 100.0;
 				//pos = start + curlNoise( vec3(vLife * 10.0, vLife * 11.1, vLife * 13.3) ) * 10.0;// * 0.01;
-			
+				a = 1.0;
 			}
 			
-			gl_FragColor = vec4( pos, 1. );//pos wo hozon
+			gl_FragColor = vec4( pos, a );//pos wo hozon
 
 		}	
 	";
@@ -104,7 +109,7 @@ class SimulationShaderMat extends ShaderMaterial
 		
 //var texture = new THREE.DataTexture( data, width, height, THREE.RGBFormat, THREE.FloatType, THREE.DEFAULT_MAPPING, THREE.RepeatWrapping, THREE.RepeatWrapping );
 		
-		var data:Float32Array = getSphere( width * height, 250 );
+		var data:Float32Array = getSphere( width*height,width,height, 250 );
         var texture:DataTexture = new DataTexture( 
 			data,
 			width,
@@ -165,6 +170,7 @@ class SimulationShaderMat extends ShaderMaterial
 		uniforms.start.value.z = amp * Math.sin( _rad * 0.90 );
 		
 		if (_isReset) {
+			trace("RESET");
 			uniforms.resetFlag.value = 1;
 			_isReset = false;
 		}else {
@@ -179,7 +185,7 @@ class SimulationShaderMat extends ShaderMaterial
 	 * @param	size
 	 * @return
 	 */
-	private function getSphere( count:Int, size:Float ):Float32Array{
+	private function getSphere( count:Int, ww:Int, hh:Int, size:Float ):Float32Array{
 
             var len:Int = count * 3;
             var data = new Float32Array( len );
@@ -188,7 +194,7 @@ class SimulationShaderMat extends ShaderMaterial
 			var i:Int = 0;
             for( j in 0...len )
             {
-                p = getPoint(size );
+                p = getPoint(size,ww,hh,j);
                 data[ i     ] = p.x;
                 data[ i + 1 ] = p.y;
                 data[ i + 2 ] = p.z;
@@ -204,39 +210,27 @@ class SimulationShaderMat extends ShaderMaterial
 	}
 	
 	
-	private function getPoint(size:Float ):Vector3
+	private function getPoint(size:Float,ww:Int,hh:Int,j:Int ):Vector3
     {
             //the 'discard' method, not the most efficient
-			
+			/*
 			var list:Array<Vertex> = FboMain.dae.meshes[0].geometry.vertices;
 			var v3:Vector3 = list[Math.floor(list.length * Math.random())].clone();
-			v3.x *= 100;
-			v3.y *= 100;
-			v3.z *= 100;
+			*/
+			var v3:Vector3 = new Vector3();
+			v3.x = 100 * (Math.random() - 0.5);
+			v3.y = 100 * (Math.random() - 0.5);
+			v3.z = 100 * (Math.random() - 0.5);
+			
+			//v3.x = (j % hh) * 10;
+			//v3.y = Math.floor( j / hh ) * 10;
+			//v3.z = 0;
+			
+			//v3.x += 20 * (Math.random() - 0.5);
+			//v3.y += 20 * (Math.random() - 0.5);
+			//v3.z += 20 * (Math.random() - 0.5);
 			
 			return v3;
-			
-            /*
-			v.x = Math.random() * 2 - 1 ;
-            v.y = Math.random() * 2 - 1 ;
-            v.z = Math.random() * 2 - 1 ;
-            if(v.length()>1)return getPoint(v,size);
-            return v.normalize().multiplyScalar(size);
-			*/
-            //exact but slow-ish
-            /*
-            var phi = Math.random() * 2 * Math.PI;
-            var costheta = Math.random() * 2 -1;
-            var u = Math.random();
-
-            var theta = Math.acos( costheta );
-            var r = size * Math.cbrt( u );
-
-            v.x = r * Math.sin( theta) * Math.cos( phi );
-            v.y = r * Math.sin( theta) * Math.sin( phi );
-            v.z = r * Math.cos( theta );
-            return v;
-            //*/
     }
 	
 }

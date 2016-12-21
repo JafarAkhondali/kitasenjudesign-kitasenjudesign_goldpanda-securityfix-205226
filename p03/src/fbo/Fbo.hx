@@ -1,5 +1,6 @@
 package fbo;
 import emoji.Emoji;
+import js.Browser;
 import js.html.Float32Array;
 import sound.MyAudio;
 import three.BufferAttribute;
@@ -79,7 +80,15 @@ class Fbo
         simGeo.addAttribute( 
 			'position', 
 			new BufferAttribute( 
-				new Float32Array([   -1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0 ]), 3
+				new Float32Array(
+					[
+						-1, -1, 0,//0
+						1, -1, 0,//1
+						1, 1, 0,//2
+						-1, -1, 0,//3
+						1, 1, 0,//4
+						-1, 1, 0//5
+					]), 3
 			)
 		);
         simGeo.addAttribute( 
@@ -96,14 +105,12 @@ class Fbo
         }
 
 		var starts:Float32Array = new Float32Array( l * 3 );
-		var vs:Array<Vertex> = FboMain.dae.meshes[0].geometry.vertices;
-		var vsLen:Int = vs.length;
-         for ( i in 0...l) {
+        for ( i in 0...l) {
 			 var i3:Int = i * 3;
-			 var idx:Int = Math.floor( vsLen * Math.random() );
-            starts[ i3 + 0 ] = vs[idx].x * 100;
-			starts[ i3 + 1 ] = vs[idx].y * 100;			
-			starts[ i3 + 2 ] = vs[idx].z * 100;
+			//var idx:Int = Math.floor( vsLen * Math.random() );
+            starts[ i3 + 0 ] = 200 * (Math.random() - 0.5);
+			starts[ i3 + 1 ] = 200 * (Math.random() - 0.5);//vs[idx].y * 100;			
+			starts[ i3 + 2 ] = 200 * (Math.random() - 0.5);//vs[idx].z * 100;
         }		
 		
 		
@@ -117,7 +124,7 @@ class Fbo
 		_simMesh = new Mesh( cast simGeo, _simuShaderMat );
 		_simScene.add( _simMesh );
         //exports.simuMat = simulationMaterial;
-
+		
 		
         //6 the particles:
         //create a vertex buffer of size width * height with normalized coordinates
@@ -130,10 +137,38 @@ class Fbo
 	}
 	
 	
+	public function changeStartPos() {
+	
+		//data texture de watasu shikanai...
+		
+		var g:BufferGeometry = cast _simMesh.geometry;
+		var ary:Array<Dynamic> = g.attributes.starts.array;
+		
+		var flag:Bool = (Math.random() < 0.5) ? true :false; 
+		var nn:Int = Math.floor(ary.length / 3);
+		var amp:Float = 100;// +100 * Math.random();
+						
+		//Browser.window.alert("" + flag);
+		
+		for ( i in 0...nn) {
+           			
+			
+			var i3 = i * 3;
+				ary[ i3 + 0 ] =  100 * (Math.random() -0.5);
+				ary[ i3 + 1 ] =  200 * (Math.random() -0.5);
+				ary[ i3 + 2 ] =  0;// 40 * (Math.random() -0.5);
+			
+        }
+		g.attributes.starts.needsUpdate = true;
+	
+	}
+	
+	
 	/**
 	 * next
 	 */
 	public function next():Void {
+		
 		
 		var isRandom:Bool = Math.random() < 0.5 ? true : false;
 		

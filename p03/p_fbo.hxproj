@@ -36,6 +36,7 @@
   <compileTargets>
     <compile path="extern\src\Main.hx" />
     <compile path="src\Main.hx" />
+    <compile path="src\fbo\FboMain.hx" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>

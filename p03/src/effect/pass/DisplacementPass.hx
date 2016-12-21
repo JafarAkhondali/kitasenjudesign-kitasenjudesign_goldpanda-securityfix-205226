@@ -26,10 +26,29 @@ class DisplacementPass extends ShaderPass
 					uniform sampler2D colTexture;
 					uniform float strengthX;
 					uniform float strengthY;
+					uniform float strengthZ;					
 					uniform float counter;
 					uniform float isDisplace;
 					uniform float isColor;
 					varying vec2 vUv;
+					
+					vec3 rgb2hsv(vec3 c)
+					{
+						vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+						vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+						vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+						float d = q.x - min(q.w, q.y);
+						float e = 1.0e-10;
+						return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+					}
+					
+					vec3 hsv2rgb(vec3 c)
+					{
+						vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+						vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+						return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+					}					
 					
 					vec4 getColor(vec4 texel) {
 						
@@ -62,7 +81,20 @@ class DisplacementPass extends ShaderPass
 								vUv.x + (col.y-0.5)*f1, vUv.y + (col.z-0.5)*f2
 							);
 							
-							texel = texture2D( tDiffuse, axis );
+							
+							float shiftR = strengthX*0.01 + 1.0;
+							float shiftG = strengthY*0.01 + 1.0;
+							float shiftB = strengthZ*0.01 + 1.0;
+							
+							float rr = texture2D( tDiffuse, axis * shiftR ).x;
+							float gg = texture2D( tDiffuse, axis * shiftG ).y;
+							float bb = texture2D( tDiffuse, axis * shiftB ).z;
+							
+							texel.x = rr;
+							texel.y = gg;
+							texel.z = bb;
+							texel.w = 1.0;
+							
 						}else {
 							
 							texel = texture2D( tDiffuse, vUv );
@@ -78,12 +110,14 @@ class DisplacementPass extends ShaderPass
 						//position
 						vec4 out1 = vec4(0.0);
 						
+						//x zurasu yatsu wo
 						if( isColor == 1.0){
 							out1 = getColor(texel);
 						}else {
 							out1 = texel;
 						}
 						
+						//out1 *= 0.999;
 						/*
 						if ( texel.x == 0.0 || mod( floor( texel.x * 1000.0 + counter ),2.0) == 0.0 ) {
 							texel.x = 0.0;
@@ -99,6 +133,10 @@ class DisplacementPass extends ShaderPass
 							texel.y = out1.y;//1.0;
 							texel.z = out1.z;//1.0;							
 						*/
+						
+						//vec3 col = rgb2hsv(out1.xyz);
+						//col.x += 0.001;
+						//out1.xyz = hsv2rgb(col);
 						
 						gl_FragColor = out1;
 						//gl_FragColor =  out1;// texel;
@@ -118,9 +156,25 @@ class DisplacementPass extends ShaderPass
 		//for (i in 1...11) {	
 		//	_textures.push( ImageUtils.loadTexture("displace/displace" +(i)+".png") );
 		//}
+		//_textures.push( TexLoader.getTexture( Path.assets + "displace/mona.jpg") );
+		
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/noise.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/guruguru.png") );
+		
 		_textures.push( TexLoader.getTexture( Path.assets + "displace/displaceA.png") );
 		_textures.push( TexLoader.getTexture( Path.assets + "displace/displaceV.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace.jpg") );
 		_textures.push( TexLoader.getTexture( Path.assets + "displace/displaceH.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace0.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace1.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace2.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace3.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace4.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "displace/displace5.png") );
+		
+		_textures.push( TexLoader.getTexture( Path.assets + "grade/grade.png") );
+		_textures.push( TexLoader.getTexture( Path.assets + "grade/grade.png") );
+		
 		
 		_colors = [
 			ImageUtils.loadTexture( Path.assets + "grade/grade.png"),
@@ -139,6 +193,7 @@ class DisplacementPass extends ShaderPass
 				"colTexture": { type: "t", value: _colors[3] },
 				"strengthX": { type:"f", value:0 },
 				"strengthY": { type:"f", value:0 },
+				"strengthZ": { type:"f", value:0 },
 				"counter":{type:"f",value:0}
 			},		
 			vertexShader: _vertex,
@@ -152,8 +207,10 @@ class DisplacementPass extends ShaderPass
 	
 		if (!enabled) return;
 		
-		uniforms.strengthX.value = Math.pow( audio.freqByteData[3] / 255, 4) * 0.75;
-		uniforms.strengthY.value = Math.pow( audio.freqByteData[7] / 255, 4) * 0.75;
+		uniforms.strengthX.value = 0.02 + Math.pow( audio.freqByteData[3] / 255, 4) * 0.75;
+		uniforms.strengthY.value = 0.02 + Math.pow( audio.freqByteData[7] / 255, 4) * 0.75;
+		uniforms.strengthZ.value = 0.02 + Math.pow( audio.freqByteData[5] / 255, 4) * 0.75;
+		
 		uniforms.counter.value += audio.freqByteData[3] / 255 * 0.8;		
 		
 	}

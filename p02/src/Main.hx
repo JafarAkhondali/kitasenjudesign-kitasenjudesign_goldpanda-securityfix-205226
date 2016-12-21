@@ -25,6 +25,6 @@ class Main
 	{
 		var main:Main3d = new Main3d();
 		main.init();
-		
 	}
+	
 }

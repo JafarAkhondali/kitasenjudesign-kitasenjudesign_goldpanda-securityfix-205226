@@ -34,10 +34,12 @@ void main() {
 	//positions画像のuv と vertexのposition が 対応するようになっている
     //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices
     vec3 pos = texture2D( positions, position.xy ).xyz;
+	//vec3 pos = vec3(position.x * 100.0, position.y * 100.0, 40.0);
+	
 	vUv = uv;
 
 	vaOffset = aOffset;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4( pos + rand, 1.0 );
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( pos /*+ rand * 10.0*/, 1.0 );
 	gl_PointSize = 2.0 * scale / gl_Position.w;	
 	
     //pos now contains the position of a point in space taht can be transformed
@@ -58,11 +60,13 @@ void main()
 {
 			vec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);
 			vec4 color0 = texture2D( texture, uv * repeat + vaOffset  );//
+			//vec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);
+			//vec4 color0 = texture2D( texture, gl_PointCoord );//
 			
 			if (color0.w < 0.5) {
 				discard;
 			}else{
-				gl_FragColor = color0;
+				gl_FragColor = color0;// vec4(gl_PointCoord.x, 1.0 - gl_PointCoord.y, 0, 1.0);// color0;
 			}
 }
 	";
@@ -84,8 +88,8 @@ void main()
                 vertexShader: _vertex,
                 fragmentShader: _fragment,
                 transparent: true,
-                side:Three.DoubleSide
-//                blending:THREE.AdditiveBlending
+                side:Three.DoubleSide,
+              //blending:Three.SubtractiveBlending
             } );		
 			depthTest = true;
 			transparent = true;

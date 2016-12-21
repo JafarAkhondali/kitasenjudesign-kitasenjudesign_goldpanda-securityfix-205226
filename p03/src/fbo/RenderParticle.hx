@@ -1,5 +1,6 @@
 package fbo;
 import emoji.Emoji;
+import js.Browser;
 import js.html.Float32Array;
 import three.BufferAttribute;
 import three.BufferGeometry;
@@ -30,6 +31,7 @@ class RenderParticle extends Points
         //_line = new Line( cast particleGeo, _renderShaderMat );
         //_mesh = new Mesh( cast particleGeo, _renderShaderMat );
 
+		//_renderShaderMat.blending = Three.AdditiveBlending;
 		super(cast _particleGeo, _renderShaderMat);
 		
 		this.sortParticles = true;
@@ -42,8 +44,9 @@ class RenderParticle extends Points
         var vertices = new Float32Array( l * 3 );
         for ( i in 0...l) {
             var i3:Int = i * 3;
-            vertices[ i3 ] = ( i % _width ) / _width ;
-            vertices[ i3 + 1 ] = ( i / _width ) / _height;
+            vertices[ i3 ] = ( i % _width ) / _width;
+            vertices[ i3 + 1 ] = Math.floor( i / _width ) / _height;
+			vertices[ i3 + 2 ] = 0;//no use
         }
 
 		//textureの位置そ示している
@@ -80,6 +83,7 @@ class RenderParticle extends Points
 	
 	public function updateIconPos(idx:Int,isRandom:Bool=false):Void {
 		
+		//Browser.window.alert(_width + " " + _height);
 		
 		if (!isRandom) {
 			if(Math.random() < 0.2) {
@@ -91,18 +95,18 @@ class RenderParticle extends Points
 			
 		}
 
-		
-		_particleGeo.attributes.aOffset.needsUpdate = true;
 		var ary:Array<Dynamic> = _particleGeo.attributes.aOffset.array;
-		
+		//_particleGeo.attributes.aOffset.needsUpdate = true;
 		var l:Int = _width * _height;
 		for ( i in 0...l) {
             var i2:Int = i * 2;
 			var pos:Vector2 = (isRandom) ? _getIconPos(Math.floor(Math.random() * Emoji.NUM)) : _getIconPos(idx);
+			//var pos:Vector2 = _getIconPos(i % 3);
 			
 			ary[ i2 ] = pos.x;
 			ary[ i2 + 1 ] = pos.y;
         }
+		_particleGeo.attributes.aOffset.needsUpdate = true;
 		
 	}
 	

@@ -34,7 +34,7 @@ class FboMain
 	private var _audio		:MyAudio;
 	private var _pp			:PostProcessing2;
 	private var _line		:Line;
-	private var _isPP		:Bool = false;
+	private var _isPP		:Bool = true;
 	public static var dae:MyDAELoader;
 	
 	public function new() 
@@ -93,7 +93,7 @@ class FboMain
 		_camera.amp = 1000;
 		
 		//_renderer.shadowMapEnabled = true;
-		_renderer.setClearColor(new Color(0x000000));
+		_renderer.setClearColor(new Color(0xffffff));
 		
 		_pp = new PostProcessing2();
 		_pp.init(_scene, _camera, _renderer);
@@ -101,7 +101,7 @@ class FboMain
 		
 		_fbo = new Fbo();
 		//var num:Int = 128;
-		var num:Int = 128;
+		var num:Int = 64;// 32;// 128;
 		
 		_fbo.init(num, num);
 		_particles = _fbo.getParticles();
@@ -109,7 +109,7 @@ class FboMain
 		_line = _fbo.getLine();
 		
 		if(!Dat.bg){
-			_scene.add(_line);
+			//_scene.add(_line);
 		}
 		
 		//_scene.add(_fbo.getMesh());
@@ -149,7 +149,11 @@ class FboMain
 		var n:Int = Std.parseInt(e.keyCode);
 		switch(n) {
 			case Dat.RIGHT:
+				if(Math.random()<0.5){
+					_fbo.changeStartPos();
+				}
 				next();
+				reset();
 				
 			case Dat.UP:
 				setPP();//random effect
@@ -170,9 +174,9 @@ class FboMain
 	
 	public function next():Void {
 		
-		_camera.amp = 300 + 1000 * Math.random();
+		_camera.amp = 300 + 700 * Math.random();
 		if (Math.random() < 0.2) {
-			_camera.amp = 100 + 300 * Math.random();
+			_camera.amp = 50 + 200 * Math.random();
 		}
 		
 		if (_isPP) setPP();
