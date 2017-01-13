@@ -50,7 +50,7 @@ class Katoris extends PrimitiveBase
 			
 		//konnna 
 		
-		for (i in 0...23) {
+		for (i in 0...30) {
 			
 			var cube:ExMesh = new ExMesh(geo,mm);	
 			add(cube);

@@ -38,6 +38,7 @@ class Mosaic extends Object3D
 		
 		_scene = scene;
 		_renderer = renderer;
+		//_renderer.autoClear = false;
 		_camera = camera;
 		
 		_emoji = new Emojis();		

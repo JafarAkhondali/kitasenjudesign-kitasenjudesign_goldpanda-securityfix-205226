@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=640">
+	<meta charset="utf-8"/>
+	<title>Crop Circle Typography</title>
+	
+	<meta property="og:image" content="http://65.media.tumblr.com/c980aff5f23c9fcc360cb68a9159df2f/tumblr_obwt1aOzSa1t1xi2oo1_1280.png">
+	<meta name="description" content="" />
+	<style type="text/css">
+	body{
+		background-color:#000;
+		margin:0;
+		padding:0;
+		overflow:hidden;
+		font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+		
+	}
+	
+	.canvas1{
+		position:absolute;
+		top:0px;
+		left:0px;
+		z-index:0;
+		background-color:#888;
+	}
+	.canvas2{
+		position:absolute;
+		top:0px;
+		left:0px;
+		z-index:1;
+		
+	}
+	
+	.container1{
+		position:absolute;
+		top:-500px;
+		left:0px;
+		z-index:4;
+		background-color:#000;
+	}
+	
+	.loading{
+		color:#ffffff;
+		position:absolute;
+		z-index:201;
+		letter-spacing: 1px;
+	}
+	
+	.footer{
+		padding:5px;
+		position:absolute;
+		text-align:left;
+		z-index:200;
+		cursor: pointer;
+		text-shadow: 0px 0px 4px #000;  
+		width:500px;
+		top:2px;
+		left:10px;		
+	}
+
+	.region{
+		color:#ffffff;
+		letter-spacing: 2px;
+		font-size:24px;
+		margin-bottom:1px;
+	}
+	.mini{
+		margin-top:1px;
+		color:#ffffff;
+		letter-spacing: 1px;
+		font-size:14px;	
+	}
+	
+	
+	#black{
+		position:absolute;
+		background-color:#000;
+		width:100%;
+		height:50px;
+		bottom:0px;
+		z-index:15;		
+	}
+	
+	#hoge{
+		position: absolute;
+		top: 0px;
+		left: 0px;
+	}
+	
+	</style>
+</head>
+<body>
+	
+	<div id="hoge"></div>
+	
+	<div id="loading"></div>
+	
+	<div id="black"></div>
+	
+	<script src="../../lib/TweenMax.min.js"></script>
+	<script src="three.js"></script>
+	<script src="dat.gui.min.js"></script>
+	<script src="createjs-2013.09.25.min.js"></script>
+	<script src="jquery-1.10.2.min.js"></script>
+	<script src="velocity.min.js"></script>
+	<script src="Sin.js"></script>
+	
+	
+	<div id="container" class="container1">
+		<div class="footer">
+			<div class = "mini region_no"></div>
+			<div class = "region title"></div>
+			<div class ="mini google"></div>		
+		</div>		
+		<canvas class="canvas1"></canvas>
+		<canvas class="canvas2"></canvas>	
+	</div>
+	
+	
+</body>
+</html>

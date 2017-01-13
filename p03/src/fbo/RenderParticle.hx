@@ -81,30 +81,20 @@ class RenderParticle extends Points
 	}
 	
 	
-	public function updateIconPos(idx:Int,isRandom:Bool=false):Void {
+	public function updateIconPos(idx:Int,num:Float,isRandom:Bool=false):Void {
 		
 		//Browser.window.alert(_width + " " + _height);
-		
-		if (!isRandom) {
-			if(Math.random() < 0.2) {
-				//chochin
-				idx = 7 * 32 + 1;
-				//12 smile hoppe
-				//83 star
-			}
-			
-		}
-
 		var ary:Array<Dynamic> = _particleGeo.attributes.aOffset.array;
 		//_particleGeo.attributes.aOffset.needsUpdate = true;
+		var ox:Int = Math.floor( num * Math.random() );
 		var l:Int = _width * _height;
 		for ( i in 0...l) {
             var i2:Int = i * 2;
-			var pos:Vector2 = (isRandom) ? _getIconPos(Math.floor(Math.random() * Emoji.NUM)) : _getIconPos(idx);
+			var pos:Vector2 = (isRandom) ? _getIconPos( Math.floor(ox + Math.random() * num) ) : _getIconPos(idx);
 			//var pos:Vector2 = _getIconPos(i % 3);
 			
-			ary[ i2 ] = pos.x;
-			ary[ i2 + 1 ] = pos.y;
+			ary[ i2 ] 		= pos.x;
+			ary[ i2 + 1 ] 	= pos.y;
         }
 		_particleGeo.attributes.aOffset.needsUpdate = true;
 		

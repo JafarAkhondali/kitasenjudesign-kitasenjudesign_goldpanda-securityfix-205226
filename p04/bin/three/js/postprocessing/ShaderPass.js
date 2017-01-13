@@ -47,7 +47,8 @@ THREE.ShaderPass.prototype = {
 		if ( this.renderToScreen ) {
 
 			renderer.render( this.scene, this.camera,null,this.clear );
-
+			renderer.render( this.scene, this.camera, writeBuffer, this.clear );
+			
 		} else {
 
 			renderer.render( this.scene, this.camera, writeBuffer, this.clear );

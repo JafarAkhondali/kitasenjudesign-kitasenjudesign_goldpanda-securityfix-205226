@@ -34,8 +34,9 @@ class Cube extends Object3D
 	 */
 	public function init():Void {
 		
-		var w:Int = 1000;
+		var w:Int = 2000;
 		
+		/*
 		title = new CubeTitle();
 		title.init(w);
 		add(title);
@@ -43,7 +44,7 @@ class Cube extends Object3D
 		title2.init(w);
 		title2.rotation.y = Math.PI;
 		add(title2);
-	
+		*/
 		
 		mate = new LineBasicMaterial( { color:0xffffff } );
 		mate.fog = false;

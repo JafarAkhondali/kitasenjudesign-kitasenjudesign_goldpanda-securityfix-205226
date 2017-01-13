@@ -39,6 +39,7 @@ extern class ShaderMaterial extends Material {
 	var fragmentShader : String;
 	var defines : Dynamic;
 	var attributes : Dynamic;
+	var uniforms : Dynamic;
 	var shading : Int; // SmoothShading
 	var linewidth : Float;
 	var wireframe : Bool; // false

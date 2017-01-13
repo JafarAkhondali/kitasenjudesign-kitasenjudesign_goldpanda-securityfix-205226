@@ -468,6 +468,7 @@ canvas.CanvasSrc.prototype = {
 		this._renderer.domElement.style.top = "0";
 		this._renderer.domElement.style.left = "0";
 		this._renderer.setClearColor(new THREE.Color(0),1);
+		window.document.body.appendChild(this._renderer.domElement);
 		this._camera = new camera.ExCamera(60,canvas.CanvasSrc.W / canvas.CanvasSrc.H,2,800);
 		this._camera.init();
 		this._scene = new THREE.Scene();
@@ -538,7 +539,7 @@ canvas.primitives.Chochin.prototype = $extend(canvas.primitives.PrimitiveBase.pr
 		canvas.primitives.PrimitiveBase.prototype.init.call(this,o);
 		if(this._loader == null) {
 			this._loader = new common.MyDAELoader();
-			this._loader.load("dae/chochin.dae",$bind(this,this._onLoad));
+			this._loader.load("dae/apple.dae",$bind(this,this._onLoad));
 		}
 	}
 	,_onLoad: function() {
@@ -546,7 +547,8 @@ canvas.primitives.Chochin.prototype = $extend(canvas.primitives.PrimitiveBase.pr
 		this.rotation.x = Math.PI / 2;
 		var m = this._loader.meshes[0];
 		m.material = new THREE.MeshLambertMaterial({ color : 16777215});
-		m.scale.set(3,3,3);
+		m.position.y = -50;
+		m.scale.set(13,13,13);
 		this.add(m);
 	}
 	,update: function(a,rotV) {
@@ -565,7 +567,7 @@ canvas.primitives.Chochins.prototype = $extend(canvas.primitives.PrimitiveBase.p
 	init: function(o) {
 		canvas.primitives.PrimitiveBase.prototype.init.call(this,o);
 		this._loader = new common.MyDAELoader();
-		this._loader.load("dae/chochin.dae",$bind(this,this._onLoad));
+		this._loader.load("dae/apple.dae",$bind(this,this._onLoad));
 	}
 	,_onLoad: function() {
 		var mm = new THREE.MeshLambertMaterial({ color : 16777215});
@@ -576,7 +578,7 @@ canvas.primitives.Chochins.prototype = $extend(canvas.primitives.PrimitiveBase.p
 		while(_g < 12) {
 			var i = _g++;
 			var cube = new THREE.Mesh(geo,mm);
-			cube.scale.set(2.5,2.5,2.5);
+			cube.scale.set(11.5,11.5,11.5);
 			this.add(cube);
 			cube.position.x = 800 * (Math.random() - 0.5);
 			cube.position.y = 800 * (Math.random() - 0.5);
@@ -900,7 +902,7 @@ canvas.primitives.Katoris.prototype = $extend(canvas.primitives.PrimitiveBase.pr
 		var mm = new THREE.MeshBasicMaterial({ color : 16777215});
 		var geo = this._loader.meshes[0].geometry;
 		var _g = 0;
-		while(_g < 23) {
+		while(_g < 30) {
 			var i = _g++;
 			var cube = new canvas.primitives.ExMesh(geo,mm);
 			this.add(cube);
@@ -931,6 +933,19 @@ canvas.primitives.Katoris.prototype = $extend(canvas.primitives.PrimitiveBase.pr
 		this.rotation.y += rotV.y * 0.03 + 0.01;
 	}
 	,__class__: canvas.primitives.Katoris
+});
+canvas.primitives.Knot = function() {
+	canvas.primitives.PrimitiveBase.call(this);
+};
+canvas.primitives.Knot.__name__ = true;
+canvas.primitives.Knot.__super__ = canvas.primitives.PrimitiveBase;
+canvas.primitives.Knot.prototype = $extend(canvas.primitives.PrimitiveBase.prototype,{
+	init: function(o) {
+		canvas.primitives.PrimitiveBase.prototype.init.call(this,o);
+		var mesh = new THREE.Mesh(new THREE.TorusKnotGeometry(50,18,60,10,2,3),new THREE.MeshPhongMaterial({ color : 16746547}));
+		this.add(mesh);
+	}
+	,__class__: canvas.primitives.Knot
 });
 canvas.primitives.Octa = function() {
 	canvas.primitives.PrimitiveBase.call(this);
@@ -1005,6 +1020,8 @@ canvas.primitives.Primitives.prototype = $extend(THREE.Object3D.prototype,{
 		this._torus.init(null);
 		this._octa = new canvas.primitives.Octa();
 		this._octa.init(null);
+		this._knot = new canvas.primitives.Knot();
+		this._knot.init(null);
 		this._mouse = new canvas.primitives.DeDeLogo();
 		this._mouse.init({ pixelType : 1, dynamicScale : false, isDepth : false});
 		this.add(this._mouse);
@@ -1022,7 +1039,7 @@ canvas.primitives.Primitives.prototype = $extend(THREE.Object3D.prototype,{
 		this._ices.init(null);
 		this._katoris = new canvas.primitives.Katoris();
 		this._katoris.init({ dynamicScale : false});
-		this._primitives = [this._chochin,this._katoris,this._two,this._ices,this._walker,this._chochins,this._sphere,this._katori,this._fireworks,this._ice,this._mouse,this._spheres,this._torus,this._octa];
+		this._primitives = [this._chochin,this._katoris,this._two,this._ices,this._mouse,this._walker,this._knot,this._chochins,this._katori,this._fireworks,this._ice,this._mouse,this._torus,this._octa];
 		var _g1 = 0;
 		var _g = this._primitives.length;
 		while(_g1 < _g) {
@@ -1160,16 +1177,17 @@ canvas.primitives.Two.__super__ = canvas.primitives.PrimitiveBase;
 canvas.primitives.Two.prototype = $extend(canvas.primitives.PrimitiveBase.prototype,{
 	init: function(o) {
 		canvas.primitives.PrimitiveBase.prototype.init.call(this,o);
-		var s = "7";
+		var s = "TDW";
 		var _g1 = 0;
 		var _g = s.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var shape = new THREE.Shape();
-			canvas.primitives.font.FontTest.getLetterPoints(shape,HxOverrides.substr(s,i,1),true,4,new net.badimon.five3D.typography.HelveticaMedium());
+			canvas.primitives.font.FontTest.getLetterPoints(shape,HxOverrides.substr(s,i,1),true,2,new net.badimon.five3D.typography.HelveticaMedium());
 			var geo = new THREE.ExtrudeGeometry(shape,{ amount : 30, bevelEnabled : false});
 			var mesh = new THREE.Mesh(geo,new THREE.MeshLambertMaterial({ color : 16777215}));
-			mesh.position.x = i * 60 - (s.length - 1) * 60 / 2;
+			mesh.position.x = i * 170 - (s.length - 1) * 170 / 2;
+			if(i == 0) mesh.position.x += 20;
 			this.add(mesh);
 		}
 	}
@@ -1429,27 +1447,33 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
+	case 56:
+		common.StageRef.fadeOut(common.Dat._goURL8);
+		break;
 	}
 };
 common.Dat._goURL1 = function() {
 	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../p07/bin/");
-};
-common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../p02/bin/");
-};
-common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../p06/bin/");
-};
-common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../p05/bin/");
-};
-common.Dat._goURL6 = function() {
 	common.Dat._goURL("../../p00/bin/");
 };
+common.Dat._goURL3 = function() {
+	common.Dat._goURL("../../p05/bin/");
+};
+common.Dat._goURL4 = function() {
+	common.Dat._goURL("../../p08/bin/");
+};
+common.Dat._goURL5 = function() {
+	common.Dat._goURL("../../p02/bin/");
+};
+common.Dat._goURL6 = function() {
+	common.Dat._goURL("../../p06/bin/");
+};
 common.Dat._goURL7 = function() {
+	common.Dat._goURL("../../p07/bin/");
+};
+common.Dat._goURL8 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
@@ -1754,7 +1778,7 @@ emoji.EmojiShader.prototype = {
 		this.animationFrameLength = data.TextureData.emo2048.xnum;
 		tex.minFilter = 1003;
 		tex.magFilter = 1003;
-		this.uniforms = { strength : { type : "f", value : 100.0}, seed : { type : "f", value : 0.0}, counter : { type : "f", value : 0}, texture : { type : "t", value : tex}, scale1 : { type : "f", value : common.Config.particleSize}, scale : { type : "f", value : 1.0}, posScale : { type : "v3", value : new THREE.Vector3(1.0,1.0,1.0)}, offset : { type : "v2", value : new THREE.Vector2(1 / this.animationFrameLength,0.0)}, repeat : { type : "v2", value : new THREE.Vector2(1 / this.animationFrameLength,1 / this.animationFrameLength)}};
+		this.uniforms = { strength : { type : "f", value : 10.0}, seed : { type : "f", value : 0.0}, counter : { type : "f", value : 0}, texture : { type : "t", value : tex}, scale1 : { type : "f", value : common.Config.particleSize}, scale : { type : "f", value : 1.0}, posScale : { type : "v3", value : new THREE.Vector3(1.0,1.0,1.0)}, offset : { type : "v2", value : new THREE.Vector2(1 / this.animationFrameLength,0.0)}, repeat : { type : "v2", value : new THREE.Vector2(1 / this.animationFrameLength,1 / this.animationFrameLength)}};
 		this.shaderMaterial = new THREE.ShaderMaterial({ uniforms : this.uniforms, attributes : this.attributes, vertexShader : this.vertexShader, fragmentShader : this.fragmentShader, transparent : true, alphaTest : 0.5, depthWrite : false});
 	}
 	,__class__: emoji.EmojiShader
@@ -1971,10 +1995,10 @@ emoji.Emojis.prototype = $extend(THREE.Object3D.prototype,{
 		this._w = tgtW;
 		this._h = tgtH;
 		this.shader.uniforms.scale.value = this.pScale;
-		var tgtSt = Math.pow(audio.freqByteData[6] / 255,2) * 300;
+		var tgtSt = Math.pow(audio.freqByteData[6] / 255,3) * 100;
 		if(!this._isCurl) tgtSt = 0;
 		this.shader.uniforms.strength.value += (tgtSt - this.shader.uniforms.strength.value) / 8;
-		var tgtSd = Math.pow(audio.freqByteData[2] / 255,3);
+		var tgtSd = Math.pow(audio.freqByteData[2] / 255,3) * 0.5;
 		this.shader.uniforms.seed.value += (tgtSd - this.shader.uniforms.seed.value) / 8;
 		this.shader.uniforms.counter.value += 0.02;
 		this._setPixels();

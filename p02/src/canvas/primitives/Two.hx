@@ -25,12 +25,12 @@ class Two extends PrimitiveBase
 	override public function init(o:Dynamic):Void {
 		super.init(o);
 		
-		var s:String = "7";
+		var s:String = "TDW";
 		
 		for(i in 0...s.length){
 			
 			var shape:Shape = new Shape();
-			FontTest.getLetterPoints(shape, s.substr(i, 1), true, 4, new HelveticaMedium());
+			FontTest.getLetterPoints(shape, s.substr(i, 1), true, 2, new HelveticaMedium());
 			//shapes.push(shape);
 			//var geo:ExtrudeGeometry = new ExtrudeGeometry(untyped shape, {amount:1});
 			//var geo:ShapeGeometry = new ShapeGeometry(untyped shape, { } );
@@ -40,7 +40,8 @@ class Two extends PrimitiveBase
 				geo, 
 				new MeshLambertMaterial( { color:0xffffff/*, side:Three.DoubleSide*/ } )
 			);
-			mesh.position.x = i * 60 - (s.length-1)*60/2;
+			mesh.position.x = i * 170 - (s.length - 1) * 170 / 2;
+			if (i == 0) mesh.position.x += 20;
 			add(mesh);
 			
 		}

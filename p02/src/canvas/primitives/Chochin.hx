@@ -29,7 +29,8 @@ class Chochin extends PrimitiveBase
 			_loader = new MyDAELoader();
 			//_loader.load("dae/katori.dae", _onLoad);
 			//_loader.load("dae/ice.dae", _onLoad);
-			_loader.load("dae/chochin.dae", _onLoad);
+			//_loader.load("dae/chochin.dae", _onLoad);
+			_loader.load("dae/apple.dae", _onLoad);
 			
 		}
 		//var cube:Mesh = new Mesh(new BoxGeometry(100, 100, 100, 1, 1, 1), new MeshBasicMaterial( { color:0xff0000 } ));
@@ -43,8 +44,8 @@ class Chochin extends PrimitiveBase
 		
 		var m:Mesh = _loader.meshes[0];
 		m.material = new MeshLambertMaterial( { color:0xffffff } );
-		
-		m.scale.set(3, 3, 3);
+		m.position.y = -50;
+		m.scale.set(13, 13, 13);
 		
 		add( m );
 		

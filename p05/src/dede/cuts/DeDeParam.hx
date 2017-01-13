@@ -46,6 +46,7 @@ class DeDeParam
 	public static inline var SAME_DIFF:Int = 2;// = "SAME_DIFF";
 	
 	public var sameType:Int = 0;// = "";
+	public var offsetY:Float=0;
 	
 	public function new() 
 	{
@@ -64,6 +65,7 @@ class DeDeParam
 		data.txt 		= str.text;
 		data.font 		= str.font;
 		data.spaceX 	= str.spaceX;
+		data.offsetY	= str.offsetY;
 		
 		data.sameType = Math.floor(3 * Math.random());
 		

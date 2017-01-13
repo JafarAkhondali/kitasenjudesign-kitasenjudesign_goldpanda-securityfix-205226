@@ -56,7 +56,7 @@ class MyTiltShiftShader
 						}
 					}
 					
-					gl_FragColor = sum;
+					gl_FragColor = sum *0.997;
 
 				}'
 		};

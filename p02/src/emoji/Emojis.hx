@@ -258,13 +258,13 @@ class Emojis extends Object3D
 		shader.uniforms.scale.value = pScale;
 		
 		//
-		var tgtSt:Float = Math.pow(audio.freqByteData[6] / 255, 2) * 300;
+		var tgtSt:Float = Math.pow(audio.freqByteData[6] / 255, 3) * 100;
 		if (!_isCurl) {
 			tgtSt = 0;
 		}
 		shader.uniforms.strength.value += (tgtSt - shader.uniforms.strength.value) / 8;
 		//
-		var tgtSd:Float = Math.pow(audio.freqByteData[2] / 255, 3) * 1;		
+		var tgtSd:Float = Math.pow(audio.freqByteData[2] / 255, 3) * 0.5;		
 		shader.uniforms.seed.value += (tgtSd - shader.uniforms.seed.value) / 8;
 		//
 		shader.uniforms.counter.value += 0.02;

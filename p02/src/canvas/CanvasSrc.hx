@@ -65,7 +65,7 @@ class CanvasSrc
 		_renderer.domElement.style.top = "0";
 		_renderer.domElement.style.left = "0";
 		_renderer.setClearColor(new Color(0x000000),1);
-		//Browser.document.body.appendChild(_renderer.domElement);
+		Browser.document.body.appendChild(_renderer.domElement);
 			
 		_camera = new ExCamera(60, W / H, 2, 800);
 		_camera.init();

@@ -420,27 +420,33 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
+	case 56:
+		common.StageRef.fadeOut(common.Dat._goURL8);
+		break;
 	}
 };
 common.Dat._goURL1 = function() {
 	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../p07/bin/");
-};
-common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../p02/bin/");
-};
-common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../p06/bin/");
-};
-common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../p05/bin/");
-};
-common.Dat._goURL6 = function() {
 	common.Dat._goURL("../../p00/bin/");
 };
+common.Dat._goURL3 = function() {
+	common.Dat._goURL("../../p05/bin/");
+};
+common.Dat._goURL4 = function() {
+	common.Dat._goURL("../../p08/bin/");
+};
+common.Dat._goURL5 = function() {
+	common.Dat._goURL("../../p02/bin/");
+};
+common.Dat._goURL6 = function() {
+	common.Dat._goURL("../../p06/bin/");
+};
 common.Dat._goURL7 = function() {
+	common.Dat._goURL("../../p07/bin/");
+};
+common.Dat._goURL8 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {

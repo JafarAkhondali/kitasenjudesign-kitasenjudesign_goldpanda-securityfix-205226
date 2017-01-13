@@ -73,6 +73,7 @@ class Dots extends Object3D
 		
 		_cube = new Cube();
 		_cube.init();
+		_cube.
 		//add(_cube);		
 		
 		_balance=new Mesh(
@@ -82,6 +83,7 @@ class Dots extends Object3D
 		add(_balance);
 		
 		var g:Geometry = new Geometry();
+		g.vertices.
 		g.vertices.push(new Vector3(0, 0, 0));
 		g.vertices.push(new Vector3(0, 0, 0));
 		_line = new Line(g,new MeshBasicMaterial({color:0xffffff}));

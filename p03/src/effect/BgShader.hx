@@ -66,7 +66,6 @@ class BgShader extends ShaderMaterial
 			fragmentShader: ff,
 			uniforms: {
 				texture: { type: 't', value: _texture }
-				
 			}			
 		});
 		this.fog = false;

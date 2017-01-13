@@ -22,7 +22,7 @@ class CanvasTest3d extends Test3d
 	private var _audio	:MyAudio;
 	private var _isWhite:Bool = false;
 	private var _pp		:PostProcessing2;
-	private var _isPP:Bool=false;
+	private var _isPP:Bool = true;
 	
 	
 	public function new() 
@@ -58,6 +58,10 @@ class CanvasTest3d extends Test3d
 		_pp = new PostProcessing2();
 		_pp.init(_scene,_camera,_renderer);
 		
+		var cube:Cube = new Cube();
+		cube.init();
+		//vj		_scene.add(cube);
+		
 		_dots = new Dots();
 		_dots.init(1280, 720);
 		_scene.add(_dots);
@@ -78,7 +82,7 @@ class CanvasTest3d extends Test3d
 		switch(Std.parseInt(e.keyCode)) {
 			
 			case Dat.I:
-				MyAudio.a.setImpulse( 1 );
+				MyAudio.a.setImpulse( 5 );
 			
 			case Dat.P:
 				_isPP = !_isPP;

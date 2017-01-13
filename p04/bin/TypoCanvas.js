@@ -43,7 +43,7 @@ Test3d.prototype = {
 	}
 };
 var CanvasTest3d = function() {
-	this._isPP = false;
+	this._isPP = true;
 	this._isWhite = false;
 	Test3d.call(this);
 };
@@ -65,6 +65,8 @@ CanvasTest3d.prototype = $extend(Test3d.prototype,{
 	,initC: function() {
 		this._pp = new effect.PostProcessing2();
 		this._pp.init(this._scene,this._camera,this._renderer);
+		var cube = new Cube();
+		cube.init();
 		this._dots = new typo.Dots();
 		this._dots.init(1280,720);
 		this._scene.add(this._dots);
@@ -80,7 +82,7 @@ CanvasTest3d.prototype = $extend(Test3d.prototype,{
 		var _g = Std.parseInt(e.keyCode);
 		switch(_g) {
 		case 73:
-			sound.MyAudio.a.setImpulse(1);
+			sound.MyAudio.a.setImpulse(5);
 			break;
 		case 80:
 			this._isPP = !this._isPP;
@@ -121,14 +123,7 @@ var Cube = function() {
 Cube.__super__ = THREE.Object3D;
 Cube.prototype = $extend(THREE.Object3D.prototype,{
 	init: function() {
-		var w = 1000;
-		this.title = new CubeTitle();
-		this.title.init(w);
-		this.add(this.title);
-		this.title2 = new CubeTitle();
-		this.title2.init(w);
-		this.title2.rotation.y = Math.PI;
-		this.add(this.title2);
+		var w = 2000;
 		this.mate = new THREE.LineBasicMaterial({ color : 16777215});
 		this.mate.fog = false;
 		var geo = new THREE.Geometry();
@@ -256,48 +251,6 @@ Three.requestAnimationFrame = function(f) {
 };
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
-};
-var Tracer = function() {
-};
-Tracer.assert = function(condition,p1,p2,p3,p4,p5) {
-};
-Tracer.clear = function(p1,p2,p3,p4,p5) {
-};
-Tracer.count = function(p1,p2,p3,p4,p5) {
-};
-Tracer.debug = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dir = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dirxml = function(p1,p2,p3,p4,p5) {
-};
-Tracer.error = function(p1,p2,p3,p4,p5) {
-};
-Tracer.group = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupCollapsed = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupEnd = function() {
-};
-Tracer.info = function(p1,p2,p3,p4,p5) {
-};
-Tracer.log = function(p1,p2,p3,p4,p5) {
-};
-Tracer.markTimeline = function(p1,p2,p3,p4,p5) {
-};
-Tracer.profile = function(title) {
-};
-Tracer.profileEnd = function(title) {
-};
-Tracer.time = function(title) {
-};
-Tracer.timeEnd = function(title,p1,p2,p3,p4,p5) {
-};
-Tracer.timeStamp = function(p1,p2,p3,p4,p5) {
-};
-Tracer.trace = function(p1,p2,p3,p4,p5) {
-};
-Tracer.warn = function(p1,p2,p3,p4,p5) {
 };
 var camera = {};
 camera.ExCamera = function(fov,aspect,near,far) {
@@ -534,31 +487,37 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
+	case 56:
+		common.StageRef.fadeOut(common.Dat._goURL8);
+		break;
 	}
 };
 common.Dat._goURL1 = function() {
 	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../p07/bin/");
-};
-common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../p02/bin/");
-};
-common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../p06/bin/");
-};
-common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../p05/bin/");
-};
-common.Dat._goURL6 = function() {
 	common.Dat._goURL("../../p00/bin/");
 };
+common.Dat._goURL3 = function() {
+	common.Dat._goURL("../../p05/bin/");
+};
+common.Dat._goURL4 = function() {
+	common.Dat._goURL("../../p08/bin/");
+};
+common.Dat._goURL5 = function() {
+	common.Dat._goURL("../../p02/bin/");
+};
+common.Dat._goURL6 = function() {
+	common.Dat._goURL("../../p06/bin/");
+};
 common.Dat._goURL7 = function() {
+	common.Dat._goURL("../../p07/bin/");
+};
+common.Dat._goURL8 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
-	Tracer.log("goURL " + url);
+	console.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.Dat.show = function(isBorder) {
@@ -610,7 +569,7 @@ common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	}
 	,_onKeyDown: function(e) {
 		var n = Std.parseInt(e.keyCode);
-		Tracer.debug("_onkeydown " + n);
+		console.debug("_onkeydown " + n);
 		this._dispatch(n);
 	}
 	,_dispatch: function(n) {
@@ -625,10 +584,10 @@ common.QueryGetter = function() {
 common.QueryGetter.init = function() {
 	common.QueryGetter._map = new haxe.ds.StringMap();
 	var str = window.location.search;
-	if(str.indexOf("?") < 0) Tracer.log("query nashi"); else {
+	if(str.indexOf("?") < 0) console.log("query nashi"); else {
 		str = HxOverrides.substr(str,1,str.length - 1);
 		var list = str.split("&");
-		Tracer.log(list);
+		console.log(list);
 		var _g1 = 0;
 		var _g = list.length;
 		while(_g1 < _g) {
@@ -698,7 +657,41 @@ common.WSocket.prototype = {
 		if(this._callback != null) this._callback(data);
 	}
 };
+var data = {};
+data.TexLoader = function() {
+};
+data.TexLoader.getTexture = function(url) {
+	var t = THREE.ImageUtils.loadTexture(url);
+	t.minFilter = 1003;
+	t.magFilter = 1003;
+	return t;
+};
 var effect = {};
+effect.BgPlane = function() {
+	this._geo = new THREE.PlaneBufferGeometry(2,2,1,1);
+	this._mat = new effect.BgShader();
+	THREE.Mesh.call(this,this._geo,this._mat);
+};
+effect.BgPlane.__super__ = THREE.Mesh;
+effect.BgPlane.prototype = $extend(THREE.Mesh.prototype,{
+	update: function(buffer) {
+		this._mat.update(buffer);
+	}
+});
+effect.BgShader = function() {
+	this.ff = "\r\n\t\r\n\t\tuniform sampler2D texture;\r\n\t\tvarying vec2 vUv;                                             \r\n\t\tvoid main()\r\n\t\t{\r\n\t\t\tgl_FragColor = texture2D(texture, vUv);\r\n\t\t}\t\r\n\t\r\n\t";
+	this.vv = "\r\n\t\r\n\t\tvarying vec2 vUv;\r\n\t\tvoid main()\r\n\t\t{\r\n\t\t\tvUv = uv;\r\n\t\t\t//position.x = sin(position.y) * 0.1 + position.x;\r\n\t\t\tvec4 hoge = vec4(position, 1.0);//matrix keisan shinai\r\n\t\t\thoge.z = 1.0;\r\n\t\t\tgl_Position = hoge;\r\n\t\t}\t\r\n\t\r\n\t";
+	typo.Textures.init();
+	this._texture = typo.Textures.getTexture();
+	THREE.ShaderMaterial.call(this,{ vertexShader : this.vv, fragmentShader : this.ff, uniforms : { texture : { type : "t", value : this._texture}}});
+	this.fog = false;
+};
+effect.BgShader.__super__ = THREE.ShaderMaterial;
+effect.BgShader.prototype = $extend(THREE.ShaderMaterial.prototype,{
+	update: function(buffer) {
+		this.uniforms.texture.value = buffer;
+	}
+});
 effect.PostProcessing2 = function() {
 	this._rad = 0;
 };
@@ -708,25 +701,29 @@ effect.PostProcessing2.prototype = {
 		this._scene = scene;
 		this._camera = camera;
 		this._renderer = renderer;
+		this._plane = new effect.BgPlane();
+		this._scene.add(this._plane);
 		this._renderPass = new THREE.RenderPass(scene,camera);
 		this._copyPass = new THREE.ShaderPass(effect.shaders.CopyShader.getObject());
 		this._composer = new THREE.EffectComposer(renderer);
-		this._composer.addPass(this._renderPass);
 		this.tilt = new THREE.ShaderPass(effect.shaders.MyTiltShiftShader.getObject());
 		this.vig = new THREE.ShaderPass(effect.shaders.VignetteShader.getObject());
 		typo.Textures.init();
 		this._texture1 = typo.Textures.getTexture();
 		this._texture2 = typo.Textures.getTexture();
 		this.color = new THREE.ShaderPass(effect.shaders.LuminosityShader.getObject(this._texture1));
+		this._displace = new effect.pass.DisplacementPass();
+		this._displace.enabled = true;
+		this._composer.addPass(this._renderPass);
+		this._composer.addPass(this.tilt);
 		this._composer.addPass(this.color);
 		this.color.renderToScreen = true;
-		this._copyPass.clear = true;
-		this._copyPass.renderToScreen = true;
 		if(this._callback != null) this._callback();
 	}
 	,changeTexture: function() {
 		this._texture1 = typo.Textures.getTexture();
 		this._texture2 = typo.Textures.getTexture();
+		this._displace.setTexture(false,true);
 	}
 	,setting: function() {
 	}
@@ -734,13 +731,52 @@ effect.PostProcessing2.prototype = {
 		this.color.uniforms.texture.value = this._texture1;
 		this.color.uniforms.texture2.value = this._texture2;
 		this._composer.render();
+		this._plane.update(this._composer.renderTarget1);
+		this.update(sound.MyAudio.a);
 	}
 	,update: function(audio) {
+		if(this._displace != null) this._displace.update(audio);
 	}
 	,resize: function(ww,hh) {
 		this._composer.setSize(ww,hh);
 	}
 };
+effect.pass = {};
+effect.pass.DisplacementPass = function() {
+	this._displaceIndex = 0;
+	this._fragment = "\r\n\t\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\t\tuniform sampler2D disTexture;\r\n\t\t\t\t\tuniform sampler2D colTexture;\r\n\t\t\t\t\tuniform float strengthX;\r\n\t\t\t\t\tuniform float strengthY;\r\n\t\t\t\t\tuniform float counter;\r\n\t\t\t\t\tuniform float isDisplace;\r\n\t\t\t\t\tuniform float isColor;\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec4 getColor(vec4 texel) {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\tvec2 pp = vec2( 0.5, fract( texel.x + counter ) );\r\n\t\t\t\t\t\t\tif ( pp.y < 0.5) {\r\n\t\t\t\t\t\t\t\tpp.y = pp.y * 2.0;\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\tpp.y = (1.0 - (pp.y - 0.5) * 2.0);\t\t\t\t\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\tif ( texel.x == 0.0 ) {\r\n\t\t\t\t\t\t\t\tout1 = vec4(0.0, 0.0, 0.0, 1.0);\r\n\t\t\t\t\t\t\t}\t\t\r\n\t\t\t\t\t\t\treturn out1;\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//dispace\r\n\t\t\t\t\t\tvec4 texel = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tif(isDisplace == 1.0){\r\n\t\t\t\t\t\t\tvec4 col = texture2D( disTexture, vUv);\r\n\t\t\t\t\t\t\tfloat f1 = strengthX * sin(counter*0.17);// pow(counter, 2.0 + 3.0 * col.x);//sin(counter * 3.9) * 0.23;\r\n\t\t\t\t\t\t\tfloat f2 = strengthY * sin(counter*0.22);// pow(counter, 2.0 + 3.0 * col.x) * 0.001;// pow(counter, 2.0 + 3.0 * col.y);//cos(counter * 3.7) * 0.23;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tvec2 axis = vec2( \r\n\t\t\t\t\t\t\t\tvUv.x + (col.y-0.5)*f1, vUv.y + (col.z-0.5)*f2\r\n\t\t\t\t\t\t\t);\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\ttexel = texture2D( tDiffuse, axis );\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\ttexel = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//position\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tif( isColor == 1.0){\r\n\t\t\t\t\t\t\tout1 = getColor(texel);\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\tout1 = texel * 0.99;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tgl_FragColor = out1;\r\n\t\t\t\t\t}\r\n\t";
+	this._vertex = "\r\n\t\tvarying vec2 vUv;\r\n\t\tvoid main() {\r\n\t\t\tvUv = uv;\r\n\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t}\t\t\r\n\t";
+	this._textures = [];
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace0.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace1.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace2.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace3.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace4.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace5.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace6.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace7.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace8.png"));
+	this._colors = [THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade2.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade3.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade4.png")];
+	THREE.ShaderPass.call(this,{ uniforms : { tDiffuse : { type : "t", value : null}, isDisplace : { type : "f", value : 1}, isColor : { type : "f", value : 1}, disTexture : { type : "t", value : this._textures[0]}, colTexture : { type : "t", value : this._colors[3]}, strengthX : { type : "f", value : 0.5}, strengthY : { type : "f", value : 0.5}, counter : { type : "f", value : 0}}, vertexShader : this._vertex, fragmentShader : this._fragment});
+	this.enabled = true;
+	this.setTexture(true,true);
+};
+effect.pass.DisplacementPass.__super__ = THREE.ShaderPass;
+effect.pass.DisplacementPass.prototype = $extend(THREE.ShaderPass.prototype,{
+	update: function(audio) {
+		console.log("update");
+		this.uniforms.strengthX.value = Math.pow(audio.freqByteData[3] / 255,4) * 0.75;
+		this.uniforms.strengthY.value = Math.pow(audio.freqByteData[7] / 255,4) * 0.75;
+		this.uniforms.counter.value += 0.1;
+	}
+	,setTexture: function(isColor,isDisplace) {
+		this._displaceIndex++;
+		if(isColor) this.uniforms.isColor.value = 1; else this.uniforms.isColor.value = 0;
+		if(isDisplace) this.uniforms.isDisplace.value = 1; else this.uniforms.isDisplace.value = 0;
+		this.uniforms.disTexture.value = this._textures[Math.floor(Math.random() * this._textures.length)];
+		this.uniforms.colTexture.value = this._colors[this._displaceIndex % this._colors.length];
+	}
+});
 effect.shaders = {};
 effect.shaders.CopyShader = function() {
 };
@@ -753,15 +789,20 @@ effect.shaders.Dhiza = function() {
 effect.shaders.Dhiza.getObject = function() {
 	return { uniforms : { tDiffuse : { type : "t", value : null}, vScreenSize : { type : "v2", value : new THREE.Vector2(window.innerWidth,window.innerHeight)}}, vertexShader : "varying vec2 vUv;\r\n\t\t\t\tvoid main() {\r\n\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t}", fragmentShader : "\r\n#define R_LUMINANCE 0.298912\r\n#define G_LUMINANCE 0.586611\r\n#define B_LUMINANCE 0.114478\r\n\r\nvarying vec2 vUv;\r\nuniform sampler2D tDiffuse;\r\nuniform vec2 vScreenSize;\r\n\r\nvoid main() {\r\n\r\n\tvec4 color = texture2D(tDiffuse, vUv);\r\n\r\n\tfloat x = floor( vUv.x * vScreenSize.x  );\r\n\tfloat y = floor( vUv.y * vScreenSize.y );\r\n\r\n\t// 4ピクセルごとに使用する閾値の表\r\n\tmat4 m = mat4(\r\n\t\t    vec4( 0.0,  8.0,    2.0,    10.0),\r\n\t\t    vec4( 12.0, 4.0,    14.0,   6.0),\r\n\t\t    vec4( 3.0,  11.0,   1.0,    9.0),\r\n\t\t    vec4( 15.0, 7.0,    13.0,   5.0)\r\n\t\t);\r\n\r\n\tfloat xi = mod( x,4.0) ;\r\n\tfloat yi = mod( y,4.0) ;\r\n\r\n\tfloat threshold = 0.0;\r\n\r\n\tif( xi == 0.0 )\r\n\t{\r\n\t    if( yi == 0.0 ) { threshold = m[0][0]; }\r\n\t    if( yi == 1.0 ) { threshold = m[0][1]; }\r\n\t    if( yi == 2.0 ) { threshold = m[0][2]; }\r\n\t    if( yi == 3.0 ) { threshold = m[0][3]; }\r\n\t}\r\n\tif( xi == 1.0) {\r\n\t    if( yi == 0.0 ) { threshold = m[1][0]; }\r\n\t    if( yi == 1.0 ) { threshold = m[1][1]; }\r\n\t    if( yi == 2.0 ) { threshold = m[1][2]; }\r\n\t    if( yi == 3.0 ) { threshold = m[1][3]; }\r\n\t}\r\n\tif( xi == 2.0) {\r\n\t    if( yi == 0.0 ) { threshold = m[2][0]; }\r\n\t    if( yi == 1.0 ) { threshold = m[2][1]; }\r\n\t    if( yi == 2.0 ) { threshold = m[2][2]; }\r\n\t    if( yi == 3.0 ) { threshold = m[2][3]; }\r\n\t}\r\n\tif( xi == 3.0) {\r\n\t    if( yi == 0.0 ) { threshold = m[3][0]; }\r\n\t    if( yi == 1.0 ) { threshold = m[3][1]; }\r\n\t    if( yi == 2.0 ) { threshold = m[3][2]; }\r\n\t    if( yi == 3.0 ) { threshold = m[3][3]; }\r\n\t}\r\n\r\n\tcolor = color * 16.0;\r\n\r\n\tfloat v = color.x * R_LUMINANCE + color.y * G_LUMINANCE + color.z * B_LUMINANCE;\r\n\r\n\tif (v <threshold ) {\r\n\t    color.x = 0.0;\r\n\t    color.y = 0.0;\r\n\t    color.z = 0.0;\r\n\t} else {\r\n\t    color.x = 1.0;\r\n\t    color.y = 1.0;\r\n\t    color.z = 1.0;\r\n\t}\r\n     // 描画\r\n     gl_FragColor = color;\r\n\r\n}"};
 };
+effect.shaders.DotScreenShader = function() {
+};
+effect.shaders.DotScreenShader.getObject = function() {
+	return { uniforms : { tDiffuse : { type : "t", value : null}, tSize : { type : "v2", value : new THREE.Vector2(256,256)}, center : { type : "v2", value : new THREE.Vector2(0.5,0.5)}, angle : { type : "f", value : 1.57}, scale : { type : "f", value : 2.0}}, vertexShader : "varying vec2 vUv;\r\n\t\t\t\tvoid main() {\r\n\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t}", fragmentShader : "uniform vec2 center;\r\n\t\t\t\tuniform float angle;\r\n\t\t\t\tuniform float scale;\r\n\t\t\t\tuniform vec2 tSize;\r\n\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\tfloat pattern() {\r\n\t\t\t\t\tfloat s = sin( angle ), c = cos( angle );\r\n\t\t\t\t\tvec2 tex = vUv * tSize - center;\r\n\t\t\t\t\tvec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * scale;\r\n\t\t\t\t\treturn ( sin( point.x ) * sin( point.y ) ) * 4.0;\r\n\t\t\t\t}\r\n\r\n\t\t\t\tvoid main() {\r\n\t\t\t\t\tvec4 color = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\tfloat average = ( color.r + color.g + color.b ) / 3.0;\r\n\t\t\t\t\tgl_FragColor = vec4( vec3( average * 10.0 - 5.0 + pattern() ), color.a );\r\n\t\t\t\t}"};
+};
 effect.shaders.LuminosityShader = function() {
 };
 effect.shaders.LuminosityShader.getObject = function(tt) {
-	return { uniforms : { tDiffuse : { type : "t", value : null}, texture : { type : "t", value : tt}, texture2 : { type : "t", value : tt}}, vertexShader : "\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t\t}\t\t\t\t\r\n\t\t\t\t", fragmentShader : "\r\n\t\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\t\tuniform sampler2D texture;\r\n\t\t\t\t\tuniform sampler2D texture2;\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\tvec4 texel = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\tvec3 luma = vec3( 0.299, 0.587, 0.114 );\r\n\t\t\t\t\t\tfloat v = dot( texel.xyz, luma );//akarusa\r\n\t\t\t\t\t\tvec2 axis = vec2( 0.5,v );\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec4 pa = texture2D( tDiffuse, vUv);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tvec4 pb = texture2D( texture, axis);\r\n\t\t\t\t\t\t//vec4 pb = mix( texture2D( tDiffuse, vUv), texture2D( texture, axis), 0.6+0.4*vUv.y);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//fu tatsu wo mazeteiru\r\n\t\t\t\t\t\t//vec4 pb = mix( texture2D( texture2, axis), texture2D( texture, axis), vUv.y);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tgl_FragColor = vec4( pb.x,pb.y,pb.z, 1.0 );\r\n\t\t\t\t\t}\r\n\t\t\t\t"};
+	return { uniforms : { tDiffuse : { type : "t", value : null}, texture : { type : "t", value : tt}, texture2 : { type : "t", value : tt}}, vertexShader : "\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t\t}\t\t\t\t\r\n\t\t\t\t", fragmentShader : "\r\n\t\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\t\tuniform sampler2D texture;\r\n\t\t\t\t\tuniform sampler2D texture2;\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\tvec4 texel = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\tvec3 luma = vec3( 0.299, 0.587, 0.114 );\r\n\t\t\t\t\t\tfloat v = dot( texel.xyz, luma );//akarusa\r\n\t\t\t\t\t\tvec2 axis = vec2( 0.5,v );\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec4 pa = texture2D( tDiffuse, vUv);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tvec4 pb = texture2D( texture, axis);\r\n\t\t\t\t\t\t//vec4 pb = mix( texture2D( tDiffuse, vUv), texture2D( texture, axis), 0.6+0.4*vUv.y);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//fu tatsu wo mazeteiru\r\n\t\t\t\t\t\t//vec4 pb = mix( texture2D( texture2, axis), texture2D( texture, axis), vUv.y);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tif( mod(floor((pb.x+pb.y+pb.z)*40.0),2.0) == 0.0 ){\r\n\t\t\t\t\t\t\tgl_FragColor = vec4( pb.x, pb.y, pb.z, 1.0 );\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\tgl_FragColor = vec4( 0.0,0.0,0.0, 1.0 );\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t"};
 };
 effect.shaders.MyTiltShiftShader = function() {
 };
 effect.shaders.MyTiltShiftShader.getObject = function() {
-	return { uniforms : { tDiffuse : { type : "t", value : null}, v : { type : "f", value : 0.005859375}, r : { type : "f", value : 0.5}, k : { type : "fv1", value : [1.0,4.0,6.0,4.0,1.0,4.0,16.0,24.0,16.0,4.0,6.0,24.0,36.0,24.0,6.0,4.0,16.0,24.0,16.0,4.0,1.0,4.0,6.0,4.0,1.0]}}, vertexShader : "\r\n\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\tvoid main() {\r\n\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t}", fragmentShader : "\r\n\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\tuniform float v;\r\n\t\t\t\tuniform float r;\r\n\t\t\t\tuniform float k[25];\r\n\t\t\t\tvarying vec2 vUv;\r\n\r\n\t\t\t\tvoid main() {\r\n\r\n\t\t\t\t\tvec4 sum = vec4( 0.0 );\r\n\t\t\t\t\tfloat vv = v * abs( r - vUv.y );\r\n\t\t\t\t\t\r\n\t\t\t\t\tfor(float i=-2.0;i<=2.0;i++){\r\n\t\t\t\t\t\tfor(float j = -2.0; j <=2.0; j++) {\r\n\t\t\t\t\t\t\tsum += texture2D( tDiffuse, vec2( vUv.x + i * vv, vUv.y + j * vv ) ) / 25.0;\r\n\t\t\t\t\t\t\t//idx += 1;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tgl_FragColor = sum;\r\n\r\n\t\t\t\t}"};
+	return { uniforms : { tDiffuse : { type : "t", value : null}, v : { type : "f", value : 0.005859375}, r : { type : "f", value : 0.5}, k : { type : "fv1", value : [1.0,4.0,6.0,4.0,1.0,4.0,16.0,24.0,16.0,4.0,6.0,24.0,36.0,24.0,6.0,4.0,16.0,24.0,16.0,4.0,1.0,4.0,6.0,4.0,1.0]}}, vertexShader : "\r\n\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\tvoid main() {\r\n\t\t\t\t\tvUv = uv;\r\n\t\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t\t\t}", fragmentShader : "\r\n\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\tuniform float v;\r\n\t\t\t\tuniform float r;\r\n\t\t\t\tuniform float k[25];\r\n\t\t\t\tvarying vec2 vUv;\r\n\r\n\t\t\t\tvoid main() {\r\n\r\n\t\t\t\t\tvec4 sum = vec4( 0.0 );\r\n\t\t\t\t\tfloat vv = v * abs( r - vUv.y );\r\n\t\t\t\t\t\r\n\t\t\t\t\tfor(float i=-2.0;i<=2.0;i++){\r\n\t\t\t\t\t\tfor(float j = -2.0; j <=2.0; j++) {\r\n\t\t\t\t\t\t\tsum += texture2D( tDiffuse, vec2( vUv.x + i * vv, vUv.y + j * vv ) ) / 25.0;\r\n\t\t\t\t\t\t\t//idx += 1;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tgl_FragColor = sum *0.997;\r\n\r\n\t\t\t\t}"};
 };
 effect.shaders.VignetteShader = function() {
 };
@@ -928,7 +969,7 @@ logo.LogoMaterialMaker.prototype = {
 logo.LogoParam = function() {
 };
 logo.LogoParam.getParam = function() {
-	return { frames : [{ filename : "シンボル 3 インスタンス 10000", frame : { x : 0, y : 0, w : 432, h : 60}, rotated : false, trimmed : true, spriteSourceSize : { x : 9, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10001", frame : { x : 0, y : 60, w : 406, h : 60}, rotated : false, trimmed : true, spriteSourceSize : { x : 9, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10002", frame : { x : 0, y : 120, w : 466, h : 54}, rotated : false, trimmed : true, spriteSourceSize : { x : 2, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10003", frame : { x : 0, y : 174, w : 450, h : 60}, rotated : false, trimmed : true, spriteSourceSize : { x : 2, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10004", frame : { x : 0, y : 234, w : 506, h : 56}, rotated : false, trimmed : true, spriteSourceSize : { x : 2, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10005", frame : { x : 0, y : 290, w : 335, h : 55}, rotated : false, trimmed : true, spriteSourceSize : { x : 2, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10006", frame : { x : 0, y : 345, w : 444, h : 56}, rotated : false, trimmed : true, spriteSourceSize : { x : 2, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}},{ filename : "シンボル 3 インスタンス 10007", frame : { x : 0, y : 401, w : 444, h : 54}, rotated : false, trimmed : true, spriteSourceSize : { x : 0, y : 0, w : 508, h : 60}, sourceSize : { w : 508, h : 60}}], meta : { app : "Adobe Animate", version : "15.1.1.13", image : "sheet1.png", format : "RGBA8888", size : { w : 512, h : 512}, scale : "1"}};
+	return { frames : [{ filename : "シンボル 3 インスタンス 10000", frame : { x : 0, y : 0, w : 341, h : 97}, rotated : false, trimmed : true, spriteSourceSize : { x : 0, y : 0, w : 439, h : 97}, sourceSize : { w : 439, h : 97}},{ filename : "シンボル 3 インスタンス 10001", frame : { x : 0, y : 97, w : 373, h : 65}, rotated : false, trimmed : true, spriteSourceSize : { x : 0, y : 21, w : 439, h : 97}, sourceSize : { w : 439, h : 97}},{ filename : "シンボル 3 インスタンス 10002", frame : { x : 0, y : 162, w : 432, h : 60}, rotated : false, trimmed : true, spriteSourceSize : { x : 7, y : 21, w : 439, h : 97}, sourceSize : { w : 439, h : 97}},{ filename : "シンボル 3 インスタンス 10003", frame : { x : 0, y : 222, w : 406, h : 60}, rotated : false, trimmed : true, spriteSourceSize : { x : 7, y : 21, w : 439, h : 97}, sourceSize : { w : 439, h : 97}},{ filename : "シンボル 3 インスタンス 10004", frame : { x : 0, y : 282, w : 311, h : 65}, rotated : false, trimmed : true, spriteSourceSize : { x : 0, y : 21, w : 439, h : 97}, sourceSize : { w : 439, h : 97}},{ filename : "シンボル 3 インスタンス 10005", frame : { x : 0, y : 347, w : 435, h : 65}, rotated : false, trimmed : true, spriteSourceSize : { x : 0, y : 21, w : 439, h : 97}, sourceSize : { w : 439, h : 97}}], meta : { app : "Adobe Animate", version : "15.1.1.13", image : "sheet1.png", format : "RGBA8888", size : { w : 512, h : 512}, scale : "1"}};
 };
 logo.Logos = function() {
 };
@@ -965,7 +1006,8 @@ logo.Logos.getTextureByName = function(s) {
 	}
 	return null;
 };
-logo.Logos.getTexture = function(idx) {
+logo.Logos.getTexture = function(idx,isRandom) {
+	if(isRandom) return logo.Logos._logos[Math.floor(Math.random() * logo.Logos._logos.length)];
 	return logo.Logos._logos[idx % logo.Logos._logos.length];
 };
 logo.Logos.getLength = function() {
@@ -1094,7 +1136,7 @@ typo.CamTarget = function() {
 	this._speed = 0;
 	this._count = new THREE.Vector3();
 	THREE.Mesh.call(this,new THREE.OctahedronGeometry(30),new THREE.MeshBasicMaterial({ wireframe : true, color : 16777215}));
-	this.visible = false;
+	this.visible = true;
 };
 typo.CamTarget.__super__ = THREE.Mesh;
 typo.CamTarget.prototype = $extend(THREE.Mesh.prototype,{
@@ -1203,7 +1245,9 @@ typo.Dot.prototype = $extend(THREE.Object3D.prototype,{
 		this.position.z = pos.z;
 	}
 	,changeMat: function(isWhite,idx) {
-		if(isWhite) this.plane.changeMat(true,idx); else this.plane.changeMat(false,idx);
+		var isRandom = false;
+		if(idx % 8 == 0) isRandom = true;
+		if(isWhite) this.plane.changeMat(true,idx,isRandom); else this.plane.changeMat(false,idx,isRandom);
 	}
 });
 typo.Dots = function() {
@@ -1573,8 +1617,9 @@ typo.TypoCanvasPlane.prototype = $extend(THREE.Object3D.prototype,{
 		this.add(this._plane2);
 		this.changeMat(false,0);
 	}
-	,changeMat: function(isWhite,idex) {
-		var data = logo.Logos.getTexture(idex);
+	,changeMat: function(isWhite,idex,isRandom) {
+		if(isRandom == null) isRandom = false;
+		var data = logo.Logos.getTexture(idex,isRandom = false);
 		this._spaceX = data.w * this._scale / this.SEG_X;
 		data.setWhite(isWhite);
 		this._plane.material = data.mate1;
@@ -2154,3 +2199,5 @@ typo.data.CutParams._params = [];
 typo.data.CutParams._count = -1;
 Main.main();
 })();
+
+//# sourceMappingURL=TypoCanvas.js.map

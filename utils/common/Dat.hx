@@ -156,66 +156,64 @@ class Dat
 				StageRef.fadeOut( _goURL4 );		
 				
 			case Dat.K5 :
-				StageRef.fadeOut( _goURL5 );	
+				StageRef.fadeOut( _goURL5 );
 				
 			case Dat.K6 :
-				StageRef.fadeOut( _goURL6 );	
+				StageRef.fadeOut( _goURL6 );
 				
 			case Dat.K7 :
-				StageRef.fadeOut( _goURL7 );		
+				StageRef.fadeOut( _goURL7 );
+
+			case Dat.K8 :
+				StageRef.fadeOut( _goURL8 );
 
 		}
+	
 		
 	}
+	
 	
 	//typofish
 	private static function _goURL1():Void {
-		
 		_goURL( "../../p04/bin/" );
-		
 	}
 	
-	//dot moji
+	//faces
 	private static function _goURL2():Void {
-		
-		_goURL( "../../p07/bin/" );
-		
+		_goURL( "../../p00/bin/" );
 	}	
 	
-	//emoji
+	//dottypo__
 	private static function _goURL3():Void {
-		
-		_goURL( "../../p02/bin/" );
+		_goURL( "../../p05/bin/" );
 	}
 	
-	//emoji fbo
+	//monatypo
 	private static function _goURL4():Void {
+		_goURL( "../../p08/bin/" );
+	}
+	
+	//emoji
+	private static function _goURL5():Void {
+		_goURL( "../../p02/bin/" );		
+	}
+	
+	//matchmv
+	private static function _goURL6():Void {
 		
 		_goURL( "../../p06/bin/" );
 		
-	}
-	
-	//faces
-	private static function _goURL5():Void {
-		
-		_goURL( "../../p05/bin/" );
-		
-	}
-	
-	//faces
-	private static function _goURL6():Void {
-		
-		_goURL( "../../p00/bin/" );
-		
-	}	
-	
-	//single
-	private static function _goURL7():Void {
-		
-		_goURL( "../../p01/bin/" );
-		
 	}	
 
+	//earth typo
+	private static function _goURL7():Void {
+		_goURL( "../../p07/bin/" );
+	}	
+
+	//single
+	private static function _goURL8():Void {
+		_goURL( "../../p01/bin/" );
+	}	
 	
 	
 	private static function _goURL(url:String):Void {

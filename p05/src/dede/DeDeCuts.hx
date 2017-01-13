@@ -54,7 +54,7 @@ class DeDeCuts
 			}else {
 				_cuts = [
 					new DeDeCutOneLine(),
-					new DeDeCutMultiLineY(),					
+					//new DeDeCutMultiLineY(),					
 					//new DeDeCut0(),
 					//new DeDeCutTwoLine(),
 					new DeDeCutMultiLine()

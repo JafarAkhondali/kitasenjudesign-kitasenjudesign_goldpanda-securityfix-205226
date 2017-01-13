@@ -33,7 +33,7 @@ class Chochins extends PrimitiveBase
 	override public function init(o:Dynamic):Void {
 		super.init(o);
 		_loader = new MyDAELoader();
-		_loader.load("dae/chochin.dae",_onLoad);
+		_loader.load("dae/apple.dae",_onLoad);
 		
 	}
 		
@@ -46,7 +46,7 @@ class Chochins extends PrimitiveBase
 		_cubes = [];
 		for(i in 0...12){
 			var cube:Mesh = new Mesh(geo, mm);	
-			cube.scale.set(2.5, 2.5, 2.5);
+			cube.scale.set(11.5, 11.5, 11.5);
 			add(cube);
 			cube.position.x = 800 * (Math.random() - 0.5);
 			cube.position.y = 800 * (Math.random() - 0.5);

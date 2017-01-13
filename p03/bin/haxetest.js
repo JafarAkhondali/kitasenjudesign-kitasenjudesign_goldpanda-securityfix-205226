@@ -111,52 +111,6 @@ Three.requestAnimationFrame = function(f) {
 Three.cancelAnimationFrame = function(f) {
 	window.cancelAnimationFrame(id);
 };
-var Tracer = function() {
-};
-Tracer.__name__ = true;
-Tracer.assert = function(condition,p1,p2,p3,p4,p5) {
-};
-Tracer.clear = function(p1,p2,p3,p4,p5) {
-};
-Tracer.count = function(p1,p2,p3,p4,p5) {
-};
-Tracer.debug = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dir = function(p1,p2,p3,p4,p5) {
-};
-Tracer.dirxml = function(p1,p2,p3,p4,p5) {
-};
-Tracer.error = function(p1,p2,p3,p4,p5) {
-};
-Tracer.group = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupCollapsed = function(p1,p2,p3,p4,p5) {
-};
-Tracer.groupEnd = function() {
-};
-Tracer.info = function(p1,p2,p3,p4,p5) {
-};
-Tracer.log = function(p1,p2,p3,p4,p5) {
-};
-Tracer.markTimeline = function(p1,p2,p3,p4,p5) {
-};
-Tracer.profile = function(title) {
-};
-Tracer.profileEnd = function(title) {
-};
-Tracer.time = function(title) {
-};
-Tracer.timeEnd = function(title,p1,p2,p3,p4,p5) {
-};
-Tracer.timeStamp = function(p1,p2,p3,p4,p5) {
-};
-Tracer.trace = function(p1,p2,p3,p4,p5) {
-};
-Tracer.warn = function(p1,p2,p3,p4,p5) {
-};
-Tracer.prototype = {
-	__class__: Tracer
-};
 var camera = {};
 camera.ExCamera = function(fov,aspect,near,far) {
 	this._flag = false;
@@ -411,7 +365,7 @@ common.Dat._goURL8 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
-	Tracer.log("goURL " + url);
+	console.log("goURL " + url);
 	window.location.href = url + window.location.hash;
 };
 common.Dat.show = function(isBorder) {
@@ -469,7 +423,7 @@ common.Key.prototype = $extend(THREE.EventDispatcher.prototype,{
 	}
 	,_onKeyDown: function(e) {
 		var n = Std.parseInt(e.keyCode);
-		Tracer.debug("_onkeydown " + n);
+		console.debug("_onkeydown " + n);
 		this._dispatch(n);
 	}
 	,_dispatch: function(n) {
@@ -520,10 +474,10 @@ common.QueryGetter.__name__ = true;
 common.QueryGetter.init = function() {
 	common.QueryGetter._map = new haxe.ds.StringMap();
 	var str = window.location.search;
-	if(str.indexOf("?") < 0) Tracer.log("query nashi"); else {
+	if(str.indexOf("?") < 0) console.log("query nashi"); else {
 		str = HxOverrides.substr(str,1,str.length - 1);
 		var list = str.split("&");
-		Tracer.log(list);
+		console.log(list);
 		var _g1 = 0;
 		var _g = list.length;
 		while(_g1 < _g) {
@@ -677,6 +631,7 @@ effect.PostProcessing2.prototype = {
 		this._copyPass = new THREE.ShaderPass(effect.shaders.CopyShader.getObject());
 		this._composer = new THREE.EffectComposer(renderer);
 		this._composer.addPass(this._renderPass);
+		this._backBuffer = this._composer.renderTarget1.clone();
 		this._displacePass = new effect.pass.DisplacementPass();
 		this._displacePass.enabled = true;
 		this._composer.addPass(this._displacePass);
@@ -691,11 +646,13 @@ effect.PostProcessing2.prototype = {
 		this._xLoopPass.setTexture(isColor,isDisplace);
 		this._displacePass.setTexture(isColor,isDisplace);
 	}
-	,update: function(audio) {
+	,update: function(audio,fbo) {
+		fbo.getParticles().getMaterial().setBg(this._backBuffer);
 		this._xLoopPass.update(audio);
-		this._displacePass.update(audio);
+		this._displacePass.update(audio,this._backBuffer);
 		this._composer.render();
 		this._plane.update(this._composer.renderTarget1,this._composer.renderTarget2);
+		this._renderer.render(this._copyPass.scene,this._copyPass.camera,this._backBuffer);
 	}
 	,resize: function(w,h) {
 		this._composer.setSize(w,h);
@@ -705,10 +662,21 @@ effect.PostProcessing2.prototype = {
 effect.pass = {};
 effect.pass.DisplacementPass = function() {
 	this._displaceIndex = 0;
-	this._fragment = "\r\n\t\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\t\tuniform sampler2D disTexture;\r\n\t\t\t\t\tuniform sampler2D colTexture;\r\n\t\t\t\t\tuniform float strengthX;\r\n\t\t\t\t\tuniform float strengthY;\r\n\t\t\t\t\tuniform float strengthZ;\t\t\t\t\t\r\n\t\t\t\t\tuniform float counter;\r\n\t\t\t\t\tuniform float isDisplace;\r\n\t\t\t\t\tuniform float isColor;\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec3 rgb2hsv(vec3 c)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tvec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);\r\n\t\t\t\t\t\tvec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));\r\n\t\t\t\t\t\tvec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));\r\n\r\n\t\t\t\t\t\tfloat d = q.x - min(q.w, q.y);\r\n\t\t\t\t\t\tfloat e = 1.0e-10;\r\n\t\t\t\t\t\treturn vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec3 hsv2rgb(vec3 c)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tvec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\r\n\t\t\t\t\t\tvec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);\r\n\t\t\t\t\t\treturn c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);\r\n\t\t\t\t\t}\t\t\t\t\t\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec4 getColor(vec4 texel) {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\tvec2 pp = vec2( 0.5, fract( texel.x + counter ) );\r\n\t\t\t\t\t\t\tif ( pp.y < 0.5) {\r\n\t\t\t\t\t\t\t\tpp.y = pp.y * 2.0;\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\tpp.y = (1.0 - (pp.y - 0.5) * 2.0);\t\t\t\t\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\tif ( texel.x == 0.0 ) {\r\n\t\t\t\t\t\t\t\tout1 = vec4(0.0, 0.0, 0.0, 1.0);\r\n\t\t\t\t\t\t\t}\t\t\r\n\t\t\t\t\t\t\treturn out1;\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//dispace\r\n\t\t\t\t\t\tvec4 texel = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tif(isDisplace == 1.0){\r\n\t\t\t\t\t\t\tvec4 col = texture2D( disTexture, vUv);\r\n\t\t\t\t\t\t\tfloat f1 = strengthX * sin(counter*0.17);// pow(counter, 2.0 + 3.0 * col.x);//sin(counter * 3.9) * 0.23;\r\n\t\t\t\t\t\t\tfloat f2 = strengthY * sin(counter*0.22);// pow(counter, 2.0 + 3.0 * col.x) * 0.001;// pow(counter, 2.0 + 3.0 * col.y);//cos(counter * 3.7) * 0.23;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tvec2 axis = vec2( \r\n\t\t\t\t\t\t\t\tvUv.x + (col.y-0.5)*f1, vUv.y + (col.z-0.5)*f2\r\n\t\t\t\t\t\t\t);\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tfloat shiftR = strengthX*0.01 + 1.0;\r\n\t\t\t\t\t\t\tfloat shiftG = strengthY*0.01 + 1.0;\r\n\t\t\t\t\t\t\tfloat shiftB = strengthZ*0.01 + 1.0;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tfloat rr = texture2D( tDiffuse, axis * shiftR ).x;\r\n\t\t\t\t\t\t\tfloat gg = texture2D( tDiffuse, axis * shiftG ).y;\r\n\t\t\t\t\t\t\tfloat bb = texture2D( tDiffuse, axis * shiftB ).z;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\ttexel.x = rr;\r\n\t\t\t\t\t\t\ttexel.y = gg;\r\n\t\t\t\t\t\t\ttexel.z = bb;\r\n\t\t\t\t\t\t\ttexel.w = 1.0;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\ttexel = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec4 texel = texture2D( colTexture, axis );\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec3 luma = vec3( 0.299, 0.587, 0.114 );\r\n\t\t\t\t\t\t//float v = dot( texel.xyz, luma );//akarusa\r\n\t\t\t\t\t\t//vec2 axis = vec2( 0.5,v );\t\t\t\t\t\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//position\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//x zurasu yatsu wo\r\n\t\t\t\t\t\tif( isColor == 1.0){\r\n\t\t\t\t\t\t\tout1 = getColor(texel);\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\tout1 = texel;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//out1 *= 0.999;\r\n\t\t\t\t\t\t/*\r\n\t\t\t\t\t\tif ( texel.x == 0.0 || mod( floor( texel.x * 1000.0 + counter ),2.0) == 0.0 ) {\r\n\t\t\t\t\t\t\ttexel.x = 0.0;\r\n\t\t\t\t\t\t\ttexel.y = 0.0;\r\n\t\t\t\t\t\t\ttexel.z = 0.0;\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\ttexel.x = out1.x;//1.0;\r\n\t\t\t\t\t\t\ttexel.y = out1.y;//1.0;\r\n\t\t\t\t\t\t\ttexel.z = out1.z;//1.0;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}*/\r\n\t\t\t\t\t\t/*\r\n\t\t\t\t\t\t\ttexel.x = out1.x;//1.0;\r\n\t\t\t\t\t\t\ttexel.y = out1.y;//1.0;\r\n\t\t\t\t\t\t\ttexel.z = out1.z;//1.0;\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t*/\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec3 col = rgb2hsv(out1.xyz);\r\n\t\t\t\t\t\t//col.x += 0.001;\r\n\t\t\t\t\t\t//out1.xyz = hsv2rgb(col);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tgl_FragColor = out1;\r\n\t\t\t\t\t\t//gl_FragColor =  out1;// texel;\r\n\t\t\t\t\t}\r\n\t";
+	this._fragment = "\r\n\t\t\t\t\tuniform sampler2D paper;\r\n\t\t\t\t\tuniform sampler2D tDiffuse;\r\n\t\t\t\t\tuniform sampler2D disTexture;\r\n\t\t\t\t\tuniform sampler2D colTexture;\r\n\t\t\t\t\tuniform sampler2D backBuffer;\r\n\t\t\t\t\tuniform float strengthX;\r\n\t\t\t\t\tuniform float strengthY;\r\n\t\t\t\t\tuniform float strengthZ;\t\r\n\t\t\t\t\tuniform float rx;\r\n\t\t\t\t\tuniform float ry;\r\n\t\t\t\t\t\r\n\t\t\t\t\tuniform float counter;\r\n\t\t\t\t\tuniform float isDisplace;\r\n\t\t\t\t\tuniform float isColor;\r\n\t\t\t\t\tvarying vec2 vUv;\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec3 rgb2hsv(vec3 c)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tvec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);\r\n\t\t\t\t\t\tvec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));\r\n\t\t\t\t\t\tvec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));\r\n\r\n\t\t\t\t\t\tfloat d = q.x - min(q.w, q.y);\r\n\t\t\t\t\t\tfloat e = 1.0e-10;\r\n\t\t\t\t\t\treturn vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec3 hsv2rgb(vec3 c)\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tvec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\r\n\t\t\t\t\t\tvec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);\r\n\t\t\t\t\t\treturn c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);\r\n\t\t\t\t\t}\t\t\t\t\t\r\n\t\t\t\t\t\r\n\t\t\t\t\tvec4 getColor(vec4 texel) {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\tvec2 pp = vec2( 0.5, fract( texel.x + counter ) );\r\n\t\t\t\t\t\t\tif ( pp.y < 0.5) {\r\n\t\t\t\t\t\t\t\tpp.y = pp.y * 2.0;\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\tpp.y = (1.0 - (pp.y - 0.5) * 2.0);\t\t\t\t\r\n\t\t\t\t\t\t\t\tout1 = texture2D( colTexture, pp );\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\tif ( texel.x == 0.0 ) {\r\n\t\t\t\t\t\t\t\tout1 = vec4(0.0, 0.0, 0.0, 1.0);\r\n\t\t\t\t\t\t\t}\t\t\r\n\t\t\t\t\t\t\treturn out1;\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\tvoid main() {\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//dispace\r\n\t\t\t\t\t\tvec4 texel = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tif(isDisplace == 1.0){\r\n\t\t\t\t\t\t\tvec4 col = texture2D( disTexture, vUv);\r\n\t\t\t\t\t\t\tfloat f1 = strengthX * sin(counter*rx);// pow(counter, 2.0 + 3.0 * col.x);//sin(counter * 3.9) * 0.23;\r\n\t\t\t\t\t\t\tfloat f2 = strengthY * sin(counter*ry);// pow(counter, 2.0 + 3.0 * col.x) * 0.001;// pow(counter, 2.0 + 3.0 * col.y);//cos(counter * 3.7) * 0.23;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tvec2 axis = vec2( \r\n\t\t\t\t\t\t\t\tvUv.x + (col.y-0.5)*f1, vUv.y + (col.z-0.5)*f2\r\n\t\t\t\t\t\t\t);\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tfloat shiftR = strengthX * 0.01 + 1.0;\r\n\t\t\t\t\t\t\tfloat shiftG = strengthY * 0.01 + 1.0;\r\n\t\t\t\t\t\t\tfloat shiftB = strengthZ * 0.01 + 1.0;\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\tvec4 pp = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\tfloat rr = texture2D( tDiffuse, axis * shiftR ).x;\r\n\t\t\t\t\t\t\t\tfloat gg = texture2D( tDiffuse, axis * shiftG ).y;\r\n\t\t\t\t\t\t\t\tfloat bb = texture2D( tDiffuse, axis * shiftB ).z;\r\n\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\t//float r2 = texture2D(backBuffer, axis * shiftR ).x;\r\n\t\t\t\t\t\t\t\t//float g2 = texture2D(backBuffer, axis * shiftG ).y;\r\n\t\t\t\t\t\t\t\t//float b2 = texture2D(backBuffer, axis * shiftB ).z;\r\n\t\t\t\t\t\t\t\t\r\n\t\t\t\t\tvec4 cc = texture2D( tDiffuse, vUv);\r\n\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\tif(length(cc)>0.5){\r\n\t\t\t\t\t\t\t\t\ttexel.x = rr - cc.x * 0.001;\r\n\t\t\t\t\t\t\t\t\ttexel.y = gg - cc.y * 0.001;\r\n\t\t\t\t\t\t\t\t\ttexel.z = bb - cc.z * 0.001;\r\n\t\t\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\t\ttexel.x = rr;\r\n\t\t\t\t\t\t\t\t\ttexel.y = gg;\r\n\t\t\t\t\t\t\t\t\ttexel.z = bb;\t\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t\ttexel.w = 1.0;\r\n\t\t\t\t\t\t\t\t\r\n\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\ttexel = texture2D( tDiffuse, vUv );\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec4 texel = texture2D( colTexture, axis );\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec3 luma = vec3( 0.299, 0.587, 0.114 );\r\n\t\t\t\t\t\t//float v = dot( texel.xyz, luma );//akarusa\r\n\t\t\t\t\t\t//vec2 axis = vec2( 0.5,v );\t\t\t\t\t\t\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//position\r\n\t\t\t\t\t\tvec4 out1 = vec4(0.0);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//x zurasu yatsu wo\r\n\t\t\t\t\t\tif( isColor == 1.0){\r\n\t\t\t\t\t\t\tout1 = getColor(texel);\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\tout1 = texel;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//out1 *= 0.999;\r\n\t\t\t\t\t\t/*\r\n\t\t\t\t\t\tif ( texel.x == 0.0 || mod( floor( texel.x * 1000.0 + counter ),2.0) == 0.0 ) {\r\n\t\t\t\t\t\t\ttexel.x = 0.0;\r\n\t\t\t\t\t\t\ttexel.y = 0.0;\r\n\t\t\t\t\t\t\ttexel.z = 0.0;\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}else {\r\n\t\t\t\t\t\t\ttexel.x = out1.x;//1.0;\r\n\t\t\t\t\t\t\ttexel.y = out1.y;//1.0;\r\n\t\t\t\t\t\t\ttexel.z = out1.z;//1.0;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t}*/\r\n\t\t\t\t\t\t/*\r\n\t\t\t\t\t\t\ttexel.x = out1.x;//1.0;\r\n\t\t\t\t\t\t\ttexel.y = out1.y;//1.0;\r\n\t\t\t\t\t\t\ttexel.z = out1.z;//1.0;\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t*/\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t//vec3 col = rgb2hsv(out1.xyz);\r\n\t\t\t\t\t\t//col.x += 0.001;\r\n\t\t\t\t\t\t//out1.xyz = hsv2rgb(col);\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\tgl_FragColor = out1;\r\n\t\t\t\t\t\t//gl_FragColor =  out1;// texel;\r\n\t\t\t\t\t}\r\n\t";
 	this._vertex = "\r\n\t\tvarying vec2 vUv;\r\n\t\tvoid main() {\r\n\t\t\tvUv = uv;\r\n\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t}\t\t\r\n\t";
+	this._paper = data.TexLoader.getTexture("../../assets/" + "displace/paper.jpg");
 	this._textures = [];
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/moji.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/boro.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/boro2.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/boro3.jpg"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/noise.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/noise1.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/noise2.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/noise3.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/mate2.png"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/tone.jpg"));
+	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/grid.jpg"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/guruguru.png"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displaceA.png"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displaceV.png"));
@@ -721,25 +689,28 @@ effect.pass.DisplacementPass = function() {
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace4.png"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "displace/displace5.png"));
 	this._textures.push(data.TexLoader.getTexture("../../assets/" + "grade/grade.png"));
-	this._textures.push(data.TexLoader.getTexture("../../assets/" + "grade/grade.png"));
 	this._colors = [THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade2.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade3.png"),THREE.ImageUtils.loadTexture("../../assets/" + "grade/grade4.png")];
-	THREE.ShaderPass.call(this,{ uniforms : { tDiffuse : { type : "t", value : null}, isDisplace : { type : "f", value : 1}, isColor : { type : "f", value : 1}, disTexture : { type : "t", value : this._textures[0]}, colTexture : { type : "t", value : this._colors[3]}, strengthX : { type : "f", value : 0}, strengthY : { type : "f", value : 0}, strengthZ : { type : "f", value : 0}, counter : { type : "f", value : 0}}, vertexShader : this._vertex, fragmentShader : this._fragment});
+	THREE.ShaderPass.call(this,{ uniforms : { tDiffuse : { type : "t", value : null}, backBuffer : { type : "t", value : null}, isDisplace : { type : "f", value : 1}, isColor : { type : "f", value : 1}, disTexture : { type : "t", value : this._textures[0]}, colTexture : { type : "t", value : this._colors[3]}, strengthX : { type : "f", value : 0}, strengthY : { type : "f", value : 0}, strengthZ : { type : "f", value : 0}, rx : { type : "f", value : 0}, ry : { type : "f", value : 0}, paper : { type : "t", value : this._paper}, counter : { type : "f", value : 0}}, vertexShader : this._vertex, fragmentShader : this._fragment});
 };
 effect.pass.DisplacementPass.__name__ = true;
 effect.pass.DisplacementPass.__super__ = THREE.ShaderPass;
 effect.pass.DisplacementPass.prototype = $extend(THREE.ShaderPass.prototype,{
-	update: function(audio) {
+	update: function(audio,back) {
 		if(!this.enabled) return;
 		this.uniforms.strengthX.value = 0.02 + Math.pow(audio.freqByteData[3] / 255,4) * 0.75;
 		this.uniforms.strengthY.value = 0.02 + Math.pow(audio.freqByteData[7] / 255,4) * 0.75;
 		this.uniforms.strengthZ.value = 0.02 + Math.pow(audio.freqByteData[5] / 255,4) * 0.75;
 		this.uniforms.counter.value += audio.freqByteData[3] / 255 * 0.8;
+		this.uniforms.backBuffer.value = back;
 	}
 	,setTexture: function(isColor,isDisplace) {
 		this._displaceIndex++;
 		if(isColor) this.uniforms.isColor.value = 1; else this.uniforms.isColor.value = 0;
 		if(isDisplace) this.uniforms.isDisplace.value = 1; else this.uniforms.isDisplace.value = 0;
-		this.uniforms.disTexture.value = this._textures[Math.floor(Math.random() * this._textures.length)];
+		var idx = Math.floor(Math.random() * this._textures.length);
+		this.uniforms.rx.value = 0.02 * (Math.random() - 0.5);
+		this.uniforms.ry.value = 0.02 * (Math.random() - 0.5);
+		this.uniforms.disTexture.value = this._textures[idx];
 		this.uniforms.colTexture.value = this._colors[this._displaceIndex % this._colors.length];
 	}
 	,__class__: effect.pass.DisplacementPass
@@ -856,7 +827,7 @@ fbo.Fbo.prototype = {
 		this._simuShaderMat = new fbo.SimulationShaderMat(ww,hh);
 		this._simScene = new THREE.Scene();
 		this._simCam = new THREE.OrthographicCamera(-1,1,1,-1,1 / Math.pow(2,53),1);
-		this._posRttA = new THREE.WebGLRenderTarget(this._width,this._height,{ minFilter : 1003, magFilter : 1003, format : 1020, type : 1015});
+		this._posRttA = new THREE.WebGLRenderTarget(this._width,this._height,{ minFilter : 1003, magFilter : 1003, format : 1021, type : 1015, generateMipmaps : false});
 		this._posRttB = this._posRttA.clone();
 		var simGeo = new THREE.BufferGeometry();
 		simGeo.addAttribute("position",new THREE.BufferAttribute(new Float32Array([-1,-1,0,1,-1,0,1,1,0,-1,-1,0,1,1,0,-1,1,0]),3));
@@ -903,9 +874,11 @@ fbo.Fbo.prototype = {
 	}
 	,next: function() {
 		var isRandom;
-		if(Math.random() < 0.5) isRandom = true; else isRandom = false;
+		if(Math.random() < 0.8) isRandom = true; else isRandom = false;
 		if(Math.random() < 0.5) this._line.visible = true; else this._line.visible = false;
-		this._particles.updateIconPos(Math.floor(Math.random() * 700),isRandom);
+		var num = Math.floor(Math.random() * 700);
+		if(Math.random() < 0.1) num = 3;
+		this._particles.updateIconPos(Math.floor(Math.random() * 700),num,isRandom);
 		this._simuShaderMat.next();
 	}
 	,update: function(audio,render) {
@@ -936,6 +909,7 @@ fbo.Fbo.prototype = {
 	,__class__: fbo.Fbo
 };
 fbo.FboMain = function() {
+	this._count = 0;
 	this._isPP = true;
 };
 fbo.FboMain.__name__ = true;
@@ -971,8 +945,7 @@ fbo.FboMain.prototype = {
 		this._particles = this._fbo.getParticles();
 		this._scene.add(this._particles);
 		this._line = this._fbo.getLine();
-		if(!common.Dat.bg) {
-		}
+		if(!common.Dat.bg) this._scene.add(this._line);
 		var mesh = new THREE.Mesh(new THREE.BoxGeometry(50,50,50,1,1,1),new THREE.MeshBasicMaterial({ color : 16711680, wireframe : true}));
 		window.onresize = $bind(this,this._onResize);
 		this._onResize(null);
@@ -992,9 +965,7 @@ fbo.FboMain.prototype = {
 		var n = Std.parseInt(e.keyCode);
 		switch(n) {
 		case 39:
-			if(Math.random() < 0.5) this._fbo.changeStartPos();
-			this.next();
-			this.reset();
+			this.changeNext();
 			break;
 		case 38:
 			this.setPP();
@@ -1009,6 +980,11 @@ fbo.FboMain.prototype = {
 			this.reset();
 			break;
 		}
+	}
+	,changeNext: function() {
+		if(Math.random() < 0.5) this._fbo.changeStartPos();
+		this.next();
+		this.reset();
 	}
 	,next: function() {
 		this._camera.amp = 300 + 700 * Math.random();
@@ -1031,7 +1007,11 @@ fbo.FboMain.prototype = {
 		if(this._fbo != null) this._fbo.update(this._audio,this._renderer);
 		this._camera.radX += Math.PI / 720;
 		this._camera.update();
-		if(this._isPP) this._pp.update(this._audio); else this._renderer.render(this._scene,this._camera);
+		if(this._isPP) this._pp.update(this._audio,this._fbo); else this._renderer.render(this._scene,this._camera);
+		if(this._audio.subFreqByteData[5] > 5 && this._count++ > 30) {
+			this.changeNext();
+			this._count = 0;
+		}
 		window.requestAnimationFrame($bind(this,this.update));
 	}
 	,_onResize: function(e) {
@@ -1095,19 +1075,17 @@ fbo.RenderParticle.prototype = $extend(THREE.Points.prototype,{
 		geometry.addAttribute("rand",new THREE.BufferAttribute(rand,1));
 		return geometry;
 	}
-	,updateIconPos: function(idx,isRandom) {
+	,updateIconPos: function(idx,num,isRandom) {
 		if(isRandom == null) isRandom = false;
-		if(!isRandom) {
-			if(Math.random() < 0.2) idx = 225;
-		}
 		var ary = this._particleGeo.attributes.aOffset.array;
+		var ox = Math.floor(num * Math.random());
 		var l = this._width * this._height;
 		var _g = 0;
 		while(_g < l) {
 			var i = _g++;
 			var i2 = i * 2;
 			var pos;
-			if(isRandom) pos = this._getIconPos(Math.floor(Math.random() * 700)); else pos = this._getIconPos(idx);
+			if(isRandom) pos = this._getIconPos(Math.floor(ox + Math.random() * num)); else pos = this._getIconPos(idx);
 			ary[i2] = pos.x;
 			ary[i2 + 1] = pos.y;
 		}
@@ -1129,10 +1107,10 @@ fbo.RenderParticle.prototype = $extend(THREE.Points.prototype,{
 	,__class__: fbo.RenderParticle
 });
 fbo.RenderShaderMat = function() {
-	this._fragment = "\r\nuniform sampler2D texture;\r\nvarying vec2 vUv;\r\nvarying vec2 vaOffset;\r\nuniform vec2 repeat;\r\nvoid main()\r\n{\r\n\t\t\tvec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);\r\n\t\t\tvec4 color0 = texture2D( texture, uv * repeat + vaOffset  );//\r\n\t\t\t//vec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);\r\n\t\t\t//vec4 color0 = texture2D( texture, gl_PointCoord );//\r\n\t\t\t\r\n\t\t\tif (color0.w < 0.5) {\r\n\t\t\t\tdiscard;\r\n\t\t\t}else{\r\n\t\t\t\tgl_FragColor = color0;// vec4(gl_PointCoord.x, 1.0 - gl_PointCoord.y, 0, 1.0);// color0;\r\n\t\t\t}\r\n}\r\n\t";
-	this._vertex = "\r\n//float texture containing the positions of each particle\r\nuniform sampler2D positions;\r\nuniform sampler2D texture;\r\nuniform vec2 nearFar;\r\nuniform float pointSize;\r\nvarying vec2 vUv;\r\nvarying float size;\r\n\r\nuniform float scale;\r\nattribute vec2 aOffset;\r\nattribute float rand;\r\nvarying vec2 vaOffset;\t  \r\n\r\nvoid main() {\r\n\r\n\t//positions画像のuv と vertexのposition が 対応するようになっている\r\n    //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices\r\n    vec3 pos = texture2D( positions, position.xy ).xyz;\r\n\t//vec3 pos = vec3(position.x * 100.0, position.y * 100.0, 40.0);\r\n\t\r\n\tvUv = uv;\r\n\r\n\tvaOffset = aOffset;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( pos /*+ rand * 10.0*/, 1.0 );\r\n\tgl_PointSize = 2.0 * scale / gl_Position.w;\t\r\n\t\r\n    //pos now contains the position of a point in space taht can be transformed\r\n    //gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\r\n    //size\r\n    //gl_PointSize = size = 3.0;// max( 1., ( step( 1. - ( 1. / 512. ), position.x ) ) * pointSize );\r\n}\t\r\n\t";
+	this._fragment = "\r\nuniform sampler2D texture;\r\nuniform sampler2D bg;\r\nuniform float counter;\r\nvarying vec2 vUv;\r\nvarying vec2 vaOffset;\r\nuniform vec2 repeat;\r\nvoid main()\r\n{\r\n\t\t\tvec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);\r\n\t\t\tvec4 color0 = texture2D( texture, uv * repeat + vaOffset  );//\r\n\t\t\tvec4 color1 = texture2D( bg, vUv );\r\n\t\t\t//vec2 uv = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y);\r\n\t\t\t//vec4 color0 = texture2D( texture, gl_PointCoord );//\r\n\t\t\t\r\n\t\t\tif (color0.w < 0.5) {\r\n\t\t\t\tdiscard;\r\n\t\t\t}else {\r\n\t\t\t\t//1 - ( ( 1 - BGColor ) * ( 1 - ObjectColor ) )\r\n\t\t\t\t\r\n\t\t\t\t/*\r\n\t\t\t\tif (length(color1) > length(color0)) {\r\n\t\t\t\t\tgl_FragColor = color1*0.9;\t\t\t\t\t\r\n\t\t\t\t}else {\r\n\t\t\t\t\tgl_FragColor = color0;\t\t\t\t\t\r\n\t\t\t\t}\r\n\t\t\t\t*/\r\n\t\t\t\tvec4 a = vec4(1.0);\r\n\t\t\t\r\n\t\t\t\ta = 1.0 - ( ( 1.0 - color1 ) * ( 1.0 - color0 ) );\r\n\t\t\t\t\r\n\t\t\t\t/*\r\n\t\t\t\tif (length(color1) >= 0.5)\r\n\t\t\t\t\ta = 1.0 - 2.0 * ( 1.0 - color1 ) * ( 1.0 - color0 );\r\n\t\t\t\telse \r\n\t\t\t\t\ta = 2.0 * color0 * color1;\t\t\t\t\r\n\t\t\t\t*/\r\n\t\t\t\t\t\r\n\t\t\t\tgl_FragColor = a * 0.2 + color0 * 0.8;\r\n\t\t\t\t\r\n\t\t\t\t/*\r\n\t\t\t\tif (length(color0) <= 0.5)\r\n\t\t\t\t\tgl_FragColor = color0;\r\n\t\t\t\telse \r\n\t\t\t\t\tgl_FragColor = vec4(color0.xyz - color1.xyz, 1.0);\r\n\t\t\t\t*/\r\n\t\t\t\t//gl_FragColor = vec4( 1.0 - color0.xyz, 1.0);\r\n\t\t\t\t\r\n\t\t\t\t\r\n\t\t\t\t//gl_FragColor = color0 - color1;// vec4(gl_PointCoord.x, 1.0 - gl_PointCoord.y, 0, 1.0);// color0;\r\n\t\t\t}\r\n}\r\n\t";
+	this._vertex = "\r\n//float texture containing the positions of each particle\r\nuniform sampler2D positions;\r\nuniform sampler2D texture;\r\nuniform sampler2D bg;\r\nuniform vec2 nearFar;\r\nuniform float pointSize;\r\nvarying vec2 vUv;\r\nvarying float size;\r\n\r\nuniform float scale;\r\nattribute vec2 aOffset;\r\nattribute float rand;\r\nvarying vec2 vaOffset;\t  \r\n\r\nvoid main() {\r\n\r\n\t//positions画像のuv と vertexのposition が 対応するようになっている\r\n    //the mesh is a nomrliazed square so the uvs = the xy positions of the vertices\r\n    vec4 col = texture2D( positions, position.xy );\r\n\tvec3 pos = col.xyz;\r\n\t//float a = col.w;\r\n\t//vec3 pos = vec3(position.x * 100.0, position.y * 100.0, 40.0);\r\n\t\r\n\tvUv = uv;\r\n\r\n\tvaOffset = aOffset;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\r\n\tgl_PointSize = 2.0 * scale / gl_Position.w;\t\r\n\t\r\n    //pos now contains the position of a point in space taht can be transformed\r\n    //gl_Position = projectionMatrix * modelViewMatrix * vec4( pos, 1.0 );\r\n    //size\r\n    //gl_PointSize = size = 3.0;// max( 1., ( step( 1. - ( 1. / 512. ), position.x ) ) * pointSize );\r\n}\t\r\n\t";
 	var tex = THREE.ImageUtils.loadTexture("../../assets/" + "emoji/emoji2048_64.png");
-	THREE.ShaderMaterial.call(this,{ uniforms : { positions : { type : "t", value : null}, pointSize : { type : "f", value : 40}, texture : { type : "t", value : tex}, scale : { type : "f", value : 3000.0}, repeat : { type : "v2", value : new THREE.Vector2(0.03125,0.03125)}}, vertexShader : this._vertex, fragmentShader : this._fragment, transparent : true, side : 2});
+	THREE.ShaderMaterial.call(this,{ uniforms : { bg : { type : "t", value : null}, positions : { type : "t", value : null}, pointSize : { type : "f", value : 40}, texture : { type : "t", value : tex}, scale : { type : "f", value : 3000.0}, repeat : { type : "v2", value : new THREE.Vector2(0.03125,0.03125)}, counter : { type : "f", value : 0}}, vertexShader : this._vertex, fragmentShader : this._fragment, transparent : true, side : 2});
 	this.depthTest = true;
 	this.transparent = true;
 	this.alphaTest = 0.5;
@@ -1140,7 +1118,14 @@ fbo.RenderShaderMat = function() {
 fbo.RenderShaderMat.__name__ = true;
 fbo.RenderShaderMat.__super__ = THREE.ShaderMaterial;
 fbo.RenderShaderMat.prototype = $extend(THREE.ShaderMaterial.prototype,{
-	__class__: fbo.RenderShaderMat
+	setBg: function(t) {
+		this.uniforms.bg.value = t;
+		var counter = this.uniforms.counter.value;
+		counter++;
+		counter = counter % 10;
+		this.uniforms.counter.value = counter;
+	}
+	,__class__: fbo.RenderShaderMat
 });
 fbo.SimulationShaderMat = function(ww,hh) {
 	this._isReset = false;
@@ -1148,14 +1133,15 @@ fbo.SimulationShaderMat = function(ww,hh) {
 	this._idx3 = 2;
 	this._idx2 = 1;
 	this._idx1 = 0;
-	this._fragment = "\r\n//\r\n// Description : Array and textureless GLSL 2D/3D/4D simplex \r\n//               noise functions.\r\n//      Author : Ian McEwan, Ashima Arts.\r\n//  Maintainer : ijm\r\n//     Lastmod : 20110822 (ijm)\r\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r\n//               Distributed under the MIT License. See LICENSE file.\r\n//               https://github.com/ashima/webgl-noise\r\n// \r\n\r\nvec3 mod289(vec3 x) {\r\n\treturn x - floor(x * (1.0 / 289.0)) * 289.0;\r\n}\r\n\r\nvec4 mod289(vec4 x) {\r\n\treturn x - floor(x * (1.0 / 289.0)) * 289.0;\r\n}\r\n\r\nvec4 permute(vec4 x) {\r\n\treturn mod289(((x*34.0)+1.0)*x);\r\n}\r\n\r\nvec4 taylorInvSqrt(vec4 r){\r\n\treturn 1.79284291400159 - 0.85373472095314 * r;\r\n}\r\n\r\nfloat snoise(vec3 v) { \r\n\r\n\tconst vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r\n\tconst vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r\n\r\n\t// First corner\r\n\tvec3 i  = floor(v + dot(v, C.yyy) );\r\n\tvec3 x0 =   v - i + dot(i, C.xxx) ;\r\n\r\n\t// Other corners\r\n\tvec3 g = step(x0.yzx, x0.xyz);\r\n\tvec3 l = 1.0 - g;\r\n\tvec3 i1 = min( g.xyz, l.zxy );\r\n\tvec3 i2 = max( g.xyz, l.zxy );\r\n\r\n\t//   x0 = x0 - 0.0 + 0.0 * C.xxx;\r\n\t//   x1 = x0 - i1  + 1.0 * C.xxx;\r\n\t//   x2 = x0 - i2  + 2.0 * C.xxx;\r\n\t//   x3 = x0 - 1.0 + 3.0 * C.xxx;\r\n\tvec3 x1 = x0 - i1 + C.xxx;\r\n\tvec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r\n\tvec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r\n\r\n\t// Permutations\r\n\ti = mod289(i); \r\n\tvec4 p = permute( permute( permute( \r\n\t\t  i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r\n\t\t+ i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r\n\t\t+ i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r\n\r\n\t// Gradients: 7x7 points over a square, mapped onto an octahedron.\r\n\t// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r\n\tfloat n_ = 0.142857142857; // 1.0/7.0\r\n\tvec3  ns = n_ * D.wyz - D.xzx;\r\n\r\n\tvec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r\n\r\n\tvec4 x_ = floor(j * ns.z);\r\n\tvec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r\n\r\n\tvec4 x = x_ *ns.x + ns.yyyy;\r\n\tvec4 y = y_ *ns.x + ns.yyyy;\r\n\tvec4 h = 1.0 - abs(x) - abs(y);\r\n\r\n\tvec4 b0 = vec4( x.xy, y.xy );\r\n\tvec4 b1 = vec4( x.zw, y.zw );\r\n\r\n\t//vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r\n\t//vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r\n\tvec4 s0 = floor(b0)*2.0 + 1.0;\r\n\tvec4 s1 = floor(b1)*2.0 + 1.0;\r\n\tvec4 sh = -step(h, vec4(0.0));\r\n\r\n\tvec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r\n\tvec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r\n\r\n\tvec3 p0 = vec3(a0.xy,h.x);\r\n\tvec3 p1 = vec3(a0.zw,h.y);\r\n\tvec3 p2 = vec3(a1.xy,h.z);\r\n\tvec3 p3 = vec3(a1.zw,h.w);\r\n\r\n\t//Normalise gradients\r\n\tvec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r\n\tp0 *= norm.x;\r\n\tp1 *= norm.y;\r\n\tp2 *= norm.z;\r\n\tp3 *= norm.w;\r\n\r\n\t// Mix final noise value\r\n\tvec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r\n\tm = m * m;\r\n\treturn 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );\r\n\r\n}\r\n\r\nvec3 snoiseVec3( vec3 x ){\r\n\r\n\tfloat s  = snoise(vec3( x ));\r\n\tfloat s1 = snoise(vec3( x.y - 19.1 , x.z + 33.4 , x.x + 47.2 ));\r\n\tfloat s2 = snoise(vec3( x.z + 74.2 , x.x - 124.5 , x.y + 99.4 ));\r\n\tvec3 c = vec3( s , s1 , s2 );\r\n\treturn c;\r\n\r\n}\r\n\r\nvec3 curlNoise( vec3 p ){\r\n \r\n\tconst float e = .1;\r\n\tvec3 dx = vec3( e   , 0.0 , 0.0 );\r\n\tvec3 dy = vec3( 0.0 , e   , 0.0 );\r\n\tvec3 dz = vec3( 0.0 , 0.0 , e   );\r\n\r\n\tvec3 p_x0 = snoiseVec3( p - dx );\r\n\tvec3 p_x1 = snoiseVec3( p + dx );\r\n\tvec3 p_y0 = snoiseVec3( p - dy );\r\n\tvec3 p_y1 = snoiseVec3( p + dy );\r\n\tvec3 p_z0 = snoiseVec3( p - dz );\r\n\tvec3 p_z1 = snoiseVec3( p + dz );\r\n\r\n\tfloat x = p_y1.z - p_y0.z - p_z1.y + p_z0.y;\r\n\tfloat y = p_z1.x - p_z0.x - p_x1.z + p_x0.z;\r\n\tfloat z = p_x1.y - p_x0.y - p_y1.x + p_y0.x;\r\n\r\n\tconst float divisor = 1.0 / ( 2.0 * e );\r\n\treturn normalize( vec3( x , y , z ) * divisor );\r\n\r\n}\r\n\r\nvec3 curlNoise2( vec3 p ) {\r\n\r\n\tconst float e = .1;\r\n\r\n\tvec3 xNoisePotentialDerivatives = snoiseVec3( p );\r\n\tvec3 yNoisePotentialDerivatives = snoiseVec3( p + e * vec3( 3., -3.,  1. ) );\r\n\tvec3 zNoisePotentialDerivatives = snoiseVec3( p + e * vec3( 2.,  4., -3. ) );\r\n\r\n\tvec3 noiseVelocity = vec3(\r\n\t\tzNoisePotentialDerivatives.y - yNoisePotentialDerivatives.z,\r\n\t\txNoisePotentialDerivatives.z - zNoisePotentialDerivatives.x,\r\n\t\tyNoisePotentialDerivatives.x - xNoisePotentialDerivatives.y\r\n\t);\r\n\r\n\treturn normalize( noiseVelocity );\r\n\r\n}\r\n\r\nvec4 snoiseD(vec3 v) { //returns vec4(value, dx, dy, dz)\r\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r\n  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r\n \r\n  vec3 i  = floor(v + dot(v, C.yyy) );\r\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\r\n \r\n  vec3 g = step(x0.yzx, x0.xyz);\r\n  vec3 l = 1.0 - g;\r\n  vec3 i1 = min( g.xyz, l.zxy );\r\n  vec3 i2 = max( g.xyz, l.zxy );\r\n \r\n  vec3 x1 = x0 - i1 + C.xxx;\r\n  vec3 x2 = x0 - i2 + C.yyy;\r\n  vec3 x3 = x0 - D.yyy;\r\n \r\n  i = mod289(i);\r\n  vec4 p = permute( permute( permute(\r\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\r\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r\n \r\n  float n_ = 0.142857142857; // 1.0/7.0\r\n  vec3  ns = n_ * D.wyz - D.xzx;\r\n \r\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);\r\n \r\n  vec4 x_ = floor(j * ns.z);\r\n  vec4 y_ = floor(j - 7.0 * x_ );\r\n \r\n  vec4 x = x_ *ns.x + ns.yyyy;\r\n  vec4 y = y_ *ns.x + ns.yyyy;\r\n  vec4 h = 1.0 - abs(x) - abs(y);\r\n \r\n  vec4 b0 = vec4( x.xy, y.xy );\r\n  vec4 b1 = vec4( x.zw, y.zw );\r\n \r\n  vec4 s0 = floor(b0)*2.0 + 1.0;\r\n  vec4 s1 = floor(b1)*2.0 + 1.0;\r\n  vec4 sh = -step(h, vec4(0.0));\r\n \r\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r\n  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r\n \r\n  vec3 p0 = vec3(a0.xy,h.x);\r\n  vec3 p1 = vec3(a0.zw,h.y);\r\n  vec3 p2 = vec3(a1.xy,h.z);\r\n  vec3 p3 = vec3(a1.zw,h.w);\r\n \r\n  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r\n  p0 *= norm.x;\r\n  p1 *= norm.y;\r\n  p2 *= norm.z;\r\n  p3 *= norm.w;\r\n \r\n  vec4 values = vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ); //value of contributions from each corner (extrapolate the gradient)\r\n \r\n  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0); //kernel function from each corner\r\n \r\n  vec4 m2 = m * m;\r\n  vec4 m3 = m * m * m;\r\n \r\n  vec4 temp = -6.0 * m2 * values;\r\n  float dx = temp[0] * x0.x + temp[1] * x1.x + temp[2] * x2.x + temp[3] * x3.x + m3[0] * p0.x + m3[1] * p1.x + m3[2] * p2.x + m3[3] * p3.x;\r\n  float dy = temp[0] * x0.y + temp[1] * x1.y + temp[2] * x2.y + temp[3] * x3.y + m3[0] * p0.y + m3[1] * p1.y + m3[2] * p2.y + m3[3] * p3.y;\r\n  float dz = temp[0] * x0.z + temp[1] * x1.z + temp[2] * x2.z + temp[3] * x3.z + m3[0] * p0.z + m3[1] * p1.z + m3[2] * p2.z + m3[3] * p3.z;\r\n \r\n  return vec4(dot(m3, values), dx, dy, dz) * 42.0;\r\n}\r\n\r\n\r\nvec3 curlNoise3 (vec3 p) {\r\n\r\n    vec3 xNoisePotentialDerivatives = snoiseD( p ).yzw; //yzw are the xyz derivatives\r\n    vec3 yNoisePotentialDerivatives = snoiseD(vec3( p.y - 19.1 , p.z + 33.4 , p.x + 47.2 )).zwy;\r\n    vec3 zNoisePotentialDerivatives = snoiseD(vec3( p.z + 74.2 , p.x - 124.5 , p.y + 99.4 )).wyz;\r\n    vec3 noiseVelocity = vec3(\r\n        zNoisePotentialDerivatives.y - yNoisePotentialDerivatives.z,\r\n        xNoisePotentialDerivatives.z - zNoisePotentialDerivatives.x,\r\n        yNoisePotentialDerivatives.x - xNoisePotentialDerivatives.y\r\n    );\r\n\t\r\n\tconst float e = .1;\r\n\tconst float divisor = 1.0 / ( 2.0 * e );\r\n\treturn normalize( noiseVelocity * divisor );\r\n\r\n}\r\n\t\r\n\t" + "\r\n\r\n\t\t// simulation\r\n\r\n\t\tvarying vec2 vUv;\r\n\t\tvarying float vLife;\r\n\t\tvarying vec3 vStarts;\r\n\t\tuniform sampler2D texture;\r\n\t\tuniform float timer;//timer = 0;\r\n\t\tuniform float frequency;\r\n\t\tuniform float amplitude;\r\n\t\tuniform float maxDistance;\r\n\t\tuniform float freqByteData[32];\r\n\t\tuniform float strength;\r\n\t\tuniform vec3 freqs;\r\n\t\tuniform vec3 start;\r\n\t\tuniform float resetFlag;\r\n\t\t\r\n\t\tvoid main() {\r\n\r\n\t\t\tvec2 uvv = vUv;\r\n\t\t\tuvv.y = 1.0 - uvv.y;\r\n\t\t\tvec4 pixel = texture2D( texture, uvv );//irowo hirou\r\n\t\t\tvec3 pos = pixel.xyz;\r\n\t\t\tfloat a = pixel.w;\r\n\t\t\t\r\n\t\t\t\r\n\t\t\tfloat rr = 0.2 * sin(timer * 0.1);\r\n\t\t\tvec3 vv = curlNoise(pos * rr);/////koko\r\n\t\t\tvv.x *= freqs.x / 255.0 * 5.0 * strength;\r\n\t\t\tvv.y *= freqs.y / 255.0 * 5.0 * strength;\r\n\t\t\tvv.z *= freqs.z / 255.0 * 5.0 * strength;\r\n\t\t\t\r\n\t\t\tpos = pos + vv;// * freqByteData[3] / 255.0 * 10.0;\r\n\t\t\t//pos = vec3(vUv.x*20.0+vv.x*10.0,vUv.y*20.0,0.0);\r\n\t\t\t\r\n\t\t\t//pos.y += hoge.y * 2.1;\r\n\t\t\t//pos.z += hoge.z * 2.1;\r\n\t\t\tfloat nn = fract( timer + vLife );\r\n\t\t\t\r\n\t\t\t//a = a - 0.01;\r\n\t\t\t\r\n\t\t\t//if ( a < 0.0 || resetFlag == 1.0 ) {\r\n\t\t\t\r\n\t\t\tif (length(pos) > 300.0 || resetFlag == 1.0) {\r\n\t\t\t\tfloat nn = fract(timer);\r\n\t\t\t\tpos = curlNoise( pos * nn ) * nn * 100.0;\r\n\t\t\t\t//pos = start + curlNoise( vec3(vLife * 10.0, vLife * 11.1, vLife * 13.3) ) * 10.0;// * 0.01;\r\n\t\t\t\ta = 1.0;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tgl_FragColor = vec4( pos, a );//pos wo hozon\r\n\r\n\t\t}\t\r\n\t";
+	this._fragment = "\r\n//\r\n// Description : Array and textureless GLSL 2D/3D/4D simplex \r\n//               noise functions.\r\n//      Author : Ian McEwan, Ashima Arts.\r\n//  Maintainer : ijm\r\n//     Lastmod : 20110822 (ijm)\r\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\r\n//               Distributed under the MIT License. See LICENSE file.\r\n//               https://github.com/ashima/webgl-noise\r\n// \r\n\r\nvec3 mod289(vec3 x) {\r\n\treturn x - floor(x * (1.0 / 289.0)) * 289.0;\r\n}\r\n\r\nvec4 mod289(vec4 x) {\r\n\treturn x - floor(x * (1.0 / 289.0)) * 289.0;\r\n}\r\n\r\nvec4 permute(vec4 x) {\r\n\treturn mod289(((x*34.0)+1.0)*x);\r\n}\r\n\r\nvec4 taylorInvSqrt(vec4 r){\r\n\treturn 1.79284291400159 - 0.85373472095314 * r;\r\n}\r\n\r\nfloat snoise(vec3 v) { \r\n\r\n\tconst vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r\n\tconst vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r\n\r\n\t// First corner\r\n\tvec3 i  = floor(v + dot(v, C.yyy) );\r\n\tvec3 x0 =   v - i + dot(i, C.xxx) ;\r\n\r\n\t// Other corners\r\n\tvec3 g = step(x0.yzx, x0.xyz);\r\n\tvec3 l = 1.0 - g;\r\n\tvec3 i1 = min( g.xyz, l.zxy );\r\n\tvec3 i2 = max( g.xyz, l.zxy );\r\n\r\n\t//   x0 = x0 - 0.0 + 0.0 * C.xxx;\r\n\t//   x1 = x0 - i1  + 1.0 * C.xxx;\r\n\t//   x2 = x0 - i2  + 2.0 * C.xxx;\r\n\t//   x3 = x0 - 1.0 + 3.0 * C.xxx;\r\n\tvec3 x1 = x0 - i1 + C.xxx;\r\n\tvec3 x2 = x0 - i2 + C.yyy; // 2.0*C.x = 1/3 = C.y\r\n\tvec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y\r\n\r\n\t// Permutations\r\n\ti = mod289(i); \r\n\tvec4 p = permute( permute( permute( \r\n\t\t  i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r\n\t\t+ i.y + vec4(0.0, i1.y, i2.y, 1.0 )) \r\n\t\t+ i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r\n\r\n\t// Gradients: 7x7 points over a square, mapped onto an octahedron.\r\n\t// The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)\r\n\tfloat n_ = 0.142857142857; // 1.0/7.0\r\n\tvec3  ns = n_ * D.wyz - D.xzx;\r\n\r\n\tvec4 j = p - 49.0 * floor(p * ns.z * ns.z);  //  mod(p,7*7)\r\n\r\n\tvec4 x_ = floor(j * ns.z);\r\n\tvec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)\r\n\r\n\tvec4 x = x_ *ns.x + ns.yyyy;\r\n\tvec4 y = y_ *ns.x + ns.yyyy;\r\n\tvec4 h = 1.0 - abs(x) - abs(y);\r\n\r\n\tvec4 b0 = vec4( x.xy, y.xy );\r\n\tvec4 b1 = vec4( x.zw, y.zw );\r\n\r\n\t//vec4 s0 = vec4(lessThan(b0,0.0))*2.0 - 1.0;\r\n\t//vec4 s1 = vec4(lessThan(b1,0.0))*2.0 - 1.0;\r\n\tvec4 s0 = floor(b0)*2.0 + 1.0;\r\n\tvec4 s1 = floor(b1)*2.0 + 1.0;\r\n\tvec4 sh = -step(h, vec4(0.0));\r\n\r\n\tvec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r\n\tvec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r\n\r\n\tvec3 p0 = vec3(a0.xy,h.x);\r\n\tvec3 p1 = vec3(a0.zw,h.y);\r\n\tvec3 p2 = vec3(a1.xy,h.z);\r\n\tvec3 p3 = vec3(a1.zw,h.w);\r\n\r\n\t//Normalise gradients\r\n\tvec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r\n\tp0 *= norm.x;\r\n\tp1 *= norm.y;\r\n\tp2 *= norm.z;\r\n\tp3 *= norm.w;\r\n\r\n\t// Mix final noise value\r\n\tvec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);\r\n\tm = m * m;\r\n\treturn 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );\r\n\r\n}\r\n\r\nvec3 snoiseVec3( vec3 x ){\r\n\r\n\tfloat s  = snoise(vec3( x ));\r\n\tfloat s1 = snoise(vec3( x.y - 19.1 , x.z + 33.4 , x.x + 47.2 ));\r\n\tfloat s2 = snoise(vec3( x.z + 74.2 , x.x - 124.5 , x.y + 99.4 ));\r\n\tvec3 c = vec3( s , s1 , s2 );\r\n\treturn c;\r\n\r\n}\r\n\r\nvec3 curlNoise( vec3 p ){\r\n \r\n\tconst float e = .1;\r\n\tvec3 dx = vec3( e   , 0.0 , 0.0 );\r\n\tvec3 dy = vec3( 0.0 , e   , 0.0 );\r\n\tvec3 dz = vec3( 0.0 , 0.0 , e   );\r\n\r\n\tvec3 p_x0 = snoiseVec3( p - dx );\r\n\tvec3 p_x1 = snoiseVec3( p + dx );\r\n\tvec3 p_y0 = snoiseVec3( p - dy );\r\n\tvec3 p_y1 = snoiseVec3( p + dy );\r\n\tvec3 p_z0 = snoiseVec3( p - dz );\r\n\tvec3 p_z1 = snoiseVec3( p + dz );\r\n\r\n\tfloat x = p_y1.z - p_y0.z - p_z1.y + p_z0.y;\r\n\tfloat y = p_z1.x - p_z0.x - p_x1.z + p_x0.z;\r\n\tfloat z = p_x1.y - p_x0.y - p_y1.x + p_y0.x;\r\n\r\n\tconst float divisor = 1.0 / ( 2.0 * e );\r\n\treturn normalize( vec3( x , y , z ) * divisor );\r\n\r\n}\r\n\r\nvec3 curlNoise2( vec3 p ) {\r\n\r\n\tconst float e = .1;\r\n\r\n\tvec3 xNoisePotentialDerivatives = snoiseVec3( p );\r\n\tvec3 yNoisePotentialDerivatives = snoiseVec3( p + e * vec3( 3., -3.,  1. ) );\r\n\tvec3 zNoisePotentialDerivatives = snoiseVec3( p + e * vec3( 2.,  4., -3. ) );\r\n\r\n\tvec3 noiseVelocity = vec3(\r\n\t\tzNoisePotentialDerivatives.y - yNoisePotentialDerivatives.z,\r\n\t\txNoisePotentialDerivatives.z - zNoisePotentialDerivatives.x,\r\n\t\tyNoisePotentialDerivatives.x - xNoisePotentialDerivatives.y\r\n\t);\r\n\r\n\treturn normalize( noiseVelocity );\r\n\r\n}\r\n\r\nvec4 snoiseD(vec3 v) { //returns vec4(value, dx, dy, dz)\r\n  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;\r\n  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);\r\n \r\n  vec3 i  = floor(v + dot(v, C.yyy) );\r\n  vec3 x0 =   v - i + dot(i, C.xxx) ;\r\n \r\n  vec3 g = step(x0.yzx, x0.xyz);\r\n  vec3 l = 1.0 - g;\r\n  vec3 i1 = min( g.xyz, l.zxy );\r\n  vec3 i2 = max( g.xyz, l.zxy );\r\n \r\n  vec3 x1 = x0 - i1 + C.xxx;\r\n  vec3 x2 = x0 - i2 + C.yyy;\r\n  vec3 x3 = x0 - D.yyy;\r\n \r\n  i = mod289(i);\r\n  vec4 p = permute( permute( permute(\r\n             i.z + vec4(0.0, i1.z, i2.z, 1.0 ))\r\n           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))\r\n           + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));\r\n \r\n  float n_ = 0.142857142857; // 1.0/7.0\r\n  vec3  ns = n_ * D.wyz - D.xzx;\r\n \r\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);\r\n \r\n  vec4 x_ = floor(j * ns.z);\r\n  vec4 y_ = floor(j - 7.0 * x_ );\r\n \r\n  vec4 x = x_ *ns.x + ns.yyyy;\r\n  vec4 y = y_ *ns.x + ns.yyyy;\r\n  vec4 h = 1.0 - abs(x) - abs(y);\r\n \r\n  vec4 b0 = vec4( x.xy, y.xy );\r\n  vec4 b1 = vec4( x.zw, y.zw );\r\n \r\n  vec4 s0 = floor(b0)*2.0 + 1.0;\r\n  vec4 s1 = floor(b1)*2.0 + 1.0;\r\n  vec4 sh = -step(h, vec4(0.0));\r\n \r\n  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;\r\n  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;\r\n \r\n  vec3 p0 = vec3(a0.xy,h.x);\r\n  vec3 p1 = vec3(a0.zw,h.y);\r\n  vec3 p2 = vec3(a1.xy,h.z);\r\n  vec3 p3 = vec3(a1.zw,h.w);\r\n \r\n  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\r\n  p0 *= norm.x;\r\n  p1 *= norm.y;\r\n  p2 *= norm.z;\r\n  p3 *= norm.w;\r\n \r\n  vec4 values = vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ); //value of contributions from each corner (extrapolate the gradient)\r\n \r\n  vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0); //kernel function from each corner\r\n \r\n  vec4 m2 = m * m;\r\n  vec4 m3 = m * m * m;\r\n \r\n  vec4 temp = -6.0 * m2 * values;\r\n  float dx = temp[0] * x0.x + temp[1] * x1.x + temp[2] * x2.x + temp[3] * x3.x + m3[0] * p0.x + m3[1] * p1.x + m3[2] * p2.x + m3[3] * p3.x;\r\n  float dy = temp[0] * x0.y + temp[1] * x1.y + temp[2] * x2.y + temp[3] * x3.y + m3[0] * p0.y + m3[1] * p1.y + m3[2] * p2.y + m3[3] * p3.y;\r\n  float dz = temp[0] * x0.z + temp[1] * x1.z + temp[2] * x2.z + temp[3] * x3.z + m3[0] * p0.z + m3[1] * p1.z + m3[2] * p2.z + m3[3] * p3.z;\r\n \r\n  return vec4(dot(m3, values), dx, dy, dz) * 42.0;\r\n}\r\n\r\n\r\nvec3 curlNoise3 (vec3 p) {\r\n\r\n    vec3 xNoisePotentialDerivatives = snoiseD( p ).yzw; //yzw are the xyz derivatives\r\n    vec3 yNoisePotentialDerivatives = snoiseD(vec3( p.y - 19.1 , p.z + 33.4 , p.x + 47.2 )).zwy;\r\n    vec3 zNoisePotentialDerivatives = snoiseD(vec3( p.z + 74.2 , p.x - 124.5 , p.y + 99.4 )).wyz;\r\n    vec3 noiseVelocity = vec3(\r\n        zNoisePotentialDerivatives.y - yNoisePotentialDerivatives.z,\r\n        xNoisePotentialDerivatives.z - zNoisePotentialDerivatives.x,\r\n        yNoisePotentialDerivatives.x - xNoisePotentialDerivatives.y\r\n    );\r\n\t\r\n\tconst float e = .1;\r\n\tconst float divisor = 1.0 / ( 2.0 * e );\r\n\treturn normalize( noiseVelocity * divisor );\r\n\r\n}\r\n\t\r\n\t" + "\r\n\r\n\t\t// simulation\r\n\r\n\t\tvarying vec2 vUv;\r\n\t\tvarying float vLife;\r\n\t\tvarying vec3 vStarts;\r\n\t\tuniform sampler2D texture;\r\n\t\tuniform float timer;//timer = 0;\r\n\t\tuniform float frequency;\r\n\t\tuniform float amplitude;\r\n\t\tuniform float maxDistance;\r\n\t\tuniform float freqByteData[32];\r\n\t\tuniform float strength;\r\n\t\tuniform vec3 freqs;\r\n\t\tuniform vec3 start;\r\n\t\tuniform float resetFlag;\r\n\t\t\r\n\t\tvoid main() {\r\n\r\n\t\t\tvec2 uvv = vUv;\r\n\t\t\tuvv.y = 1.0 - uvv.y;\r\n\t\t\tvec4 pixel = texture2D( texture, uvv );//irowo hirou\r\n\t\t\tvec3 pos = pixel.xyz;\r\n\t\t\tfloat aa = pixel.a;// fract( pixel.w + timer );\r\n\t\t\t\r\n\t\t\tfloat ss = 1.0;\r\n\t\t\tfloat rr = 0.6 * sin(timer * 0.1);\r\n\t\t\tvec3 vv = curlNoise(pos * rr);/////koko\r\n\t\t\tvv.x *= freqs.x / 255.0 * 8.0 * strength * ss;\r\n\t\t\tvv.y *= freqs.y / 255.0 * 8.0 * strength * ss;\r\n\t\t\tvv.z *= freqs.z / 255.0 * 8.0 * strength * ss;\r\n\t\t\t\r\n\t\t\tpos = pos + vv;// * freqByteData[3] / 255.0 * 10.0;\r\n\t\t\t//pos = vec3(vUv.x*20.0+vv.x*10.0,vUv.y*20.0,0.0);\r\n\t\t\t\r\n\t\t\t//pos.y += hoge.y * 2.1;\r\n\t\t\t//pos.z += hoge.z * 2.1;\r\n\t\t\t\r\n\t\t\t//if ( a < 0.0 || resetFlag == 1.0 ) {\r\n\t\t\t\r\n\t\t\t//if(aa<=0.1){\r\n\t\t\tif ( resetFlag == 1.0 ) {\r\n\t\t\t\t//aa = 100.0;\r\n\t\t\t\tpos =  curlNoise( pos * vec3(aa, aa, aa) * 1000.0 * sin(timer) ) * 20.0 * sin( -timer);\r\n\t\t\t\t//pos = start + curlNoise( vec3(vLife * 10.0, vLife * 11.1, vLife * 13.3) ) * 10.0;// * 0.01;\r\n\t\t\t\t//a = curlNoise( pos * pixel.w ).x;\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\tgl_FragColor = vec4( pos, aa );//pos wo hozon\r\n\r\n\t\t}\t\r\n\t";
 	this._vertex = "\r\n\t\tvarying vec2 vUv;\r\n\t\tvarying float vLife;\r\n\t\tvarying vec3 vStarts;\r\n\t\tattribute float life;\r\n\t\tattribute vec3 starts;\r\n\t\t//varying float fragDepth;\r\n\t\tvoid main() {\r\n\t\t\tvLife = life;\r\n\t\t\t\r\n\t\t\tvUv = vec2(uv.x, uv.y);\r\n\t\t\tvStarts = starts;\r\n\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\r\n\t\t}\t\r\n\t";
 	var width = ww;
 	var height = hh;
 	var data = this.getSphere(width * height,width,height,250);
-	var texture = new THREE.DataTexture(data,width,height,THREE.RGBFormat,THREE.FloatType,THREE.DEFAULT_MAPPING,THREE.RepeatWrapping,THREE.RepeatWrapping);
+	var texture = new THREE.DataTexture(data,width,height,THREE.RGBAFormat,THREE.FloatType,THREE.DEFAULT_MAPPING,THREE.RepeatWrapping,THREE.RepeatWrapping);
 	texture.needsUpdate = true;
 	THREE.ShaderMaterial.call(this,{ uniforms : { texture : { type : "t", value : texture}, timer : { type : "f", value : 0}, frequency : { type : "f", value : 0.01}, amplitude : { type : "f", value : 96}, maxDistance : { type : "f", value : 48}, freqByteData : { type : "fv1", value : sound.MyAudio.a.freqByteDataAry}, freqs : { type : "v3", value : new THREE.Vector3(0,1,2)}, start : { type : "v3", value : new THREE.Vector3(0,1,2)}, strength : { type : "f", value : 1}, resetFlag : { type : "f", value : 0}}, vertexShader : this._vertex, fragmentShader : this._fragment});
+	this.transparent = true;
 };
 fbo.SimulationShaderMat.__name__ = true;
 fbo.SimulationShaderMat.__super__ = THREE.ShaderMaterial;
@@ -1166,7 +1152,7 @@ fbo.SimulationShaderMat.prototype = $extend(THREE.ShaderMaterial.prototype,{
 		this._idx3 = Math.floor(12 * Math.random());
 	}
 	,update: function(a) {
-		this.uniforms.timer.value += 0.001;
+		this.uniforms.timer.value += 0.01;
 		this.uniforms.freqByteData.value = a.freqByteDataAry;
 		this.uniforms.freqs.value.x = a.freqByteDataAry[this._idx1];
 		this.uniforms.freqs.value.y = a.freqByteDataAry[this._idx2];
@@ -1183,7 +1169,7 @@ fbo.SimulationShaderMat.prototype = $extend(THREE.ShaderMaterial.prototype,{
 		} else this.uniforms.resetFlag.value = 0;
 	}
 	,getSphere: function(count,ww,hh,size) {
-		var len = count * 3;
+		var len = count * 4;
 		var data = new Float32Array(len);
 		var p = new THREE.Vector3();
 		var i = 0;
@@ -1194,7 +1180,8 @@ fbo.SimulationShaderMat.prototype = $extend(THREE.ShaderMaterial.prototype,{
 			data[i] = p.x;
 			data[i + 1] = p.y;
 			data[i + 2] = p.z;
-			i += 3;
+			data[i + 3] = Math.random();
+			i += 4;
 		}
 		return data;
 	}
@@ -1735,3 +1722,5 @@ three._WebGLRenderer.RenderPrecision_Impl_.mediump = "mediump";
 three._WebGLRenderer.RenderPrecision_Impl_.lowp = "lowp";
 Main.main();
 })();
+
+//# sourceMappingURL=haxetest.js.map

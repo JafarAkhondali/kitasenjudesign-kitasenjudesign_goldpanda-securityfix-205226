@@ -128,7 +128,9 @@ class OCamera extends OrthographicCamera
         var p:Vector3 = _camera.position;
         this.amp = Math.sqrt( p.x*p.x + p.y*p.y + p.z*p.z );
         this.radX = Math.atan2(p.x, p.z);
-        this.radY = Math.atan2(p.y, p.z);_updatePosition();
+        this.radY = Math.atan2(p.y, p.z);
+		_updatePosition();
+		
         if (this.radY > Math.PI / 2 * 0.9) this.radY =  Math.PI / 2 * 0.9;if (this.radY < -Math.PI / 2 * 0.9) this.radY = -Math.PI / 2 * 0.9;if(target!=null){	_camera.lookAt( target );//target
         }
     }

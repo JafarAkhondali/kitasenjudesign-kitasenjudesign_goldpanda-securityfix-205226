@@ -1,6 +1,7 @@
 package dede;
 import clock.DotDigit;
 import dede.cuts.DeDeParam;
+import js.Browser;
 import sound.MyAudio;
 import three.Mesh;
 import three.MeshBasicMaterial;
@@ -77,13 +78,16 @@ class DeDeLine extends Object3D
 		_data = data;
 		_textIndex = 0;
 		
+		//Browser.window.alert("yy = " + _data.offsetY);
+		
 		var ox:Float = -_width / 2 + data.startX;// _digits[0].position.x;
 		for (i in 0..._digits.length) {
 			
 			var t:String = _getNextText();//txt.substr(i % txt.length, 1);
 			//trace(i+" "+t);
 			var ww:Float = StrokeUtil.getWidth(t,data.font) * SPACE_R;
-			_digits[i].position.x = ox + ww/2;// - _width / 2;
+			_digits[i].position.x = ox + ww / 2;// - _width / 2;
+			_digits[i].position.y = _data.offsetY;
 			_digits[i].setStrokes(t, SCALE, _data.space, _data.font);//////////////////////////
 			_digits[i].reset();
 			if (isTypeRandom) {

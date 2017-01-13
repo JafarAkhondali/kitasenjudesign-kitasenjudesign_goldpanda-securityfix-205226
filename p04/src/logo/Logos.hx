@@ -93,7 +93,10 @@ class Logos {
 		return null;
 	}
 	
-	public static function getTexture(idx:Int):LogoData {
+	public static function getTexture(idx:Int, isRandom:Bool):LogoData {
+		if (isRandom) {
+			return _logos[Math.floor(Math.random() * _logos.length)];
+		}
 		return _logos[idx % _logos.length];
 	}
 	

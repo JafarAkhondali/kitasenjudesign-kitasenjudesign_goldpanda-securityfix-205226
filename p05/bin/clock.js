@@ -1010,27 +1010,33 @@ common.Dat._onKeyDown = function(e) {
 	case 55:
 		common.StageRef.fadeOut(common.Dat._goURL7);
 		break;
+	case 56:
+		common.StageRef.fadeOut(common.Dat._goURL8);
+		break;
 	}
 };
 common.Dat._goURL1 = function() {
 	common.Dat._goURL("../../p04/bin/");
 };
 common.Dat._goURL2 = function() {
-	common.Dat._goURL("../../p07/bin/");
-};
-common.Dat._goURL3 = function() {
-	common.Dat._goURL("../../p02/bin/");
-};
-common.Dat._goURL4 = function() {
-	common.Dat._goURL("../../p06/bin/");
-};
-common.Dat._goURL5 = function() {
-	common.Dat._goURL("../../p05/bin/");
-};
-common.Dat._goURL6 = function() {
 	common.Dat._goURL("../../p00/bin/");
 };
+common.Dat._goURL3 = function() {
+	common.Dat._goURL("../../p05/bin/");
+};
+common.Dat._goURL4 = function() {
+	common.Dat._goURL("../../p08/bin/");
+};
+common.Dat._goURL5 = function() {
+	common.Dat._goURL("../../p02/bin/");
+};
+common.Dat._goURL6 = function() {
+	common.Dat._goURL("../../p06/bin/");
+};
 common.Dat._goURL7 = function() {
+	common.Dat._goURL("../../p07/bin/");
+};
+common.Dat._goURL8 = function() {
 	common.Dat._goURL("../../p01/bin/");
 };
 common.Dat._goURL = function(url) {
@@ -1228,7 +1234,7 @@ dede.DeDeCuts = function() {
 dede.DeDeCuts.prototype = {
 	init: function(main) {
 		this._cutIndex = 0;
-		if(window.location.hash == "#vrdg") this._cuts = [new dede.cuts.DeDeCutVRDG()]; else this._cuts = [new dede.cuts.DeDeCutOneLine(),new dede.cuts.DeDeCutMultiLineY(),new dede.cuts.DeDeCutMultiLine()];
+		if(window.location.hash == "#vrdg") this._cuts = [new dede.cuts.DeDeCutVRDG()]; else this._cuts = [new dede.cuts.DeDeCutOneLine(),new dede.cuts.DeDeCutMultiLine()];
 		var _g1 = 0;
 		var _g = this._cuts.length;
 		while(_g1 < _g) {
@@ -1566,6 +1572,7 @@ dede.DeDeLine.prototype = $extend(THREE.Object3D.prototype,{
 			var t = this._getNextText();
 			var ww = typo.StrokeUtil.getWidth(t,data.font) * 1.3;
 			this._digits[i].position.x = ox + ww / 2;
+			this._digits[i].position.y = this._data.offsetY;
 			this._digits[i].setStrokes(t,0.65,this._data.space,this._data.font);
 			this._digits[i].reset();
 			if(isTypeRandom) type = Math.floor(Math.random() * 6);
@@ -2003,7 +2010,7 @@ dede.cuts.DeDeCutMultiLine.prototype = $extend(dede.cuts.DeDeCutBase.prototype,{
 	}
 	,_reposOne: function() {
 		this._lines.visible = true;
-		this._lines.setGeoMax(150,[true,false,false]);
+		this._lines.setGeoMax(150,[true,false,false,false]);
 		this._lines.reposition(1,150,0);
 		this._vrdg.visible = false;
 		this._vrdg.setGeoMax(1);
@@ -2011,11 +2018,11 @@ dede.cuts.DeDeCutMultiLine.prototype = $extend(dede.cuts.DeDeCutBase.prototype,{
 	}
 	,_reposTwo: function() {
 		this._lines.visible = true;
-		this._lines.setGeoMax(150,[true,true,false]);
-		this._lines.reposition(2,150,-65);
+		this._lines.setGeoMax(150,[true,true,false,false]);
+		this._lines.reposition(2,150,-75);
 		this._vrdg.visible = false;
 		this._vrdg.setGeoMax(1);
-		this._cam.setZoom(3.8);
+		this._cam.setZoom(3.6);
 	}
 	,_reposThree: function() {
 		this._lines.visible = true;
@@ -2153,7 +2160,7 @@ dede.cuts.DeDeCutOneLine.prototype = $extend(dede.cuts.DeDeCutBase.prototype,{
 		this._vrdg.setGeoMax(1);
 		this._cam.setZoom(6);
 		this.data = dede.cuts.DeDeParam.getParam();
-		this.data.txt = "DEDEMOUSE KTSNJDSGN ";
+		this.data.txt = "DEDEMOUSE @RINGOFES ";
 		this.data.font = 1;
 		this.data.speedX = -0.5;
 		this.data.spaceX = 20;
@@ -2245,6 +2252,7 @@ dede.cuts.DeDeCutVRDG.prototype = $extend(dede.cuts.DeDeCutBase.prototype,{
 	}
 });
 dede.cuts.DeDeParam = function() {
+	this.offsetY = 0;
 	this.sameType = 0;
 	this.speedX = -2;
 	this.isRandomStartSec = false;
@@ -2263,6 +2271,7 @@ dede.cuts.DeDeParam.getParam = function() {
 	data.txt = str.text;
 	data.font = str.font;
 	data.spaceX = str.spaceX;
+	data.offsetY = str.offsetY;
 	data.sameType = Math.floor(3 * Math.random());
 	if(Math.random() < 0.2) data.isRotate = true; else data.isRotate = false;
 	if(Math.random() < 0.5) data.isRandomStartSec = true; else data.isRandomStartSec = false;
@@ -2272,6 +2281,7 @@ dede.cuts.DeDeParam.getParam = function() {
 	return data;
 };
 dede.cuts.DeDeString = function(o) {
+	this.offsetY = 0;
 	this.type = -1;
 	this.spaceX = 0;
 	this.font = 0;
@@ -2279,6 +2289,7 @@ dede.cuts.DeDeString = function(o) {
 	this.text = o.text;
 	this.font = o.font;
 	this.spaceX = o.spaceX;
+	this.offsetY = o.offsetY;
 };
 dede.cuts.DeDeString.getData = function() {
 	var data = new dede.cuts.DeDeString(dede.cuts.DeDeString.texts[dede.cuts.DeDeString._count % dede.cuts.DeDeString.texts.length]);
@@ -3638,7 +3649,7 @@ dede.cuts.DeDeParam.SAME_ALL = 0;
 dede.cuts.DeDeParam.SAME_LINE = 1;
 dede.cuts.DeDeParam.SAME_DIFF = 2;
 dede.cuts.DeDeString._count = 0;
-dede.cuts.DeDeString.texts = [{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "RINGO", font : 1, spaceX : 40},{ text : "DEDEMOUSE", font : 1, spaceX : 40},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "DEDE", font : 1, spaceX : 40},{ text : "KITASENJUDESIGN", font : 1, spaceX : 40},{ text : "デデデデデ", font : 0, spaceX : 30},{ text : "TOKYODESIGNWEEK2016", font : 1, spaceX : 40}];
+dede.cuts.DeDeString.texts = [{ text : "デデデデデ", font : 0, spaceX : 30, offsetY : 20},{ text : "RINGO", font : 1, spaceX : 40, offsetY : 0},{ text : "DEDEMOUSE", font : 1, spaceX : 40, offsetY : 0},{ text : "デデデデデ", font : 0, spaceX : 30, offsetY : 20},{ text : "DEDE", font : 1, spaceX : 40, offsetY : 0},{ text : "KITASENJUDESIGN", font : 1, spaceX : 40, offsetY : 0},{ text : "デデデデデ", font : 0, spaceX : 30, offsetY : 20},{ text : "TOKYODESIGNWEEK2016", font : 1, spaceX : 40, offsetY : 0}];
 sound.MyAudio.FFTSIZE = 64;
 three._WebGLRenderer.RenderPrecision_Impl_.highp = "highp";
 three._WebGLRenderer.RenderPrecision_Impl_.mediump = "mediump";

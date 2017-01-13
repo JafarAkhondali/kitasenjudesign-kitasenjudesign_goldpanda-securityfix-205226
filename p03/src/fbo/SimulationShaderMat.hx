@@ -62,34 +62,32 @@ class SimulationShaderMat extends ShaderMaterial
 			uvv.y = 1.0 - uvv.y;
 			vec4 pixel = texture2D( texture, uvv );//irowo hirou
 			vec3 pos = pixel.xyz;
-			float a = pixel.w;
+			float aa = pixel.a;// fract( pixel.w + timer );
 			
-			
-			float rr = 0.2 * sin(timer * 0.1);
+			float ss = 1.0;
+			float rr = 0.6 * sin(timer * 0.1);
 			vec3 vv = curlNoise(pos * rr);/////koko
-			vv.x *= freqs.x / 255.0 * 5.0 * strength;
-			vv.y *= freqs.y / 255.0 * 5.0 * strength;
-			vv.z *= freqs.z / 255.0 * 5.0 * strength;
+			vv.x *= freqs.x / 255.0 * 8.0 * strength * ss;
+			vv.y *= freqs.y / 255.0 * 8.0 * strength * ss;
+			vv.z *= freqs.z / 255.0 * 8.0 * strength * ss;
 			
 			pos = pos + vv;// * freqByteData[3] / 255.0 * 10.0;
 			//pos = vec3(vUv.x*20.0+vv.x*10.0,vUv.y*20.0,0.0);
 			
 			//pos.y += hoge.y * 2.1;
 			//pos.z += hoge.z * 2.1;
-			float nn = fract( timer + vLife );
-			
-			//a = a - 0.01;
 			
 			//if ( a < 0.0 || resetFlag == 1.0 ) {
 			
-			if (length(pos) > 300.0 || resetFlag == 1.0) {
-				float nn = fract(timer);
-				pos = curlNoise( pos * nn ) * nn * 100.0;
+			//if(aa<=0.1){
+			if ( resetFlag == 1.0 ) {
+				//aa = 100.0;
+				pos =  curlNoise( pos * vec3(aa, aa, aa) * 1000.0 * sin(timer) ) * 20.0 * sin( -timer);
 				//pos = start + curlNoise( vec3(vLife * 10.0, vLife * 11.1, vLife * 13.3) ) * 10.0;// * 0.01;
-				a = 1.0;
+				//a = curlNoise( pos * pixel.w ).x;
 			}
 			
-			gl_FragColor = vec4( pos, a );//pos wo hozon
+			gl_FragColor = vec4( pos, aa );//pos wo hozon
 
 		}	
 	";
@@ -114,7 +112,7 @@ class SimulationShaderMat extends ShaderMaterial
 			data,
 			width,
 			height, 
-			untyped __js__("THREE.RGBFormat"), 
+			untyped __js__("THREE.RGBAFormat"), 
 			untyped __js__("THREE.FloatType"), 
 			untyped __js__("THREE.DEFAULT_MAPPING"), 
 			untyped __js__("THREE.RepeatWrapping"), 
@@ -139,7 +137,7 @@ class SimulationShaderMat extends ShaderMaterial
                 vertexShader: _vertex,
                 fragmentShader:  _fragment
         });		
-		
+		transparent=true;
 	}
 	
 	public function next():Void {
@@ -156,7 +154,7 @@ class SimulationShaderMat extends ShaderMaterial
 	 */
 	public function update(a:MyAudio):Void {
 		
-		uniforms.timer.value += 0.001;
+		uniforms.timer.value += 0.01;
 		uniforms.freqByteData.value = a.freqByteDataAry;
 		uniforms.freqs.value.x = a.freqByteDataAry[_idx1];
 		uniforms.freqs.value.y = a.freqByteDataAry[_idx2];
@@ -187,7 +185,7 @@ class SimulationShaderMat extends ShaderMaterial
 	 */
 	private function getSphere( count:Int, ww:Int, hh:Int, size:Float ):Float32Array{
 
-            var len:Int = count * 3;
+            var len:Int = count * 4;
             var data = new Float32Array( len );
             var p:Vector3 = new Vector3();
 			
@@ -198,7 +196,8 @@ class SimulationShaderMat extends ShaderMaterial
                 data[ i     ] = p.x;
                 data[ i + 1 ] = p.y;
                 data[ i + 2 ] = p.z;
-				i += 3;
+				data[ i + 3 ] = Math.random();
+				i += 4;
             }
             return data;
     }

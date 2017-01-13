@@ -25,7 +25,7 @@ class DeDeCutMultiLine  extends DeDeCutBase
 	private function _reposOne():Void {
 		
 		_lines.visible = true;
-		_lines.setGeoMax(150, [true, false, false]);
+		_lines.setGeoMax(150, [true, false, false, false]);
 		_lines.reposition(1, 150, 0);
 		//public function reposition(ynum:Int,spaceY:Float=150, oy:Float=-150):Void {
 
@@ -37,18 +37,18 @@ class DeDeCutMultiLine  extends DeDeCutBase
 		
 	}
 	
-	
+	//2
 	private function _reposTwo():Void {
 		
 		_lines.visible = true;
-		_lines.setGeoMax(150, [true, true, false]);
-		_lines.reposition(2,150,-75+10);
+		_lines.setGeoMax(150, [true, true, false, false]);
+		_lines.reposition(2,150,-75);
 		//_lines.setSpeedX( DeDeLine.SPEEDX1 );
 		
 		_vrdg.visible = false;
 		_vrdg.setGeoMax(1);
 		
-		_cam.setZoom(3.8);
+		_cam.setZoom(3.6);
 		
 		//next();		
 		

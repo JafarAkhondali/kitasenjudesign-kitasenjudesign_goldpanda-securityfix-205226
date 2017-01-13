@@ -1,6 +1,8 @@
 package effect;
+import effect.pass.DisplacementPass;
 import effect.shaders.CopyShader;
 import effect.shaders.Dhiza;
+import effect.shaders.DotScreenShader;
 import effect.shaders.LuminosityShader;
 import effect.shaders.MyTiltShiftShader;
 import effect.shaders.VignetteShader;
@@ -44,6 +46,9 @@ class PostProcessing2
 	private var _texture2:Texture;
 	
 	private var _callback:Void->Void;
+	private var _displace:DisplacementPass;
+	
+	private var _plane:BgPlane;
 	
 	public function new() 
 	{
@@ -63,14 +68,21 @@ class PostProcessing2
 		_scene = scene;
 		_camera = camera;
 		_renderer = renderer;
+		//renderer.autoClearColor = false;
+		
+		_plane = new BgPlane();
+		_scene.add(_plane);
 		
 		_renderPass = new RenderPass( scene, camera );
 		//_renderPass
 		_copyPass = new ShaderPass( CopyShader.getObject() );
 		
 		_composer = new EffectComposer( renderer );
-		_composer.addPass( _renderPass );
 		
+		//_composer.renderTarget1
+		//_composer.renderTarget2
+		
+	
 		tilt = new ShaderPass(MyTiltShiftShader.getObject());
 		vig = new ShaderPass( VignetteShader.getObject() );
 		
@@ -79,17 +91,32 @@ class PostProcessing2
 		_texture1 = Textures.getTexture();
 		_texture2 = Textures.getTexture();
 		
-		color = new ShaderPass(LuminosityShader.getObject(_texture1));
+		//_composer.addPass(tilt);
 		
+		color = new ShaderPass(LuminosityShader.getObject(_texture1));
+		//color.
+		//color.clear = true;
 		/*
 		tilt.clear = false;
 		vig.clear = false;
 		dhiza.clear = false;
 		*/
-		
+		/*
+		var dotPass:ShaderPass = new ShaderPass( DotScreenShader.getObject() );
+		dotPass.needsSwap = true;
+		_composer.addPass( dotPass );
+		*/
+		_displace = new DisplacementPass();
+		_displace.enabled = true;
+		_composer.addPass( _renderPass );
+		_composer.addPass(tilt);
 		_composer.addPass(color);
 		color.renderToScreen = true;
-		//_composer.addPass(tilt);
+		//_composer.addPass(_displace);
+		//_displace.renderToScreen = true;
+		
+		//
+		//color.renderToScreen = true;
 		//_composer.addPass(vig);
 		
 		//_composer.addPass(dhiza);
@@ -97,9 +124,9 @@ class PostProcessing2
 		
 		//color.renderToScreen = true;
 		
-		_copyPass.clear = true;
-		_copyPass.renderToScreen = true;
-	
+		//_copyPass.clear = true;
+		//_copyPass.renderToScreen = true;
+		
 		
 		if (_callback != null) {
 			_callback();
@@ -109,6 +136,7 @@ class PostProcessing2
 	public function changeTexture():Void {
 		_texture1 = Textures.getTexture();
 		_texture2 = Textures.getTexture();
+		_displace.setTexture(false, true);
 	}
 	
 	public function setting():Void {
@@ -123,22 +151,24 @@ class PostProcessing2
 	
 	public function render():Void {
 		
-		color.uniforms.texture.value = _texture1;
-		color.uniforms.texture2.value = _texture2;
-		
-		
+		color.uniforms.texture.value 	= _texture1;
+		color.uniforms.texture2.value 	= _texture2;
 		//_digital.uniforms.seed_x.value = Math.random();
-		
-	//	v.uniforms.offset.value = 1.0;// Math.random();
+		//v.uniforms.offset.value = 1.0;// Math.random();
 		//v.uniforms.darkness.value = 1.0;
 		
 		_composer.render();//render2
+		_plane.update(_composer.renderTarget1);
+		//_composer.swapBuffers();
 		
-		
+		update(MyAudio.a);
 	}
 	
 	public function update(audio:MyAudio) 
 	{
+		if(_displace!=null){
+			_displace.update(audio);
+		}
 		/*
 		tilt.uniforms.v.value = 2 / 512 + 1 / 512 * Math.sin(_rad);
 		_rad += Math.PI / 100;

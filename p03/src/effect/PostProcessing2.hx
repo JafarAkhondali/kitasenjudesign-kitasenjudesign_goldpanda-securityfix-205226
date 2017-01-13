@@ -3,6 +3,7 @@ import effect.BgPlane;
 import effect.pass.DisplacementPass;
 import effect.pass.XLoopPass;
 import effect.shaders.CopyShader;
+import fbo.Fbo;
 import sound.MyAudio;
 import three.PerspectiveCamera;
 import three.postprocessing.EffectComposer;
@@ -10,6 +11,7 @@ import three.postprocessing.RenderPass;
 import three.postprocessing.ShaderPass;
 import three.Scene;
 import three.WebGLRenderer;
+import three.WebGLRenderTarget;
 
 /**
  * ...
@@ -48,6 +50,8 @@ class PostProcessing2
 	private var strength:Float=0;
 	private var _plane:BgPlane;
 	
+	private var _backBuffer:WebGLRenderTarget;
+	
 	public function new() 
 	{
 		
@@ -74,6 +78,8 @@ class PostProcessing2
 		
 		_composer = new EffectComposer( renderer );
 		_composer.addPass( _renderPass );
+		
+		_backBuffer = _composer.renderTarget1.clone();
 		
 		_displacePass = new DisplacementPass();
 		_displacePass.enabled = true;
@@ -125,13 +131,18 @@ class PostProcessing2
 	}*/
 	
 	
-	public function update(audio:MyAudio) 
+	public function update(audio:MyAudio,fbo:Fbo) 
 	{
+		fbo.getParticles().getMaterial().setBg(_backBuffer);
+		
 		_xLoopPass.update(audio);
-		_displacePass.update(audio);
+		_displacePass.update(audio, _backBuffer);
 		
 		_composer.render();
+		//_renderer.render(
+		
 		_plane.update(_composer.renderTarget1, _composer.renderTarget2);
+		_renderer.render(_copyPass.scene, _copyPass.camera, _backBuffer);
 		
 		
 		/*

@@ -138,11 +138,17 @@ class Dot extends Object3D
 	
 	public function changeMat(isWhite:Bool,idx:Int):Void 
 	{
+		
+		var isRandom = false;
+		if (idx % 8 == 0) {
+			isRandom = true;
+		}
+		
 		//hoge0001
 		if (isWhite) {
-			plane.changeMat(true,idx);			
+			plane.changeMat(true,idx,isRandom);			
 		}else{
-			plane.changeMat(false,idx);
+			plane.changeMat(false,idx,isRandom);
 		}
 	}
 	

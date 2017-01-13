@@ -69,8 +69,9 @@ class Fbo
         _posRttA = new WebGLRenderTarget( _width,_height, {
             minFilter: Three.NearestFilter,//important as we want to sample square pixels
             magFilter: Three.NearestFilter,//
-            format: Three.RGBFormat,//could be RGBAFormat
-            type:Three.FloatType//important as we need precise coordinates (not ints)
+            format: Three.RGBAFormat,//could be RGBAFormat
+            type:Three.FloatType,//important as we need precise coordinates (not ints)
+			generateMipmaps: false
         });
         _posRttB = _posRttA.clone();//もう一個用意
 		
@@ -170,10 +171,15 @@ class Fbo
 	public function next():Void {
 		
 		
-		var isRandom:Bool = Math.random() < 0.5 ? true : false;
-		
+		var isRandom:Bool = Math.random() < 0.8 ? true : false;
 		_line.visible = Math.random() < 0.5 ? true : false;
-		_particles.updateIconPos( Math.floor( Math.random() * Emoji.NUM ), isRandom );
+		
+		var num:Int = Math.floor( Math.random() * Emoji.NUM );
+		if (Math.random() < 0.1) {
+			num = 3;
+		}		
+		
+		_particles.updateIconPos( Math.floor( Math.random() * Emoji.NUM ),num, isRandom );
 		_simuShaderMat.next();
 		
 	}
@@ -182,6 +188,8 @@ class Fbo
 	 * update
 	 */
 	public function update(audio:MyAudio, render:WebGLRenderer):Void {
+		
+		//_particles.getMaterial().setBg(bg);
 		
 		_simuShaderMat.update( audio );
 		//_particles.updateIconPos(32 * 11 + 3);
@@ -212,7 +220,7 @@ class Fbo
 		return _line;
 	}
 	
-	public function getParticles():Points
+	public function getParticles():RenderParticle
 	{
 		return _particles;
 	}

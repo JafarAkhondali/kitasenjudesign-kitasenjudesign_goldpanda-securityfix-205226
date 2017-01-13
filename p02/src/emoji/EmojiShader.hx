@@ -88,7 +88,7 @@ class EmojiShader
 		tex.magFilter = Three.NearestFilter;
 		
         uniforms = {
-			strength:	{ type: 'f', value: 100.0 },
+			strength:	{ type: 'f', value: 10.0 },
             seed:	{ type: 'f', value: 0.0 },
             counter:	{ type: 'f', value: 0 },
 			texture:	 { type: 't', value: tex },

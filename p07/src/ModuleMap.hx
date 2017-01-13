@@ -55,7 +55,7 @@ class ModuleMap
 		//tekitouni tsuika
 		_id = id;
 		_ww = ww;
-		_hh = hh;
+		_hh = hh + 20;
 		
 		_canvas1 = cast root.children(".canvas1").get(0);
 		_canvas2 = cast root.children(".canvas2").get(0);

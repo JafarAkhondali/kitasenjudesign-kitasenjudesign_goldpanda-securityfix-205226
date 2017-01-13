@@ -26,7 +26,7 @@ class ModuleMapMaker
 			j2, 
 			"#"+id,
 			ww,
-			hh+2
+			hh
 		);		
 		
 		return map1;

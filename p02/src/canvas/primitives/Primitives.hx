@@ -7,6 +7,7 @@ import canvas.primitives.Hachigatsu;
 import canvas.primitives.Ices;
 import canvas.primitives.Katori;
 import canvas.primitives.Katoris;
+import canvas.primitives.Knot;
 import canvas.primitives.Octa;
 import canvas.primitives.PrimitiveBase;
 import canvas.primitives.Two;
@@ -55,6 +56,7 @@ class Primitives extends Object3D
 	var _chochins:Chochins;
 	var _katoris:Katoris;
 	var _fireworks:VideoPlaneFire;
+	var _knot:Knot;
 	
 	public function new() 
 	{
@@ -103,8 +105,8 @@ class Primitives extends Object3D
 		_octa = new Octa();//tetra
 		_octa.init(null);
 		
-		//_knot = new Knot();
-		//_knot.init(null);
+		_knot = new Knot();
+		_knot.init(null);
 		
 		_mouse = new DeDeLogo();
 		_mouse.init({pixelType:EffectData.BLACK_TRUE,dynamicScale:false,isDepth:false});
@@ -154,14 +156,16 @@ class Primitives extends Object3D
 			_katoris,//
 			_two,
 			_ices,//
+			_mouse,			
 			_walker,
+			_knot,
 			_chochins,//
-			_sphere,
+			//_sphere,
 			_katori,
 			_fireworks,
 			_ice,
 			_mouse,
-			_spheres,//
+			//_spheres,//
 			_torus,
 			_octa,
 			//_logo

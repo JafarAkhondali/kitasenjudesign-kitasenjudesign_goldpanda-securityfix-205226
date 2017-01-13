@@ -35,6 +35,7 @@ class FboMain
 	private var _pp			:PostProcessing2;
 	private var _line		:Line;
 	private var _isPP		:Bool = true;
+	private var _count:Float = 0;
 	public static var dae:MyDAELoader;
 	
 	public function new() 
@@ -98,7 +99,6 @@ class FboMain
 		_pp = new PostProcessing2();
 		_pp.init(_scene, _camera, _renderer);
 		
-		
 		_fbo = new Fbo();
 		//var num:Int = 128;
 		var num:Int = 64;// 32;// 128;
@@ -109,7 +109,7 @@ class FboMain
 		_line = _fbo.getLine();
 		
 		if(!Dat.bg){
-			//_scene.add(_line);
+			_scene.add(_line);
 		}
 		
 		//_scene.add(_fbo.getMesh());
@@ -149,11 +149,7 @@ class FboMain
 		var n:Int = Std.parseInt(e.keyCode);
 		switch(n) {
 			case Dat.RIGHT:
-				if(Math.random()<0.5){
-					_fbo.changeStartPos();
-				}
-				next();
-				reset();
+				changeNext();
 				
 			case Dat.UP:
 				setPP();//random effect
@@ -171,6 +167,16 @@ class FboMain
 		
 	}
 	
+	
+	private function changeNext():Void {
+		
+		if(Math.random()<0.5){
+			_fbo.changeStartPos();
+		}
+		next();
+		reset();		
+		
+	}
 	
 	public function next():Void {
 		
@@ -219,16 +225,22 @@ class FboMain
 		}		
 		
 		if (_fbo != null) {
-			_fbo.update(_audio,_renderer);
+			_fbo.update(_audio, _renderer);
 		}
 		
 		_camera.radX += Math.PI / 720;// 180;
 		_camera.update();
 		
 		if (_isPP) {
-			_pp.update(_audio);
+			_pp.update(_audio,_fbo);
 		}else {
 			_renderer.render(_scene, _camera);
+		}
+		
+		
+		if (_audio.subFreqByteData[5] > 5 && _count++>30) {
+			changeNext();
+			_count = 0;
 		}
 		
 		Three.requestAnimationFrame( untyped update);		
